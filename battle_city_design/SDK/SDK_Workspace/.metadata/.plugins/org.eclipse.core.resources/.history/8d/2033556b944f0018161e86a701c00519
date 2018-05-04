@@ -35,7 +35,6 @@
 #define BTN_RIGHT( b )                  ( !( b & 0x08 ) )
 #define BTN_SHOOT( b )                  ( !( b & 0x04 ) )
 
-// character dmensions (hight and lenght)
 #define TANK1_REG_L                     8
 #define TANK1_REG_H                     9
 #define TANK_AI_REG_L                   4
@@ -237,14 +236,13 @@ static bool_t mario_move(unsigned char * map, characters * mario,
 	y = mario->y;
 
 	if (dir == DIR_LEFT) {
-		//if (x > MAP_X * 16) {
+		if (x > MAP_X * 16) {
 			x--;
-		//}
+		}
 	} else if (dir == DIR_RIGHT) {
 		x++;
 	} else if (dir == DIR_UP) {
-		y--; //added
-		/*if (y > MAP_Y * 16) {
+		if (y > MAP_Y * 16) {
 			for (i = 0; i < 30; i++) {
 				y--;
 				brojac++;
@@ -261,11 +259,9 @@ static bool_t mario_move(unsigned char * map, characters * mario,
 		while (brojac != 0) {
 			y++;
 			brojac--;
-		}*/
-	} else if (dir == DIR_DOWN) {
-		y++; //added
+		}
 	}
-	/*if (start_jump == 1) {
+	if (start_jump == 1) {
 		if (y > MAP_Y * 16) {
 			for (i = 0; i < 30; i++) {
 				y--;
@@ -284,7 +280,7 @@ static bool_t mario_move(unsigned char * map, characters * mario,
 				}
 			}
 		}
-	}*/
+	}
 	while (brojac != 0) {
 		y++;
 		brojac--;
@@ -466,19 +462,14 @@ void battle_city() {
 			d = DIR_LEFT;
 		} else if (BTN_RIGHT(buttons)) {
 			d = DIR_RIGHT;
-		} else if (BTN_UP(buttons)) {
-			d = DIR_UP;
-		} else if (BTN_DOWN(buttons)) {
-			d = DIR_DOWN;
 		}
 
 		int start_jump = 0;
-		if (BTN_UP (buttons)/* && (BTN_LEFT(buttons) || BTN_RIGHT(buttons))*/) {
-			//start_jump = 1;
-			d = DIR_UP;
+		if (BTN_UP (buttons) && (BTN_LEFT(buttons) || BTN_RIGHT(buttons))) {
+			start_jump = 1;
 		}
-		if (BTN_DOWN (buttons) /*&& !BTN_LEFT(buttons) && !BTN_RIGHT(buttons)*/) {
-			d = DIR_DOWN;
+		if (BTN_UP (buttons) && !BTN_LEFT(buttons) && !BTN_RIGHT(buttons)) {
+			d = DIR_UP;
 		}
 		mario_move(map1, &mario, d, start_jump);
 

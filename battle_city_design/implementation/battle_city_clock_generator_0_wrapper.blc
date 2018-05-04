@@ -7,8 +7,8 @@ battle_city_clock_generator_0_wrapper.ngc
 ../battle_city_clock_generator_0_wrapper
 
 Reading NGO file
-"C:/ra127-2014/lprs2/super_mario/battle_city_design/implementation/clock_generat
-or_0_wrapper/battle_city_clock_generator_0_wrapper.ngc" ...
+"D:/RA162-2015/LPRS2-Zelda/battle_city_design/implementation/clock_generator_0_w
+rapper/battle_city_clock_generator_0_wrapper.ngc" ...
 
 Partition Implementation Status
 -------------------------------
@@ -21,7 +21,7 @@ NGCBUILD Design Results Summary:
   Number of errors:     0
   Number of warnings:   0
 
-Total memory usage is 159516 kilobytes
+Total memory usage is 159968 kilobytes
 
 Writing NGC file "../battle_city_clock_generator_0_wrapper.ngc" ...
 Total REAL time to NGCBUILD completion:  1 sec

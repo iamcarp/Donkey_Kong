@@ -1,7 +1,7 @@
-INFILE=C:\ra127-2014\lprs2\super_mario\battle_city_design\implementation\battle_city.ncd
-OUTFILE=C:\ra127-2014\lprs2\super_mario\battle_city_design\implementation\battle_city.bit
+INFILE=D:\RA162-2015\LPRS2-Zelda\battle_city_design\implementation\battle_city.ncd
+OUTFILE=D:\RA162-2015\LPRS2-Zelda\battle_city_design\implementation\battle_city.bit
 FAMILY=Spartan6
 PART=xc6slx45-2fgg676
-WORKINGDIR=C:\ra127-2014\lprs2\super_mario\battle_city_design\implementation
+WORKINGDIR=D:\RA162-2015\LPRS2-Zelda\battle_city_design\implementation
 LICENSE=ISE
 USER_INFO=209858334_178080923_210593072_268
