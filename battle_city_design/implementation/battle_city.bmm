@@ -1,4 +1,4 @@
-// File: D:\RA162-2015\LPRS2-Zelda\battle_city_design\implementation\battle_city.bmm
+// File: D:\ra41-2015\lprs\projekat\LPRS2-Zelda\battle_city_design\implementation\battle_city.bmm
 
 ADDRESS_MAP microblaze_0 MICROBLAZE-LE 100
 	ADDRESS_SPACE microblaze_0_bram_block_combined COMBINED [0x00000000:0x0000ffff]
