@@ -11,15 +11,13 @@
  */
 
 // ***** 16x16 IMAGES *****
-#define IMG_16x16_cigle			0x00FF //2
-#define IMG_16x16_coin			0x013F //5
-#define IMG_16x16_crno			0x017F //0
-#define IMG_16x16_enemi1		0x01BF //4
-#define IMG_16x16_mario			0x01FF //1
-#define IMG_16x16_plavacigla	0x023F //3
-// ***** MAP *****
+#define SPRITES[53] = {00FF, 013F, 017F, 01BF, 01FF, 023F, 027F, 02BF, 02FF,033F, 037F, 03BF, 03FF, 043F, 047F, 04BF, 04FF, 053F, 057F, 05BF, 05FF, 063F, 067F, 06BF, 06FF, 073F, 077F, 07BF, 07FF, 083F, 087F, 08BF, 08FF, 093F, 097F, 09BF, 09FF, 0A3F, 0A7F, 0ABF, 0AFF, 0B3F, 0B7F, 0BBF, 0BFF, 0C3F, 0C7F, 0CBF, 0CFF, 0D3F, 0D7F, 0DBF, 0DFF, 0E3F}
 
-#define MAP_BASE_ADDRESS			639 // MAP_OFFSET in battle_city.vhd
+// ***** MAP *****
+#define MAP_BASE_ADDRESS			3711 // MAP_OFFSET in battle_city.vhd
+
+/*		info above this line are correct		*/
+
 #define MAP_X							0
 #define MAP_X2							640
 #define MAP_Y							4
@@ -35,7 +33,6 @@
 #define BTN_RIGHT( b )                  ( !( b & 0x08 ) )
 #define BTN_SHOOT( b )                  ( !( b & 0x04 ) )
 
-// character dmensions (hight and lenght)
 #define TANK1_REG_L                     8
 #define TANK1_REG_H                     9
 #define TANK_AI_REG_L                   4
@@ -176,33 +173,11 @@ static void map_update(characters * mario) {
 		for (x = 0; x < MAP_WIDTH; x++) {
 			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR
 					+ 4 * (MAP_BASE_ADDRESS + y * MAP_WIDTH + x);
-			switch (map1[y][x + map_move]) {
-			case 0:
-				Xil_Out32(addr, IMG_16x16_crno);
-				break;
-			case 1:
-				Xil_Out32(addr, IMG_16x16_mario);
-				break;
-			case 2:
-				Xil_Out32(addr, IMG_16x16_cigle);
-				break;
-			case 3:
-				Xil_Out32(addr, IMG_16x16_plavacigla);
-				break;
-			case 4:
-				Xil_Out32(addr, IMG_16x16_enemi1);
-				break;
-			case 5:
-				Xil_Out32(addr, IMG_16x16_coin);
-				break;
-			default:
-				Xil_Out32(addr, IMG_16x16_crno);
-				break;
-			}
+			Xil_Out32(addr, map[y][x].ptr);
 		}
 	}
 }
-
+// currently, this function is cleaning the registers used for movind characters sprites; two registers are used for each sprite
 static void map_reset(unsigned char * map) {
 
 	unsigned int i;
@@ -212,7 +187,6 @@ static void map_reset(unsigned char * map) {
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + i ),
 				(unsigned int )0x0F000000);
 	}
-
 }
 
 static bool_t mario_move(unsigned char * map, characters * mario,
