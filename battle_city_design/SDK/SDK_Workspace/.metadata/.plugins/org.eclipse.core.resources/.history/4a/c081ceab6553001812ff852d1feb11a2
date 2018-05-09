@@ -11,7 +11,7 @@
  */
 
 // ***** 16x16 IMAGES *****
-//#define SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F }
+#define SPRITES[53] = {0x000000FF, 0x0000013F, 0x0000017F, 0x000001BF, 0x000001FF, 0x0000023F, 0x0000027F, 0x000002BF, 0x000002FF, 0x0000033F, 0x0000037F, 0x000003BF, 0x000003FF, 0x0000043F, 0x0000047F, 0x000004BF, 0x000004FF, 0x0000053F, 0x0000057F, 0x000005BF, 0x000005FF, 0x0000063F, 0x0000067F, 0x000006BF, 0x000006FF, 0x0000073F, 0x0000077F, 0x000007BF, 0x000007FF, 0x0000083F, 0x0000087F, 0x000008BF, 0x000008FF, 0x0000093F, 0x0000097F, 0x000009BF, 0x000009FF, 0x00000A3F, 0x00000A7F, 0x00000ABF, 0x00000AFF, 0x00000B3F, 0x00000B7F, 0x00000BBF, 0x00000BFF, 0x00000C3F, 0x00000C7F, 0x00000CBF, 0x00000CFF, 0x00000D3F, 0x00000D7F, 0x00000DBF, 0x00000DFF, 0x00000E3F }
 
 /*		SCREEN HEADER		*/
 #define HEADER_BASE_ADDRESS			7920
@@ -21,7 +21,7 @@
 #define MAP_BASE_ADDRESS			8000 // MAP_OFFSET in battle_city.vhd
 
 /*		info above this line are correct		*/
-#define IMG_16x16_mario					0x00FF
+
 #define MAP_X							0
 #define MAP_X2							640
 #define MAP_Y							4
@@ -64,10 +64,6 @@ int map_move = 0;
 int brojac = 0;
 int udario_u_blok = 0;
 
-// ***** 16x16 IMAGES *****
-unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
-
-
 typedef enum {
 	b_false, b_true
 } bool_t;
@@ -91,7 +87,7 @@ typedef struct {
 characters mario = { 10,	                        // x
 		431, 		                     // y
 		DIR_RIGHT,              		// dir
-		IMG_16x16_mario,  			// type
+		SPRITES[0],  			// type
 
 		b_false,                		// destroyed
 
@@ -179,30 +175,15 @@ static void map_update(characters * mario) {
 
 	for (y = 0; y < MAP_HEIGHT; y++) {
 		for (x = 0; x < MAP_WIDTH; x++) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MAP_BASE_ADDRESS + y * MAP_WIDTH + x);
-			Xil_Out32(addr, SPRITES[2]/*map1[y*MAP_WIDTH + x].ptr*/);
-			if ((y*MAP_WIDTH + x)%40 == 2 || (y*MAP_WIDTH + x)%40 == 4 || (y*MAP_WIDTH + x)%40 == 6 || ((y*MAP_WIDTH + x)%40 == 3 & x == 3 & y < 10 & y > 2)) {
-				Xil_Out32(addr, SPRITES[7]/*map1[y*MAP_WIDTH + x].ptr*/);
-			}
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR
+					+ 4 * (MAP_BASE_ADDRESS + y * MAP_WIDTH + x);
+			Xil_Out32(addr, map[y][x].ptr);
 		}
 	}
 }
 // currently, this function is cleaning the registers used for movind characters sprites; two registers are used for each sprite
 static void map_reset(unsigned char * map) {
-	/*0 =>	x"00C84C0C", --orange/red/brown
-	1 =>	x"00FCD8A8",
-	2 =>	x"00000000",
-	3 =>	x"002038EC",
-	4 =>	x"0000A800", --green
-	5 =>	x"00FCFCFC",
-	6 =>	x"00747474",
-	7 =>	x"00C0C0C0", */
 
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( MAP_BASE_ADDRESS - 8000 ), (unsigned int )0x000C4CC8);
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( MAP_BASE_ADDRESS - 7999 ), (unsigned int )0x00ABD8FC);
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( MAP_BASE_ADDRESS - 7997 ), (unsigned int )0x00EC3820);
-
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( 0x00FF /*Sprites offset -> sprite 0*/), (unsigned int )0x02020202);
 	unsigned int i;
 
 	for (i = 0; i <= 20; i += 2) {

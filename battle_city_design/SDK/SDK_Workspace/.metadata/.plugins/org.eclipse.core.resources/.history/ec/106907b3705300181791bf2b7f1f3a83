@@ -181,7 +181,7 @@ static void map_update(characters * mario) {
 		for (x = 0; x < MAP_WIDTH; x++) {
 			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MAP_BASE_ADDRESS + y * MAP_WIDTH + x);
 			Xil_Out32(addr, SPRITES[2]/*map1[y*MAP_WIDTH + x].ptr*/);
-			if ((y*MAP_WIDTH + x)%40 == 2 || (y*MAP_WIDTH + x)%40 == 4 || (y*MAP_WIDTH + x)%40 == 6 || ((y*MAP_WIDTH + x)%40 == 3 & x == 3 & y < 10 & y > 2)) {
+			if ((y*MAP_WIDTH + x)%40 == 2 || (y*MAP_WIDTH + x)%40 == 4 || (y*MAP_WIDTH + x)%40 == 6 || ((y*MAP_WIDTH + x)%40 == 3 & x == 3)) {
 				Xil_Out32(addr, SPRITES[7]/*map1[y*MAP_WIDTH + x].ptr*/);
 			}
 		}
