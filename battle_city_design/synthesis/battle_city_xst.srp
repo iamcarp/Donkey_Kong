@@ -1044,24 +1044,24 @@ Top Level Output File Name         : battle_city.ngc
 
 Primitive and Black Box Usage:
 ------------------------------
-# BELS                             : 4377
+# BELS                             : 4354
 #      GND                         : 13
-#      INV                         : 40
-#      LUT1                        : 176
-#      LUT2                        : 272
-#      LUT3                        : 380
-#      LUT4                        : 1105
-#      LUT5                        : 365
-#      LUT6                        : 804
+#      INV                         : 35
+#      LUT1                        : 168
+#      LUT2                        : 274
+#      LUT3                        : 382
+#      LUT4                        : 1088
+#      LUT5                        : 407
+#      LUT6                        : 785
 #      LUT6_2                      : 96
 #      MULT_AND                    : 2
-#      MUXCY                       : 443
+#      MUXCY                       : 437
 #      MUXCY_L                     : 155
-#      MUXF7                       : 160
+#      MUXF7                       : 159
 #      VCC                         : 8
-#      XORCY                       : 358
-# FlipFlops/Latches                : 2648
-#      FD                          : 355
+#      XORCY                       : 345
+# FlipFlops/Latches                : 2644
+#      FD                          : 341
 #      FDC                         : 34
 #      FDC_1                       : 5
 #      FDCE                        : 15
@@ -1069,7 +1069,7 @@ Primitive and Black Box Usage:
 #      FDE_1                       : 8
 #      FDP                         : 5
 #      FDR                         : 643
-#      FDRE                        : 631
+#      FDRE                        : 641
 #      FDRE_1                      : 1
 #      FDS                         : 4
 #      FDSE                        : 42
@@ -1100,19 +1100,19 @@ Selected Device : 6slx45fgg676-2
 
 
 Slice Logic Utilization: 
- Number of Slice Registers:            2648  out of  54576     4%  
- Number of Slice LUTs:                 3474  out of  27288    12%  
-    Number used as Logic:              3238  out of  27288    11%  
+ Number of Slice Registers:            2644  out of  54576     4%  
+ Number of Slice LUTs:                 3471  out of  27288    12%  
+    Number used as Logic:              3235  out of  27288    11%  
     Number used as Memory:              236  out of   6408     3%  
        Number used as RAM:               64
        Number used as SRL:              172
 
 Slice Logic Distribution: 
- Number of LUT Flip Flop pairs used:   4993
-   Number with an unused Flip Flop:    2345  out of   4993    46%  
-   Number with an unused LUT:          1519  out of   4993    30%  
-   Number of fully used LUT-FF pairs:  1129  out of   4993    22%  
-   Number of unique control sets:       115
+ Number of LUT Flip Flop pairs used:   4976
+   Number with an unused Flip Flop:    2332  out of   4976    46%  
+   Number with an unused LUT:          1505  out of   4976    30%  
+   Number of fully used LUT-FF pairs:  1139  out of   4976    22%  
+   Number of unique control sets:       116
 
 IO Utilization: 
  Number of IOs:                          41
@@ -1146,7 +1146,7 @@ Clock Information:
 -----------------------------------+-------------------------------------------------------------------------------------------------------------------+-------+
 Clock Signal                       | Clock buffer(FF name)                                                                                             | Load  |
 -----------------------------------+-------------------------------------------------------------------------------------------------------------------+-------+
-CLK_P                              | PLL_ADV:CLKOUT0                                                                                                   | 2635  |
+CLK_P                              | PLL_ADV:CLKOUT0                                                                                                   | 2631  |
 debug_module/debug_module/drck_i   | BUFG                                                                                                              | 209   |
 debug_module/Ext_JTAG_UPDATE       | NONE(microblaze_0/microblaze_0/MicroBlaze_Core_I/Performance.Use_Debug_Logic.Master_Core.Debug_Perf/command_reg_0)| 43    |
 -----------------------------------+-------------------------------------------------------------------------------------------------------------------+-------+
@@ -1160,7 +1160,7 @@ Timing Summary:
 ---------------
 Speed Grade: -2
 
-   Minimum period: 22.846ns (Maximum Frequency: 43.771MHz)
+   Minimum period: 22.636ns (Maximum Frequency: 44.177MHz)
    Minimum input arrival time before clock: 8.502ns
    Maximum output required time after clock: 11.582ns
    Maximum combinational path delay: No path found
@@ -1171,10 +1171,10 @@ All values displayed in nanoseconds (ns)
 
 =========================================================================
 Timing constraint: Default period analysis for Clock 'CLK_P'
-  Clock period: 22.846ns (frequency: 43.771MHz)
-  Total number of paths / destination ports: 586663 / 7624
+  Clock period: 22.636ns (frequency: 44.177MHz)
+  Total number of paths / destination ports: 563029 / 7640
 -------------------------------------------------------------------------
-Delay:               11.423ns (Levels of Logic = 11)
+Delay:               11.318ns (Levels of Logic = 11)
   Source:            axi4lite_0/axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/gen_crossbar.splitter_ar/m_ready_d_1 (FF)
   Destination:       axi4lite_0/axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/gen_crossbar.addr_arbiter_inst/m_grant_hot_i_0 (FF)
   Source Clock:      CLK_P rising 2.0X
@@ -1187,10 +1187,10 @@ Delay:               11.423ns (Levels of Logic = 11)
      FD:C->Q              12   0.525   1.177  axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/gen_crossbar.splitter_ar/m_ready_d_1 (axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/gen_crossbar.splitter_ar/m_ready_d<1>)
      LUT4:I2->O            3   0.250   0.994  axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/mi_arvalid<1>1 (axi4lite_0/cb_mf_arvalid<1>)
      LUT6:I3->O            2   0.235   0.834  axi4lite_0/mi_protocol_conv_bank/gen_protocol_slot[1].gen_prot_conv.conv_inst/gen_axilite.gen_axilite_conv.axilite_conv_inst/_n011011 (axi4lite_0/mi_protocol_conv_bank/gen_protocol_slot[1].gen_prot_conv.conv_inst/gen_axilite.gen_axilite_conv.axilite_conv_inst/_n01101)
-     LUT2:I0->O            3   0.250   0.994  axi4lite_0/mi_protocol_conv_bank/gen_protocol_slot[1].gen_prot_conv.conv_inst/gen_axilite.gen_axilite_conv.axilite_conv_inst/write_req1 (M_AXI_AWVALID<1>)
+     LUT2:I0->O            3   0.250   0.874  axi4lite_0/mi_protocol_conv_bank/gen_protocol_slot[1].gen_prot_conv.conv_inst/gen_axilite.gen_axilite_conv.axilite_conv_inst/write_req1 (M_AXI_AWVALID<1>)
      end scope: 'axi4lite_0:M_AXI_AWVALID<1>'
      begin scope: 'battle_city_periph_0:S_AXI_AWVALID'
-     LUT3:I0->O            4   0.235   0.912  battle_city_periph_0/accept_write1 (S_AXI_AWREADY)
+     LUT3:I1->O            4   0.250   0.912  battle_city_periph_0/battle_city_i/bus_we_i_GND_8_o_AND_15_o211 (S_AXI_AWREADY)
      end scope: 'battle_city_periph_0:S_AXI_WREADY'
      begin scope: 'axi4lite_0:M_AXI_WREADY<1>'
      LUT3:I1->O            1   0.250   1.112  axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/w_complete_mux13_SW0 (N42)
@@ -1200,8 +1200,8 @@ Delay:               11.423ns (Levels of Logic = 11)
      LUT6:I2->O            1   0.254   0.000  axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/gen_crossbar.addr_arbiter_inst/m_grant_hot_i_0_glue_set (axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/gen_crossbar.addr_arbiter_inst/m_grant_hot_i_0_glue_set)
      FDR:D                     0.074          axi4lite_0/crossbar_samd/gen_sasd.crossbar_sasd_0/gen_crossbar.addr_arbiter_inst/m_grant_hot_i_0
     ----------------------------------------
-    Total                     11.423ns (2.835ns logic, 8.588ns route)
-                                       (24.8% logic, 75.2% route)
+    Total                     11.318ns (2.850ns logic, 8.468ns route)
+                                       (25.2% logic, 74.8% route)
 
 =========================================================================
 Timing constraint: Default period analysis for Clock 'debug_module/debug_module/drck_i'
@@ -1435,7 +1435,7 @@ Clock to Setup on destination clock CLK_P
                                 | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
 Source Clock                    |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
 --------------------------------+---------+---------+---------+---------+
-CLK_P                           |   11.423|         |         |         |
+CLK_P                           |   11.318|         |         |         |
 debug_module/Ext_JTAG_UPDATE    |    4.371|    3.446|         |         |
 debug_module/debug_module/drck_i|    5.178|         |         |         |
 --------------------------------+---------+---------+---------+---------+
@@ -1463,12 +1463,12 @@ debug_module/debug_module/drck_i|    2.860|    4.093|    3.740|         |
 =========================================================================
 
 
-Total REAL time to Xst completion: 12.00 secs
-Total CPU time to Xst completion: 12.40 secs
+Total REAL time to Xst completion: 13.00 secs
+Total CPU time to Xst completion: 12.84 secs
  
 --> 
 
-Total memory usage is 313748 kilobytes
+Total memory usage is 314836 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    6 (   0 filtered)

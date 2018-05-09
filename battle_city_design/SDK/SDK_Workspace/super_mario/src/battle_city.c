@@ -13,12 +13,15 @@
 // ***** 16x16 IMAGES *****
 //#define SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F }
 
+#define SCREEN_BASE_ADDRESS			6900
+#define SCR_HEIGHT					30
+#define SCR_WIDTH					40
 /*		SCREEN HEADER		*/
-#define HEADER_BASE_ADDRESS			7920
-#define HEADER_LENGHT				80
-
+#define HEADER_BASE_ADDRESS			7192
 // ***** MAP *****
-#define MAP_BASE_ADDRESS			8000 // MAP_OFFSET in battle_city.vhd
+#define MAP_BASE_ADDRESS			7392 // MAP_OFFSET in battle_city.vhd
+#define SIDE_PADDING				12
+#define VERTICAL_PADDING			7
 
 /*		info above this line are correct		*/
 #define IMG_16x16_mario					0x00FF
@@ -28,7 +31,7 @@
 #define MAP_W							64
 #define MAP_H							56
 
-#define REGS_BASE_ADDRESS               ( MAP_BASE_ADDRESS + MAP_WIDTH * MAP_HEIGHT )
+#define REGS_BASE_ADDRESS               ( SCREEN_BASE_ADDRESS + SCR_WIDTH * SCR_HEIGHT )
 //#define REGS_BASE_ADDRESS               (8176)
 
 #define BTN_DOWN( b )                   ( !( b & 0x01 ) )
@@ -65,7 +68,7 @@ int brojac = 0;
 int udario_u_blok = 0;
 
 // ***** 16x16 IMAGES *****
-unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
+const unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
 
 
 typedef enum {
@@ -88,10 +91,10 @@ typedef struct {
 	unsigned int reg_h;
 } characters;
 
-characters mario = { 10,	                        // x
-		431, 		                     // y
+characters mario = { 240,	                        // x
+		240, 		                     // y
 		DIR_RIGHT,              		// dir
-		IMG_16x16_mario,  			// type
+		0x02BF,  			// type
 
 		b_false,                		// destroyed
 
@@ -165,7 +168,7 @@ static void chhar_spawn(characters * chhar) {
 }
 
 static void map_update(characters * mario) {
-	int x, y;
+	int x, y, i;
 	long int addr;
 
 	if (mario->x >= 330) {
@@ -179,11 +182,8 @@ static void map_update(characters * mario) {
 
 	for (y = 0; y < MAP_HEIGHT; y++) {
 		for (x = 0; x < MAP_WIDTH; x++) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MAP_BASE_ADDRESS + y * MAP_WIDTH + x);
-			Xil_Out32(addr, SPRITES[2]/*map1[y*MAP_WIDTH + x].ptr*/);
-			if ((y*MAP_WIDTH + x)%40 == 2 || (y*MAP_WIDTH + x)%40 == 4 || (y*MAP_WIDTH + x)%40 == 6 || ((y*MAP_WIDTH + x)%40 == 3 & x == 3 & y < 10 & y > 2)) {
-				Xil_Out32(addr, SPRITES[7]/*map1[y*MAP_WIDTH + x].ptr*/);
-			}
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MAP_BASE_ADDRESS + y * (SIDE_PADDING + MAP_WIDTH + SIDE_PADDING) + x);
+			Xil_Out32(addr, map1[y*MAP_WIDTH + x].ptr);
 		}
 	}
 }
@@ -198,12 +198,18 @@ static void map_reset(unsigned char * map) {
 	6 =>	x"00747474",
 	7 =>	x"00C0C0C0", */
 
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( MAP_BASE_ADDRESS - 8000 ), (unsigned int )0x000C4CC8);
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( MAP_BASE_ADDRESS - 7999 ), (unsigned int )0x00ABD8FC);
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( MAP_BASE_ADDRESS - 7997 ), (unsigned int )0x00EC3820);
+	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR, (unsigned int )0x000C4CC8);
+	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (1), (unsigned int )0x00ABD8FC);
+	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (3), (unsigned int )0x00EC3820);
 
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( 0x00FF /*Sprites offset -> sprite 0*/), (unsigned int )0x02020202);
+	//Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( 0x00FF /*Sprites offset -> sprite 0*/), (unsigned int )0x02020202);
 	unsigned int i;
+	long int addr;
+
+	for(i = 0; i<SCR_WIDTH*SCR_HEIGHT; i++) {
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + i);
+		Xil_Out32(addr, SPRITES[10]);
+	}
 
 	for (i = 0; i <= 20; i += 2) {
 		Xil_Out32(
