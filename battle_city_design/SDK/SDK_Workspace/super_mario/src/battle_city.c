@@ -11,10 +11,14 @@
  */
 
 // ***** 16x16 IMAGES *****
-#define SPRITES[53] = {00FF, 013F, 017F, 01BF, 01FF, 023F, 027F, 02BF, 02FF,033F, 037F, 03BF, 03FF, 043F, 047F, 04BF, 04FF, 053F, 057F, 05BF, 05FF, 063F, 067F, 06BF, 06FF, 073F, 077F, 07BF, 07FF, 083F, 087F, 08BF, 08FF, 093F, 097F, 09BF, 09FF, 0A3F, 0A7F, 0ABF, 0AFF, 0B3F, 0B7F, 0BBF, 0BFF, 0C3F, 0C7F, 0CBF, 0CFF, 0D3F, 0D7F, 0DBF, 0DFF, 0E3F}
+#define SPRITES[53] = {0x000000FF, 0x0000013F, 0x0000017F, 0x000001BF, 0x000001FF, 0x0000023F, 0x0000027F, 0x000002BF, 0x000002FF, 0x0000033F, 0x0000037F, 0x000003BF, 0x000003FF, 0x0000043F, 0x0000047F, 0x000004BF, 0x000004FF, 0x0000053F, 0x0000057F, 0x000005BF, 0x000005FF, 0x0000063F, 0x0000067F, 0x000006BF, 0x000006FF, 0x0000073F, 0x0000077F, 0x000007BF, 0x000007FF, 0x0000083F, 0x0000087F, 0x000008BF, 0x000008FF, 0x0000093F, 0x0000097F, 0x000009BF, 0x000009FF, 0x00000A3F, 0x00000A7F, 0x00000ABF, 0x00000AFF, 0x00000B3F, 0x00000B7F, 0x00000BBF, 0x00000BFF, 0x00000C3F, 0x00000C7F, 0x00000CBF, 0x00000CFF, 0x00000D3F, 0x00000D7F, 0x00000DBF, 0x00000DFF, 0x00000E3F }
+
+/*		SCREEN HEADER		*/
+#define HEADER_BASE_ADDRESS			7920
+#define HEADER_LENGHT				80
 
 // ***** MAP *****
-#define MAP_BASE_ADDRESS			3711 // MAP_OFFSET in battle_city.vhd
+#define MAP_BASE_ADDRESS			8000 // MAP_OFFSET in battle_city.vhd
 
 /*		info above this line are correct		*/
 
@@ -25,7 +29,7 @@
 #define MAP_H							56
 
 #define REGS_BASE_ADDRESS               ( MAP_BASE_ADDRESS + MAP_WIDTH * MAP_HEIGHT )
-//#define REGS_BASE_ADDRESS               (5439)
+//#define REGS_BASE_ADDRESS               (8176)
 
 #define BTN_DOWN( b )                   ( !( b & 0x01 ) )
 #define BTN_UP( b )                     ( !( b & 0x10 ) )
@@ -83,7 +87,7 @@ typedef struct {
 characters mario = { 10,	                        // x
 		431, 		                     // y
 		DIR_RIGHT,              		// dir
-		IMG_16x16_mario,  			// type
+		SPRITES[0],  			// type
 
 		b_false,                		// destroyed
 
@@ -91,7 +95,7 @@ characters mario = { 10,	                        // x
 		TANK1_REG_H             		// reg_h
 		};
 
-characters enemie1 = { 331,						// x
+/*characters enemie1 = { 331,						// x
 		431,						// y
 		DIR_LEFT,              		// dir
 		IMG_16x16_enemi1,  		// type
@@ -134,7 +138,7 @@ characters enemie4 = { 635,						// x
 		TANK_AI_REG_L4,            		// reg_l
 		TANK_AI_REG_H4             		// reg_h
 		};
-
+*/
 unsigned int rand_lfsr113(void) {
 	static unsigned int z1 = 12345, z2 = 12345;
 	unsigned int b;
@@ -189,7 +193,7 @@ static void map_reset(unsigned char * map) {
 	}
 }
 
-static bool_t mario_move(unsigned char * map, characters * mario,
+static bool_t mario_move(map_block * map, characters * mario,
 		direction_t dir, int start_jump) {
 	unsigned int x;
 	unsigned int y;
@@ -263,7 +267,7 @@ static bool_t mario_move(unsigned char * map, characters * mario,
 		y++;
 		brojac--;
 	}
-
+/*
 	Xx = x;
 	Yy = y;
 
@@ -316,7 +320,7 @@ static bool_t mario_move(unsigned char * map, characters * mario,
 	default:
 		udario_u_blok = 0;
 	}
-
+*/
 	mario->x = x;
 	mario->y = y;
 
@@ -329,7 +333,7 @@ static bool_t mario_move(unsigned char * map, characters * mario,
 
 int obstackles_detection(int x, int y, int deoMape, unsigned char * map,
 		int dir) {
-	unsigned char mario_position_right;
+/*	unsigned char mario_position_right;
 	unsigned char mario_position_left;
 	unsigned char mario_position_up;
 
@@ -413,7 +417,7 @@ int obstackles_detection(int x, int y, int deoMape, unsigned char * map,
 
 		}
 	}
-
+*/
 }
 
 void battle_city() {

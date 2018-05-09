@@ -30,8 +30,8 @@ entity battle_city is
 end entity battle_city;
 
 architecture Behavioral of battle_city is
-    constant MAP_OFFSET : natural := 639; -- Pointer to start of map in memory
-    constant REGISTER_OFFSET : natural := (MAP_OFFSET + 40*30); -- 5439 -- Pointer to registers in memory map
+    constant MAP_OFFSET : natural := 7920; -- Pointer to start of map in memory (header + map)
+    constant REGISTER_OFFSET : natural := (MAP_OFFSET + 16*16); -- MAP_OFFSET + MAP_WIDTH*(MAP_HEIGHT+HEADER_HEIGHT) -- Pointer to registers in memory map
 
    component ram 	
    port
@@ -375,14 +375,15 @@ architecture Behavioral of battle_city is
 	map_index_size_8_s0  <= unsigned('0' & std_logic_vector(pixel_row_i(8 downto 3)) & "000000") 
                    + unsigned('0' & std_logic_vector(pixel_row_i(8 downto 3)) & "0000")
                    + pixel_col_i(9 downto 3);
-						 
+
+   -- map_index_s = (row/16)*80 + col/6						 
 	map_index_size_16_s0  <= unsigned ("000" & std_logic_vector(pixel_row_i(8 downto 4)) & "00000") 
                    + unsigned("000" & std_logic_vector(pixel_row_i(8 downto 4)) & "000")
                    + pixel_col_i(9 downto 4);
 						 
 	map_index_s0 <= map_index_size_16_s0 when stat_img_size_is_16 = '1' else map_index_size_8_s0;
 
-	
+-- calculating the start address (in ram mem) of the current position in the map matrix	
 	map_addr_s0 <= map_index_s0 + MAP_OFFSET;
 	
 	process(clk_i) begin
