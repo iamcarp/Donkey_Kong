@@ -142,10 +142,33 @@ characters enemie4 = { 635,						// x
 		TANK_AI_REG_H4             		// reg_h
 		};
 */
-
-void load_next_map(direction_t dir) {
+int overw_x = 0;
+int overw_y = 0;
+void load_frame(direction_t dir) {
 	/*	TODO: add map movement logic	*/
-	
+    switch(dir) {
+        case DIR_LEFT:
+            overw_x = --overw_x<0? 0 : overw_x;
+            break;
+        case DIR_RIGHT:
+            overw_x = ++overw_x>15? 15 : overw_x;
+            break;
+        case DIR_UP:
+            overw_y = --overw_y<0? 0 : overw_y;
+            break;
+        case DIR_DOWN:
+            overw_x = ++overw_x>11? 11 : overw_y;
+            break;
+    }
+    map = map1[overw_y*16 + overw_x];
+    int x,y;
+    long int addr;
+	for (y = 0; y < MAP_HEIGHT; y++) {
+		for (x = 0; x < MAP_WIDTH; x++) {
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MAP_BASE_ADDRESS + y * (SIDE_PADDING + MAP_WIDTH + SIDE_PADDING) + x);
+			Xil_Out32(addr, map[y*MAP_WIDTH + x].ptr);
+		}
+	}
 }
 
 unsigned int rand_lfsr113(void) {
@@ -477,6 +500,8 @@ void battle_city() {
 			d = DIR_DOWN;
 		}
 
+        load_frame(d);        
+
 		int start_jump = 0;
 		if (BTN_UP (buttons)/* && (BTN_LEFT(buttons) || BTN_RIGHT(buttons))*/) {
 			//start_jump = 1;
@@ -485,9 +510,9 @@ void battle_city() {
 		if (BTN_DOWN (buttons) /*&& !BTN_LEFT(buttons) && !BTN_RIGHT(buttons)*/) {
 			d = DIR_DOWN;
 		}
-		mario_move(/*map1,*/ &mario, d, start_jump);
+		//mario_move(/*map1,*/ &mario, d, start_jump);
 
-		map_update(&mario);
+		//map_update(&mario);
 
 		for (i = 0; i < 100000; i++) {
 		}
