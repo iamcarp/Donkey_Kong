@@ -5,16 +5,16 @@
 #include "xio.h"
 #include <math.h>
 
-/*		SCREEN HEADER		*/
-#define HEADER_BASE_ADDRESS			7192
-
 /*		SCREEN PARAMETERS		 - in this case, "screen" stands for one full-screen picture	 */
 #define SCREEN_BASE_ADDRESS			6900
 #define SCR_HEIGHT					30
 #define SCR_WIDTH					40
 
-// ***** MAP *****
-#define MAP_BASE_ADDRESS			7392 // MAP_OFFSET in battle_city.vhd
+/*		FRAME HEADER		*/
+#define HEADER_BASE_ADDRESS			7192
+
+/*      FRAME       */
+#define FRAME_BASE_ADDRESS			7392 // FRAME_OFFSET in battle_city.vhd
 #define SIDE_PADDING				12
 #define VERTICAL_PADDING			7
 
@@ -65,8 +65,8 @@ int udario_u_blok = 0;
 /*			16x16 IMAGES		 */
 unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
 
-/*		 ACTIVE MAP		*/
-map_block* map;
+/*		 ACTIVE FRAME		*/
+unsigned short* frame;
 
 typedef enum {
 	b_false, b_true
@@ -158,18 +158,20 @@ void load_frame(direction_t dir) {
         case DIR_DOWN:
             overw_x = ++overw_x>11? 11 : overw_y;
             break;
-        default:
-        	map = map;
     }
-    map = map1[overw_y*16 + overw_x];
+    frame = overwold[overw_y*16 + overw_x];
+
+    /*      loading next frame into memory      */
     int x,y;
     long int addr;
-	for (y = 0; y < MAP_HEIGHT; y++) {
-		for (x = 0; x < MAP_WIDTH; x++) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MAP_BASE_ADDRESS + y * (SIDE_PADDING + MAP_WIDTH + SIDE_PADDING) + x);
-			Xil_Out32(addr, map[y*MAP_WIDTH + x].ptr);
+    for (y = 0; y < FRAME_HEIGHT; y++) {
+		for (x = 0; x < FRAME_WIDTH; x++) {
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
+			Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
 		}
 	}
+    /*      TODO: add logic for updating the overworld position in header   */
+    /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
 }
 
 unsigned int rand_lfsr113(void) {
@@ -206,10 +208,10 @@ static void map_update(characters * mario) {
 		}
 	}
 
-	for (y = 0; y < MAP_HEIGHT; y++) {
-		for (x = 0; x < MAP_WIDTH; x++) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MAP_BASE_ADDRESS + y * (SIDE_PADDING + MAP_WIDTH + SIDE_PADDING) + x);
-			Xil_Out32(addr, map[y*MAP_WIDTH + x].ptr);
+	for (y = 0; y < FRAME_HEIGHT; y++) {
+		for (x = 0; x < FRAME_WIDTH; x++) {
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
+			Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
 		}
 	}
 }
@@ -257,8 +259,8 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 
 	int obstackle = 0;
 
-	if (mario->x > ((MAP_X + MAP_WIDTH) * 16 - 16)
-			|| mario->y > (MAP_Y + MAP_HEIGHT) * 16 - 16) {
+    if (mario->x > ((MAP_X + FRAME_WIDTH) * 16 - 16)
+			|| mario->y > (MAP_Y + FRAME_HEIGHT) * 16 - 16) {
 		return b_false;
 	}
 
@@ -476,7 +478,7 @@ void battle_city() {
 	unsigned int buttons, tmpBtn = 0, tmpUp = 0;
 	int i, change = 0, jumpFlag = 0;
 	int block;
-	map = map1[0];
+	frame = overworld[0];
 	map_reset(/*map1*/);
 	map_update(&mario);
 
