@@ -18,12 +18,13 @@
 #define SIDE_PADDING				12
 #define VERTICAL_PADDING			7
 
-/*		info above this line are correct		*/
+/*		find out what the below lines stand for		 */
 #define MAP_X							0
 #define MAP_X2							640
 #define MAP_Y							4
 #define MAP_W							64
 #define MAP_H							56
+/*		find out what the above lines stand for		 */
 
 #define REGS_BASE_ADDRESS               ( SCREEN_BASE_ADDRESS + SCR_WIDTH * SCR_HEIGHT )
 
@@ -33,6 +34,7 @@
 #define BTN_RIGHT( b )                  ( !( b & 0x08 ) )
 #define BTN_SHOOT( b )                  ( !( b & 0x04 ) )
 
+/*			these are the beginnings and endings of registers that store moving sprites		 */
 #define TANK1_REG_L                     8
 #define TANK1_REG_H                     9
 #define TANK_AI_REG_L                   4
@@ -65,6 +67,7 @@ const unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x02
 
 /*		 ACTIVE MAP		*/
 map_block* map;
+
 typedef enum {
 	b_false, b_true
 } bool_t;
@@ -142,6 +145,7 @@ characters enemie4 = { 635,						// x
 
 void load_next_map(direction_t dir) {
 	/*	TODO: add map movement logic	*/
+	
 }
 
 unsigned int rand_lfsr113(void) {
