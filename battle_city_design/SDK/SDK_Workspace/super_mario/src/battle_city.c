@@ -21,6 +21,11 @@
 #define FRAME_BASE_ADDRESS			7392 // FRAME_OFFSET in battle_city.vhd
 #define SIDE_PADDING				12
 #define VERTICAL_PADDING			7
+#define INITIAL_FRAME_X				7
+#define INITIAL_FRAME_Y				7
+#define INITIAL_LINK_POSITION_X		200
+#define INITIAL_LINK_POSITION_Y		270
+
 
 /*		find out what the below lines stand for		 */
 #define MAP_X							0
@@ -101,9 +106,9 @@ typedef struct {
 } characters;
 
 characters mario = { 
-		240,	                        // x
-		240, 		                    // y
-		DIR_RIGHT,              		// dir
+		INITIAL_LINK_POSITION_X,		// x
+		INITIAL_LINK_POSITION_Y,		// y
+		DIR_DOWN, 	             		// dir
 		0x02BF,							// type - sprite address in ram.vhdl
 		b_false,                		// destroyed
 		TANK1_REG_L,            		// reg_l
@@ -154,8 +159,8 @@ characters enemie4 = { 635,						// x
 		TANK_AI_REG_H4             		// reg_h
 		};
 */
-int overw_x = 7;
-int overw_y = 7;
+int overw_x = INITIAL_FRAME_X;
+int overw_y = INITIAL_FRAME_Y;
 void load_frame(direction_t dir) {
     switch(dir) {
         case DIR_LEFT:
@@ -247,33 +252,26 @@ static void map_reset() {
 static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 	unsigned int x;
 	unsigned int y;
-	int i, j;
-
-	float Xx;
-	float Yy;
-	int roundX = 0;
-	int roundY = 0;
-
 	int obstackle = 0;
 
-    if (mario->x > ((12 + FRAME_WIDTH) * 16 - 16)){
+    if (mario->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
     	load_frame(DIR_RIGHT);
-    	mario->x = 12 * 16;
+    	mario->x = overw_x==15? mario->x :SIDE_PADDING * 16;
     	return b_false;
 	}
-    if (mario->y > (12 + FRAME_HEIGHT) * 16 - 16) {
+    if (mario->y > (SIDE_PADDING + FRAME_HEIGHT) * 16 - 16) {
     	load_frame(DIR_DOWN);
-    	mario->y = 12 * 16;
+    	mario->y = overw_y==7 ? mario->x : 12 * 16;
     	return b_false;
     }
     if (mario->y < 12 * 16) {
     	load_frame(DIR_UP);
-    	mario->y = (12 + FRAME_HEIGHT) * 16 - 16;
+    	mario->y = overw_y==7 ? mario->x : (SIDE_PADDING + FRAME_HEIGHT) * 16 - 16;
 		return b_false;
     }
-    if (mario->x < 12 * 16) {
+    if (mario->x < SIDE_PADDING * 16) {
     	load_frame(DIR_LEFT);
-    	mario->x = ((12 + FRAME_WIDTH) * 16 - 16);
+    	mario->x = overw_x==0 ? mario->x :((SIDE_PADDING + FRAME_WIDTH) * 16 - 16);
 		return b_false;
 	}
 
@@ -298,13 +296,8 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 		//TODO:	set sprite
 	}
 	
-	Xx = x;
-	Yy = y;
-
 	mario->x = x;
 	mario->y = y;
-
-
 
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
@@ -438,15 +431,6 @@ void battle_city() {
 			d = DIR_DOWN;
 		}
 
-
-		int start_jump = 0;
-		if (BTN_UP (buttons)/* && (BTN_LEFT(buttons) || BTN_RIGHT(buttons))*/) {
-			//start_jump = 1;
-			d = DIR_UP;
-		}
-		if (BTN_DOWN (buttons) /*&& !BTN_LEFT(buttons) && !BTN_RIGHT(buttons)*/) {
-			d = DIR_DOWN;
-		}
 		mario_move(/*map1,*/ &mario, d, start_jump);
 
 		map_update(&mario);
