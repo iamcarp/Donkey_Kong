@@ -142,24 +142,24 @@ characters enemie4 = { 635,						// x
 		TANK_AI_REG_H4             		// reg_h
 		};
 */
-int overw_x = 0;
-int overw_y = 0;
+int overw_x = 7;
+int overw_y = 7;
 void load_frame(direction_t dir) {
     switch(dir) {
         case DIR_LEFT:
-            overw_x = --overw_x<0? 0 : overw_x;
+            overw_x = (--overw_x<0)? 0 : overw_x;
             break;
         case DIR_RIGHT:
-            overw_x = ++overw_x>15? 15 : overw_x;
+            overw_x = (++overw_x>15)? 15 : overw_x;
             break;
         case DIR_UP:
-            overw_y = --overw_y<0? 0 : overw_y;
+            overw_y = (--overw_y<0)? 0 : overw_y;
             break;
         case DIR_DOWN:
-            overw_x = ++overw_x>11? 11 : overw_y;
+            overw_y = (++overw_y>7)? 7 : overw_y;
             break;
     }
-    frame = overwold[overw_y*16 + overw_x];
+    frame = overworld[overw_y*16 + overw_x];
 
     /*      loading next frame into memory      */
     int x,y;
@@ -259,8 +259,24 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 
 	int obstackle = 0;
 
-    if (mario->x > ((MAP_X + FRAME_WIDTH) * 16 - 16)
-			|| mario->y > (MAP_Y + FRAME_HEIGHT) * 16 - 16) {
+    if (mario->x > ((12 + FRAME_WIDTH) * 16 - 16)){
+    	load_frame(DIR_RIGHT);
+    	mario->x = 12 * 16;
+    	return b_false;
+	}
+    if (mario->y > (12 + FRAME_HEIGHT) * 16 - 16) {
+    	load_frame(DIR_DOWN);
+    	mario->y = 12 * 16;
+    	return b_false;
+    }
+    if (mario->y < 12 * 16) {
+    	load_frame(DIR_UP);
+    	mario->y = (12 + FRAME_HEIGHT) * 16 - 16;
+		return b_false;
+    }
+    if (mario->x < 12 * 16) {
+    	load_frame(DIR_LEFT);
+    	mario->x = ((12 + FRAME_WIDTH) * 16 - 16);
 		return b_false;
 	}
 
@@ -320,9 +336,11 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 		y++;
 		brojac--;
 	}
-/*
+
 	Xx = x;
 	Yy = y;
+
+/*
 
 	if (dir == DIR_LEFT) {
 		obstackle = obstackles_detection(x, y, mapPart, map, 2);
@@ -330,10 +348,11 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 		obstackle = obstackles_detection(x, y, mapPart, map, 1);
 	}
 
+
 	roundX = floor(Xx / 16);
 	roundY = floor(Yy / 16);
 
-	switch (obstackle) {
+	switch (5) {
 	case 0:{
 		udario_u_blok = 0;
 	}
@@ -366,7 +385,7 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 	case 5: {
 		//coin
 		score++;
-		map1[roundY + 1][roundX + 1] = 0;
+		//map1[roundY + 1][roundX + 1] = 0;
 		map_update(&mario);
 	}
 		break;
@@ -374,8 +393,12 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 		udario_u_blok = 0;
 	}
 */
+
+
 	mario->x = x;
 	mario->y = y;
+
+
 
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
@@ -479,6 +502,10 @@ void battle_city() {
 	int i, change = 0, jumpFlag = 0;
 	int block;
 	frame = overworld[0];
+	mario.x = 200;
+	mario.y = 270;
+	overw_x = 7;
+	overw_y = 7;
 	map_reset(/*map1*/);
 	map_update(&mario);
 
@@ -487,6 +514,8 @@ void battle_city() {
 	//chhar_spawn(&enemie3);
 	//chhar_spawn(&enemie4);
 	chhar_spawn(&mario);
+
+    load_frame(DIR_STILL);
 
 	while (1) {
 
@@ -503,7 +532,6 @@ void battle_city() {
 			d = DIR_DOWN;
 		}
 
-        load_frame(d);        
 
 		int start_jump = 0;
 		if (BTN_UP (buttons)/* && (BTN_LEFT(buttons) || BTN_RIGHT(buttons))*/) {
@@ -513,11 +541,11 @@ void battle_city() {
 		if (BTN_DOWN (buttons) /*&& !BTN_LEFT(buttons) && !BTN_RIGHT(buttons)*/) {
 			d = DIR_DOWN;
 		}
-		//mario_move(/*map1,*/ &mario, d, start_jump);
+		mario_move(/*map1,*/ &mario, d, start_jump);
 
-		//map_update(&mario);
+		map_update(&mario);
 
-		for (i = 0; i < 1000000; i++) {
+		for (i = 0; i < 100000; i++) {
 		}
 
 	}
