@@ -5,6 +5,10 @@
 #include "xio.h"
 #include <math.h>
 
+/*          COLOR PALETTE - base addresses in ram.vhd         */
+#define FRAME_COLORS_OFFSET         0
+#define LINK_COLORS_OFFSET          8
+
 /*		SCREEN PARAMETERS		 - in this case, "screen" stands for one full-screen picture	 */
 #define SCREEN_BASE_ADDRESS			6900
 #define SCR_HEIGHT					30
@@ -217,21 +221,6 @@ static void map_update(characters * mario) {
 }
 // currently, this function is cleaning the registers used for movind characters sprites; two registers are used for each sprite
 static void map_reset() {
-	/* Colors in palette in ram.vhdl */
-	/*0 =>	x"00C84C0C", --orange/red/brown
-	1 =>	x"00FCD8A8",
-	2 =>	x"00000000",
-	3 =>	x"002038EC",
-	4 =>	x"0000A800", --green
-	5 =>	x"00FCFCFC",
-	6 =>	x"00747474",
-	7 =>	x"00C0C0C0", */
-	
-	/* setting the colors from rgb to bgr format - only 3 because the others are simetrical */
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR, (unsigned int )0x000C4CC8);
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (1), (unsigned int )0x00ABD8FC);
-	Xil_Out32(XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (3), (unsigned int )0x00EC3820);
-
 	unsigned int i;
 	long int addr;
 
