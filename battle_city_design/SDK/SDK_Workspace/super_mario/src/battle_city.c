@@ -63,9 +63,17 @@ int score = 0;
 int mapPart = 1;
 int udario_glavom_skok = 0;
 int map_move = 0;
-int brojac = 0;
 int udario_u_blok = 0;
-
+int last = 0; //last state mario was in before current iteratoin (if he is walking it keeps walking) 
+/*For testing purposes 
+	0 - down stand
+	1 - right walk
+	2 - right stand
+	3 - up walk
+	5 - up stand
+	4 - down walk
+*/
+	
 /*			16x16 IMAGES		 */
 unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
 
@@ -273,116 +281,25 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 	y = mario->y;
 
 	if (dir == DIR_LEFT) {
-		//if (x > MAP_X * 16) {
-			x--;
-		//}
+		x--;
+		last = (last == 1)? 2 : 1;
+		//TODO:	set sprite - dont forget to flip
 	} else if (dir == DIR_RIGHT) {
 		x++;
+		last = (last == 1)? 2 : 1;
+		//TODO:	set sprite
 	} else if (dir == DIR_UP) {
-		y--; //added
-		/*if (y > MAP_Y * 16) {
-			for (i = 0; i < 30; i++) {
-				y--;
-				brojac++;
-
-				mario->y = y;
-
-				Xil_Out32(
-						XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
-						(mario->y << 16) | mario->x);
-				for (j = 0; j < 100000; j++) {
-				}
-			}
-		}
-		while (brojac != 0) {
-			y++;
-			brojac--;
-		}*/
+		y--;
+		last = (last == 5)? 3 : 5;
+		//TODO:	set sprite
 	} else if (dir == DIR_DOWN) {
-		y++; //added
-	}
-	/*if (start_jump == 1) {
-		if (y > MAP_Y * 16) {
-			for (i = 0; i < 30; i++) {
-				y--;
-				brojac++;
-				if (dir == DIR_LEFT)
-					x--;
-				else
-					x++;
-				mario->x = x;
-				mario->y = y;
-
-				Xil_Out32(
-						XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
-						(mario->y << 16) | mario->x);
-				for (j = 0; j < 100000; j++) {
-				}
-			}
-		}
-	}*/
-	while (brojac != 0) {
 		y++;
-		brojac--;
+		last = (last == 0)? 24 : 0;
+		//TODO:	set sprite
 	}
-
+	
 	Xx = x;
 	Yy = y;
-
-/*
-
-	if (dir == DIR_LEFT) {
-		obstackle = obstackles_detection(x, y, mapPart, map, 2);
-	} else if (dir == DIR_RIGHT) {
-		obstackle = obstackles_detection(x, y, mapPart, map, 1);
-	}
-
-
-	roundX = floor(Xx / 16);
-	roundY = floor(Yy / 16);
-
-	switch (5) {
-	case 0:{
-		udario_u_blok = 0;
-	}
-	break;
-	case 2: {
-		//blok
-		if (dir == DIR_LEFT) {
-			if (x > MAP_X * 16) {
-				x++;
-			}
-		} else if (dir == DIR_RIGHT) {
-			x--;
-		}
-		udario_u_blok = 1;
-	}
-		break;
-	case 3: {
-		//cigla
-
-		if (dir == DIR_LEFT) {
-			if (x > MAP_X * 16) {
-				x++;
-			}
-		} else if (dir == DIR_RIGHT) {
-			x--;
-		}
-		udario_u_blok = 1;
-	}
-		break;
-	case 5: {
-		//coin
-		score++;
-		//map1[roundY + 1][roundX + 1] = 0;
-		map_update(&mario);
-	}
-		break;
-	default:
-		udario_u_blok = 0;
-	}
-*/
-
 
 	mario->x = x;
 	mario->y = y;
