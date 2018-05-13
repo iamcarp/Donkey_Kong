@@ -72,11 +72,19 @@ int udario_u_blok = 0;
 int last = 0; //last state mario was in before current iteratoin (if he is walking it keeps walking) 
 /*For testing purposes 
 	0 - down stand
-	1 - right walk
-	2 - right stand
-	3 - up walk
-	5 - up stand
-	4 - down walk
+	1 - down walk
+	2 - up walk
+	3 - right walk
+	4 - right stand
+	5 - down stand shield
+	6 - down walk shield
+	7 - right walk shield
+	8 - right stand shield
+	9 - down attack
+	10 - up attack
+	11 - right attack
+	12 - item picked up
+	13 - triforce picked up
 */
 	
 /*			16x16 IMAGES		 */
@@ -280,19 +288,23 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 
 	if (dir == DIR_LEFT) {
 		x--;
-		last = (last == 1)? 2 : 1;
+		last = (last == 3)? 4 : 3;
 		//TODO:	set sprite - dont forget to flip
 	} else if (dir == DIR_RIGHT) {
 		x++;
-		last = (last == 1)? 2 : 1;
+		last = (last == 3)? 4 : 3;
 		//TODO:	set sprite
 	} else if (dir == DIR_UP) {
 		y--;
-		last = (last == 5)? 3 : 5;
-		//TODO:	set sprite
+		if (last != 2) {
+			//TODO:	set sprite
+		} else {
+			last = -1;
+			//TODO:	set flipped sprite
+		}
 	} else if (dir == DIR_DOWN) {
 		y++;
-		last = (last == 0)? 24 : 0;
+		last = (last == 0) ? 1 : 0;
 		//TODO:	set sprite
 	}
 	
@@ -306,8 +318,39 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 	return b_false;
 }
 
-int obstackles_detection(int x, int y, int deoMape, /*unsigned char * map,*/
+bool tile_walkable(int index, int* map) {
+	int walkables[5] = {0, 2, 6, 8, 12, 14}; //only for hte first row in Finaltiles
+	for(int i = 0; i < 5; i++) {
+		if (map[index] == i) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool obstackles_detection(int x, int y, int* deoMape, /*unsigned char * map,*/
 		int dir) {
+			int w = 0; //either width of frame or width of map, depends how you'll acces the tile from the index
+			int Tile_Index_UL = x/16 + w * y/16;
+			int Tile_Index_UR = (x+15)/16 + w * y/16;
+			int Tile_Index_DL = x/16 + w * (y+8)/16;
+			
+			int Left_Tile_Index = Tile_Index_UR - 1;
+			int Right_Tile_Index = Tile_Index_UL + 1;
+			int Up_Tile_Index = Tile_Index_DL - w;
+			int Down_Tile_Index = Tile_Index_UL + w;
+			
+			if (dir == DIR_UP) {
+				return tile_walkable(Up_Tile_Index, deoMape);
+			} else if (dir == DIR_DOWN) {
+				return tile_walkable(Down_Tile_Index, deoMape);
+			} else if (dir == DIR_LEFT) {
+				return tile_walkable(Left_Tile_Index, deoMape);				
+			} else if (dir == DIR_RIGHT) {
+				return tile_walkable(Right_Tile_Index, deoMape);
+			}
+			return true //try with false also to see what happens
+			
 /*	unsigned char mario_position_right;
 	unsigned char mario_position_left;
 	unsigned char mario_position_up;
