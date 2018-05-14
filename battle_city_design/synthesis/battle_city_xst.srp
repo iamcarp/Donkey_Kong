@@ -4,7 +4,7 @@ Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.09 secs
+Total CPU time to Xst completion: 0.06 secs
  
 --> 
 TABLE OF CONTENTS
@@ -1464,11 +1464,11 @@ debug_module/debug_module/drck_i|    2.860|    4.093|    3.740|         |
 
 
 Total REAL time to Xst completion: 13.00 secs
-Total CPU time to Xst completion: 12.78 secs
+Total CPU time to Xst completion: 12.62 secs
  
 --> 
 
-Total memory usage is 312724 kilobytes
+Total memory usage is 312148 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    6 (   0 filtered)

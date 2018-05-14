@@ -33,6 +33,7 @@ typedef int bool;
 /*      LINK SPRITES START ADDRESS - to move to next add 64    */
 #define LINK_SPRITES_OFFSET             3519
 #define SWORD_SPRITE                    4415 
+#define LINK_STEP						10
 
 /*		find out what the below lines stand for		 */
 #define MAP_X							0
@@ -76,8 +77,9 @@ int mapPart = 1;
 int udario_glavom_skok = 0;
 int map_move = 0;
 int udario_u_blok = 0;
+int counter = 0;
 int last = 0; //last state mario was in before current iteratoin (if he is walking it keeps walking) 
-/*For testing purposes 
+/*For testing purposes -- all is +1
 	0 - down stand
 	1 - down walk
 	2 - up walk
@@ -124,7 +126,7 @@ characters mario = {
 		INITIAL_LINK_POSITION_X,		// x
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_DOWN, 	             		// dir
-		0x02BF,							// type - sprite address in ram.vhdl
+		0x0DFF,							// type - sprite address in ram.vhdl
 		b_false,                		// destroyed
 		TANK1_REG_L,            		// reg_l
 		TANK1_REG_H             		// reg_h
@@ -267,7 +269,8 @@ static void map_reset() {
 	}
 }
 
-static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
+
+static bool_t mario_move(characters * mario, direction_t dir) {
 	unsigned int x;
 	unsigned int y;
 	int obstackle = 0;
@@ -297,40 +300,77 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 	x = mario->x;
 	y = mario->y;
 
+	/*For testing purposes -- all is +1
+		0 - down stand
+		1 - down walk
+		2 - up walk
+		3 - right walk
+		4 - right stand
+		5 - down stand shield
+		6 - down walk shield
+		7 - right walk shield
+		8 - right stand shield
+		9 - down attack
+		10 - up attack
+		11 - right attack
+		12 - item picked up
+		13 - triforce picked up
+	*/
+
 	if (dir == DIR_LEFT) {
 		x--;
-		last = (last == 3)? 4 : 3;
+		if (counter%LINK_STEP == 0) {
+			last = (last == 3)? 4 : 3;
+		}
 		//TODO:	set sprite - dont forget to flip
+		mario->type =  LINK_SPRITES_OFFSET + 64*last;
+		counter++;
 	} else if (dir == DIR_RIGHT) {
 		x++;
-		last = (last == 3)? 4 : 3;
+		if (counter%LINK_STEP == 0) {
+			last = (last == 3)? 4 : 3;
+		}
 		//TODO:	set sprite
+		mario->type =  LINK_SPRITES_OFFSET + 64*last;
+		counter++;
 	} else if (dir == DIR_UP) {
 		y--;
-		if (last != 2) {
-			//TODO:	set sprite
-		} else {
-			last = -1;
-			//TODO:	set flipped sprite
+		if (counter%LINK_STEP == 0) {
+			last = (last == 2)? 2 : 2;
 		}
+			mario->type =  LINK_SPRITES_OFFSET+64*2;
+			counter++;
+
 	} else if (dir == DIR_DOWN) {
 		y++;
-		last = (last == 0) ? 1 : 0;
-		//TODO:	set sprite
+		if (counter%LINK_STEP == 0) {
+			last = (last == 0) ? 1 : 0;
+		}
+		mario->type = LINK_SPRITES_OFFSET + 64*last;
+		counter++;
 	}
 	
 	mario->x = x;
 	mario->y = y;
+	int i;
 
+
+
+	Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
+				(unsigned int )0x8F000000 | (unsigned int )mario->type);
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
 			(mario->y << 16) | mario->x);
+
+	for (i = 0; i < 10000; i++) { //100000 - good speed
+	}
 
 	return b_false;
 }
 
 bool tile_walkable(int index, int* map) {
-	int walkables[5] = {0, 2, 6, 8, 12, 14}; //only for hte first row in Finaltiles
+	int walkables[5] = {0, 2, 6, 8, 12, 14}; //only for the first row in Finaltiles
 	int i;
 	for(i = 0; i < 5; i++) {
 		if (map[index] == i) {
@@ -456,10 +496,11 @@ void battle_city() {
 	int i, change = 0, jumpFlag = 0;
 	int block;
 	frame = overworld[0];
-	mario.x = 200;
-	mario.y = 270;
-	overw_x = 7;
-	overw_y = 7;
+	mario.x = INITIAL_LINK_POSITION_X;
+	mario.y = INITIAL_LINK_POSITION_Y;
+	mario.type = LINK_SPRITES_OFFSET;
+	overw_x = INITIAL_FRAME_X;
+	overw_y = INITIAL_FRAME_Y;
 	map_reset(/*map1*/);
 	map_update(&mario);
 
@@ -486,11 +527,11 @@ void battle_city() {
 			d = DIR_DOWN;
 		}
 
-		mario_move(/*map1,*/ &mario, d, 0);
+		mario_move(/*map1,*/ &mario, d);
 
 		map_update(&mario);
 
-		for (i = 0; i < 100000; i++) {
+		for (i = 0; i < 1; i++) {
 		}
 
 	}
