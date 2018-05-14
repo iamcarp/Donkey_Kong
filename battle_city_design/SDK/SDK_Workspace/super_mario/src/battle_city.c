@@ -204,11 +204,30 @@ void load_frame(direction_t dir) {
 			Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
 		}
 	}
+
+    /*      setting the correct palette for the current frame     */
+    long int addr_fill, addr_floor;
+    addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
+    addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET+1);
+
+    if ((overw_y==2 & (overwx<3 || overw_x==15)) || (overw_y == 3 & (overw_x<2 || overw_x==3)) || (ovew_y==4 & overw_x<2) || (ovew_y==5 & overw_x ==0)) {
+		/*    red/green -> white    */
+		Xil_Out32(addr_fill, 0x00FCFCFC);
+		/*    sand -> gray    */
+		Xil_Out32(addr_floor, 0x007474);
+    } else if ((overw_y==3 & (overw_x==12 || overw_x==13)) || (overw_y==4 & (overw_x>5 & overw_x<15)) || ((overw_y==4 || overw_y==5) & (overw_x>3 & overw_x<15)) || (overw_y==7 & (overw_x>3 & overw_x<9))) {
+		/*    red/white -> green    */
+		Xil_Out32(addr_fill, 0x00A800);
+		/*    gray -> sand    */
+		Xil_Out32(addr_floor, 0xA8D8FC); 
+    } else {
+		/*    green/white -> red    */
+		Xil_Out32(addr_fill, 0x0C4CC8);
+		/*    gray -> sand    */
+		Xil_Out32(addr_floor, 0xA8D8FC); 
+    }
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
-    //if 
-		//addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
-		//Xil_Out32(addr, );
 }
 
 unsigned int rand_lfsr113(void) {
