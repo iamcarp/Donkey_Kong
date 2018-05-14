@@ -5,6 +5,10 @@
 #include "xio.h"
 #include <math.h>
 
+typedef int bool;
+#define true 1
+#define false 0
+
 /*          COLOR PALETTE - base addresses in ram.vhd         */
 #define FRAME_COLORS_OFFSET         0
 #define LINK_COLORS_OFFSET          8
@@ -269,23 +273,24 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 	int obstackle = 0;
 
     if (mario->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
+    	mario->x = overw_x==15? mario->x-1 :SIDE_PADDING * 16;
     	load_frame(DIR_RIGHT);
-    	mario->x = overw_x==15? mario->x :SIDE_PADDING * 16;
     	return b_false;
 	}
     if (mario->y > (SIDE_PADDING + FRAME_HEIGHT) * 16 - 16) {
+    	mario->y = overw_y==7 ? mario->y-1 : 12 * 16;
     	load_frame(DIR_DOWN);
-    	mario->y = overw_y==7 ? mario->x : 12 * 16;
     	return b_false;
     }
-    if (mario->y < 12 * 16) {
+    if (mario->y < SIDE_PADDING * 16) {
+    	mario->y = overw_y==0 ? mario->y+1 : (SIDE_PADDING + FRAME_HEIGHT) * 16 - 16;
     	load_frame(DIR_UP);
-    	mario->y = overw_y==7 ? mario->x : (SIDE_PADDING + FRAME_HEIGHT) * 16 - 16;
 		return b_false;
     }
     if (mario->x < SIDE_PADDING * 16) {
+    	mario->x = overw_x==0 ? mario->x+1 :((SIDE_PADDING + FRAME_WIDTH) * 16 - 16);
     	load_frame(DIR_LEFT);
-    	mario->x = overw_x==0 ? mario->x :((SIDE_PADDING + FRAME_WIDTH) * 16 - 16);
+
 		return b_false;
 	}
 
@@ -326,7 +331,8 @@ static bool_t mario_move(characters * mario, direction_t dir, int start_jump) {
 
 bool tile_walkable(int index, int* map) {
 	int walkables[5] = {0, 2, 6, 8, 12, 14}; //only for hte first row in Finaltiles
-	for(int i = 0; i < 5; i++) {
+	int i;
+	for(i = 0; i < 5; i++) {
 		if (map[index] == i) {
 			return true;
 		}
@@ -355,7 +361,7 @@ bool obstackles_detection(int x, int y, int* deoMape, /*unsigned char * map,*/
 			} else if (dir == DIR_RIGHT) {
 				return tile_walkable(Right_Tile_Index, deoMape);
 			}
-			return true //try with false also to see what happens
+			return true; //try with false also to see what happens
 			
 /*	unsigned char mario_position_right;
 	unsigned char mario_position_left;
@@ -480,7 +486,7 @@ void battle_city() {
 			d = DIR_DOWN;
 		}
 
-		mario_move(/*map1,*/ &mario, d, start_jump);
+		mario_move(/*map1,*/ &mario, d, 0);
 
 		map_update(&mario);
 
