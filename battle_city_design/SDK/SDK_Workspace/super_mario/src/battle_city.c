@@ -363,7 +363,7 @@ static bool_t mario_move(characters * mario, direction_t dir) {
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
 			(mario->y << 16) | mario->x);
 
-	for (i = 0; i < 10000; i++) { //100000 - good speed
+	for (i = 0; i < 100000; i++) { //100000 - good speed
 	}
 
 	return b_false;

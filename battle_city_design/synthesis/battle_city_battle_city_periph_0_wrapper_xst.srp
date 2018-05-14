@@ -4,7 +4,7 @@ Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.08 secs
+Total CPU time to Xst completion: 0.09 secs
  
 --> 
 TABLE OF CONTENTS
@@ -1007,12 +1007,12 @@ S_AXI_ACLK     |    7.634|         |         |         |
 =========================================================================
 
 
-Total REAL time to Xst completion: 11.00 secs
-Total CPU time to Xst completion: 11.56 secs
+Total REAL time to Xst completion: 13.00 secs
+Total CPU time to Xst completion: 13.15 secs
  
 --> 
 
-Total memory usage is 288532 kilobytes
+Total memory usage is 288660 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :  223 (   0 filtered)
