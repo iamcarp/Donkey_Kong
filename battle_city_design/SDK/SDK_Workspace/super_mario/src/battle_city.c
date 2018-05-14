@@ -26,6 +26,9 @@
 #define INITIAL_LINK_POSITION_X		200
 #define INITIAL_LINK_POSITION_Y		270
 
+/*      LINK SPRITES START ADDRESS - to move to next add 64    */
+#define LINK_SPRITES_OFFSET             3519
+#define SWORD_SPRITE                    4415 
 
 /*		find out what the below lines stand for		 */
 #define MAP_X							0
@@ -197,6 +200,9 @@ void load_frame(direction_t dir) {
 	}
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
+    //if 
+		//addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
+		//Xil_Out32(addr, );
 }
 
 unsigned int rand_lfsr113(void) {
