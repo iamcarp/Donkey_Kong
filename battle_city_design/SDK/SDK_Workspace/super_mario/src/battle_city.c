@@ -51,6 +51,7 @@ typedef int bool;
 #define BTN_RIGHT( b )                  ( !( b & 0x08 ) )
 #define BTN_SHOOT( b )                  ( !( b & 0x04 ) )
 
+
 /*			these are the beginnings and endings of registers that store moving sprites		 */
 #define TANK1_REG_L                     8
 #define TANK1_REG_H                     9
@@ -107,7 +108,7 @@ typedef enum {
 } bool_t;
 
 typedef enum {
-	DIR_LEFT, DIR_RIGHT, DIR_UP, DIR_DOWN, DIR_STILL
+	DIR_LEFT, DIR_RIGHT, DIR_UP, DIR_DOWN, DIR_STILL, DIR_ATTACK
 } direction_t;
 
 typedef struct {
@@ -132,17 +133,18 @@ characters mario = {
 		TANK1_REG_H             		// reg_h
 		};
 
-/*characters enemie1 = { 331,						// x
-		431,						// y
-		DIR_LEFT,              		// dir
-		IMG_16x16_enemi1,  		// type
+characters sword = {
+		INITIAL_LINK_POSITION_X,		// x
+		INITIAL_LINK_POSITION_Y,		// y
+		DIR_LEFT,              			// dir
+		SWORD_SPRITE,  					// type
 
 		b_false,                		// destroyed
 
 		TANK_AI_REG_L,            		// reg_l
 		TANK_AI_REG_H             		// reg_h
 		};
-
+/*
 characters enemie2 = { 450,						// x
 		431,						// y
 		DIR_LEFT,              		// dir
@@ -209,22 +211,26 @@ void load_frame(direction_t dir) {
     long int addr_fill, addr_floor;
     addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
     addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET+1);
+    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (LINK_COLORS_OFFSET);
 
-    if ((overw_y==2 & (overwx<3 || overw_x==15)) || (overw_y == 3 & (overw_x<2 || overw_x==3)) || (ovew_y==4 & overw_x<2) || (ovew_y==5 & overw_x ==0)) {
+    if ((overw_y==2 & (overw_x<3 || overw_x==15)) || (overw_y == 3 & (overw_x<2 || overw_x==3)) || (overw_y==4 & overw_x<2) || (overw_y==5 & overw_x ==0) ) {
 		/*    red/green -> white    */
 		Xil_Out32(addr_fill, 0x00FCFCFC);
 		/*    sand -> gray    */
-		Xil_Out32(addr_floor, 0x007474);
-    } else if ((overw_y==3 & (overw_x==12 || overw_x==13)) || (overw_y==4 & (overw_x>5 & overw_x<15)) || ((overw_y==4 || overw_y==5) & (overw_x>3 & overw_x<15)) || (overw_y==7 & (overw_x>3 & overw_x<9))) {
+		Xil_Out32(addr_floor, 0x747474);
+		//Xil_Out32(addr, 0x747474);
+    } else if ((overw_y==3 & (overw_x==12 || overw_x==13)) || (overw_y==4 & (overw_x>5 & overw_x<15)) || ((overw_y==4 || overw_y==5) & (overw_x>3 & overw_x<15)) || (overw_y==7 & (overw_x>3 & overw_x<9)) || (overw_y==6 &  overw_x > 3 & overw_x <15) ) {
 		/*    red/white -> green    */
 		Xil_Out32(addr_fill, 0x00A800);
 		/*    gray -> sand    */
 		Xil_Out32(addr_floor, 0xA8D8FC); 
+		//Xil_Out32(addr, 0xA8D8FC);
     } else {
 		/*    green/white -> red    */
 		Xil_Out32(addr_fill, 0x0C4CC8);
 		/*    gray -> sand    */
 		Xil_Out32(addr_floor, 0xA8D8FC); 
+		//Xil_Out32(addr, 0xA8D8FC);
     }
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
@@ -289,11 +295,12 @@ static void map_reset() {
 }
 
 
-static bool_t mario_move(characters * mario, direction_t dir) {
+static bool_t mario_move(characters * mario, characters* sword, direction_t dir) {
 	unsigned int x;
 	unsigned int y;
 	int obstackle = 0;
 
+	//granice u frejmu i na mapi
     if (mario->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
     	mario->x = overw_x==15? mario->x-1 :SIDE_PADDING * 16;
     	load_frame(DIR_RIGHT);
@@ -336,10 +343,11 @@ static bool_t mario_move(characters * mario, direction_t dir) {
 		13 - triforce picked up
 	*/
 
+	//animacija kretanja
 	if (dir == DIR_LEFT) {
 		x--;
 		if (counter%LINK_STEP == 0) {
-			last = (last == 3)? 4 : 3;
+			last = (last == 22)? 23 : 22;
 		}
 		//TODO:	set sprite - dont forget to flip
 		mario->type =  LINK_SPRITES_OFFSET + 64*last;
@@ -355,9 +363,9 @@ static bool_t mario_move(characters * mario, direction_t dir) {
 	} else if (dir == DIR_UP) {
 		y--;
 		if (counter%LINK_STEP == 0) {
-			last = (last == 2)? 2 : 2;
+			last = (last == 2)? 21 : 2;
 		}
-			mario->type =  LINK_SPRITES_OFFSET+64*2;
+			mario->type =  LINK_SPRITES_OFFSET+64*last;
 			counter++;
 
 	} else if (dir == DIR_DOWN) {
@@ -367,10 +375,23 @@ static bool_t mario_move(characters * mario, direction_t dir) {
 		}
 		mario->type = LINK_SPRITES_OFFSET + 64*last;
 		counter++;
-	}
+	}/*
+	nesto baguje, treba dodati pojavljivanje maca pored linka
+
+	else if (dir == DIR_ATTACK){ //pojavljivanje maca
+		switch(mario->type){
+			case LINK_SPRITES_OFFSET + 64*3: //okrenut desno
+				chhar_spawn(&sword);
+				break;
+			case LINK_SPRITES_OFFSET + 64*4: //okrenut desno
+				chhar_spawn(&sword);
+				break;
+		}
+	}*/
 	
 	mario->x = x;
 	mario->y = y;
+
 	int i;
 
 
@@ -518,6 +539,8 @@ void battle_city() {
 	mario.x = INITIAL_LINK_POSITION_X;
 	mario.y = INITIAL_LINK_POSITION_Y;
 	mario.type = LINK_SPRITES_OFFSET;
+	sword.x = INITIAL_LINK_POSITION_X+13;
+	sword.y = INITIAL_LINK_POSITION_Y;
 	overw_x = INITIAL_FRAME_X;
 	overw_y = INITIAL_FRAME_Y;
 	map_reset(/*map1*/);
@@ -528,7 +551,6 @@ void battle_city() {
 	//chhar_spawn(&enemie3);
 	//chhar_spawn(&enemie4);
 	chhar_spawn(&mario);
-
     load_frame(DIR_STILL);
 
 	while (1) {
@@ -544,9 +566,11 @@ void battle_city() {
 			d = DIR_UP;
 		} else if (BTN_DOWN(buttons)) {
 			d = DIR_DOWN;
+		} else if (BTN_SHOOT(buttons)) {
+			d = DIR_ATTACK;
 		}
 
-		mario_move(/*map1,*/ &mario, d);
+		mario_move(/*map1,*/ &mario, &sword, d);
 
 		map_update(&mario);
 
