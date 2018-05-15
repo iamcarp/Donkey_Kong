@@ -248,10 +248,39 @@ unsigned int rand_lfsr113(void) {
 	return (z1 ^ z2);
 }
 
-static void chhar_spawn(characters * chhar) {
+static void chhar_spawn(characters * chhar, int rotation) {
+	if (rotation == 1){ //rotira nadole
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int )0x8F100000 | (unsigned int )chhar->type);
+	} else if (rotation == 2){ //rotira nagore
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int )0x8F010000 | (unsigned int )chhar->type);
+	} else if (rotation == 3){ //flipuje -> okreni nadole 2 puta !!!!!!!!!!!!!!!OVO NE RADI ZASTO NE RADIS
+		unsigned int tmp = 0x8F010000 | (unsigned int )chhar->type;
+		tmp = 0x8F010000 | tmp;
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int )0x8F010000 | tmp);
+	}else {//no rotation
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int )0x8F000000 | (unsigned int )chhar->type);
+	}
+	Xil_Out32(
+			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
+			(chhar->y << 16) | chhar->x);
+}
+//fja koja brise mac
+static void delete_sword(characters* chhar){
+	int i  = 0;
+	for (; i < 100000; i++){
+
+	}
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-			(unsigned int )0x8F000000 | (unsigned int )chhar->type);
+			(unsigned int )0x80000000 | (unsigned int )chhar->type);
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
 			(chhar->y << 16) | chhar->x);
@@ -299,6 +328,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	unsigned int x;
 	unsigned int y;
 	int obstackle = 0;
+
 
 	//granice u frejmu i na mapi
     if (mario->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
@@ -375,26 +405,55 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		}
 		mario->type = LINK_SPRITES_OFFSET + 64*last;
 		counter++;
-	}/*
-	nesto baguje, treba dodati pojavljivanje maca pored linka
-
-	else if (dir == DIR_ATTACK){ //pojavljivanje maca
+	} else if (dir == DIR_ATTACK){ //pojavljivanje maca
 		switch(mario->type){
-			case LINK_SPRITES_OFFSET + 64*3: //okrenut desno
-				chhar_spawn(&sword);
+			case LINK_SPRITES_OFFSET: //dole
+				sword->x = mario->x;
+				sword->y = mario->y+16;
+
+				chhar_spawn(sword,1);
 				break;
-			case LINK_SPRITES_OFFSET + 64*4: //okrenut desno
-				chhar_spawn(&sword);
+			case LINK_SPRITES_OFFSET + 64: //dole
+				sword->x = mario->x;
+				sword->y = mario->y+16;
+				chhar_spawn(sword,1);
+				break;
+			case LINK_SPRITES_OFFSET + 64*2: // gore
+				sword->x = mario->x;
+				sword->y = mario->y-16;
+				chhar_spawn(sword,2);
+				break;
+			case LINK_SPRITES_OFFSET + 64*21: // gore
+				sword->x = mario->x;
+				sword->y = mario->y-16;
+				chhar_spawn(sword,2);
+				break;
+			case LINK_SPRITES_OFFSET + 64*3: //desno
+				sword->x = mario->x + 16;
+				sword->y = mario->y;
+				chhar_spawn(sword,0);
+				break;
+			case LINK_SPRITES_OFFSET + 64*4: //desno
+				sword->x = mario->x + 16;
+				sword->y = mario->y;
+				chhar_spawn(sword,0);
+				break;
+			case LINK_SPRITES_OFFSET + 64*22: //levo
+				sword->x = mario->x - 16;
+				sword->y = mario->y;
+				chhar_spawn(sword,3);
+				break;
+			case LINK_SPRITES_OFFSET + 64*23: //levo
+				sword->x = mario->x - 16;
+				sword->y = mario->y;
+				chhar_spawn(sword,3);
 				break;
 		}
-	}*/
+	}
+	delete_sword(sword);
 	
 	mario->x = x;
 	mario->y = y;
-
-	int i;
-
-
 
 	Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
@@ -403,7 +462,9 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
 			(mario->y << 16) | mario->x);
 
-	for (i = 0; i < 100000; i++) { //100000 - good speed
+	int i;
+
+	for (i = 0; i < 1000; i++) { //100000 - good speed
 	}
 
 	return b_false;
@@ -550,7 +611,7 @@ void battle_city() {
 	//chhar_spawn(&enemie2);
 	//chhar_spawn(&enemie3);
 	//chhar_spawn(&enemie4);
-	chhar_spawn(&mario);
+	chhar_spawn(&mario,0);
     load_frame(DIR_STILL);
 
 	while (1) {
