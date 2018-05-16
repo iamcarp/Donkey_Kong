@@ -258,12 +258,12 @@ static void chhar_spawn(characters * chhar, int rotation) {
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
 				(unsigned int )0x8F010000 | (unsigned int )chhar->type);
 	} else if (rotation == 3){ //flipuje -> okreni nadole 2 puta !!!!!!!!!!!!!!!OVO NE RADI ZASTO NE RADIS
-		unsigned int tmp = 0x8F010000 | (unsigned int )chhar->type;
-		tmp = 0x8F010000 | tmp;
+		//unsigned int tmp = 0x8F010000 | (unsigned int )chhar->type;
+		//tmp = 0x8F010000 | tmp;
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int )0x8F010000 | tmp);
-	}else {//no rotation
+				(unsigned int )0x8F110000 | (unsigned int )chhar->type);        // Test this. I think it might work. (-iske)
+	}else {//no rotation1
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
 				(unsigned int )0x8F000000 | (unsigned int )chhar->type);
