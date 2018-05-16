@@ -328,6 +328,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	unsigned int x;
 	unsigned int y;
 	int obstackle = 0;
+	int i;
 
 
 	//granice u frejmu i na mapi
@@ -371,6 +372,19 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		11 - right attack
 		12 - item picked up
 		13 - triforce picked up
+		14 - sword
+		15 - arrow
+		16 - boomerang 1
+		17 - boomerang 2
+		18 - boomerang 3
+		19 - magic 1
+		20 - magic 2
+		21 - up flipped
+		22 - left walk
+		23 - left stand
+		24 - left walk shield
+		25 - left stand shield
+		26 - left attack
 	*/
 
 	//animacija kretanja
@@ -406,51 +420,76 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		mario->type = LINK_SPRITES_OFFSET + 64*last;
 		counter++;
 	} else if (dir == DIR_ATTACK){ //pojavljivanje maca
-		switch(mario->type){
-			case LINK_SPRITES_OFFSET: //dole
+		switch(last){
+			case 0: //down
 				sword->x = mario->x;
 				sword->y = mario->y+16;
-
+				mario->type =  LINK_SPRITES_OFFSET + 64*9;
 				chhar_spawn(sword,1);
 				break;
-			case LINK_SPRITES_OFFSET + 64: //dole
+			case 1: //down
 				sword->x = mario->x;
 				sword->y = mario->y+16;
+				mario->type =  LINK_SPRITES_OFFSET + 64*9;
 				chhar_spawn(sword,1);
 				break;
-			case LINK_SPRITES_OFFSET + 64*2: // gore
+			case 2: //up
 				sword->x = mario->x;
 				sword->y = mario->y-16;
+				mario->type =  LINK_SPRITES_OFFSET + 64*10;
 				chhar_spawn(sword,2);
 				break;
-			case LINK_SPRITES_OFFSET + 64*21: // gore
+			case 21: //up
 				sword->x = mario->x;
 				sword->y = mario->y-16;
+				mario->type =  LINK_SPRITES_OFFSET + 64*10;
 				chhar_spawn(sword,2);
 				break;
-			case LINK_SPRITES_OFFSET + 64*3: //desno
+			case 3: //right
 				sword->x = mario->x + 16;
+				mario->type =  LINK_SPRITES_OFFSET + 64*11;
 				sword->y = mario->y;
 				chhar_spawn(sword,0);
 				break;
-			case LINK_SPRITES_OFFSET + 64*4: //desno
+			case 4: //right
 				sword->x = mario->x + 16;
+				mario->type =  LINK_SPRITES_OFFSET + 64*11;
 				sword->y = mario->y;
 				chhar_spawn(sword,0);
 				break;
-			case LINK_SPRITES_OFFSET + 64*22: //levo
+			case 22: //left
 				sword->x = mario->x - 16;
+				mario->type =  LINK_SPRITES_OFFSET + 64*26;
 				sword->y = mario->y;
 				chhar_spawn(sword,3);
 				break;
-			case LINK_SPRITES_OFFSET + 64*23: //levo
+			case 23: //left
 				sword->x = mario->x - 16;
+				mario->type =  LINK_SPRITES_OFFSET + 64*26;
 				sword->y = mario->y;
 				chhar_spawn(sword,3);
 				break;
 		}
+		Xil_Out32(
+					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
+					(unsigned int )0x8F000000 | (unsigned int )mario->type);
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
+				(mario->y << 16) | mario->x);
+		for(i = 0; i <3000000; i++) {}
+		//After a short break (representing the attack animation) go back to standing sprite facing the same direciton
+		if (last ==22 || last == 23) { 				//left
+			mario->type =  LINK_SPRITES_OFFSET + 64*23;
+		} else if (last == 3 || last == 4) { 		//right
+			mario->type =  LINK_SPRITES_OFFSET + 64*4;
+		} else if (last == 2 || last == 21) {		//up
+			mario->type =  LINK_SPRITES_OFFSET + 64*21;
+		} else if (last == 0 || last == 1) {			//down
+			mario->type =  LINK_SPRITES_OFFSET + 64*1;
+		}
 	}
 	delete_sword(sword);
+	//mario->type =  LINK_SPRITES_OFFSET + 64*last;
 	
 	mario->x = x;
 	mario->y = y;
@@ -462,7 +501,6 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
 			(mario->y << 16) | mario->x);
 
-	int i;
 
 	for (i = 0; i < 1000; i++) { //100000 - good speed
 	}

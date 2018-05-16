@@ -6,7 +6,7 @@
 @REM #
 @REM # Command line for ngdbuild
 @REM #
-ngdbuild -p xc6slx45fgg676-2 -nt timestamp -bm battle_city.bmm "D:/ra22-2015/lprs/LPRS2-Zelda/battle_city_design/implementation/battle_city.ngc" -uc battle_city.ucf battle_city.ngd 
+ngdbuild -p xc6slx45fgg676-2 -nt timestamp -bm battle_city.bmm "D:/ra22-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city.ngc" -uc battle_city.ucf battle_city.ngd 
 
 @REM #
 @REM # Command line for map
