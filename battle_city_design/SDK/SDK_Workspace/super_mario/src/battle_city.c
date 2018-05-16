@@ -52,7 +52,7 @@ typedef int bool;
 #define BTN_SHOOT( b )                  ( !( b & 0x04 ) )
 
 
-/*			these are the beginnings and endings of registers that store moving sprites		 */
+/*			these are the high and low registers that store moving sprites - two registers for each sprite		 */
 #define TANK1_REG_L                     8
 #define TANK1_REG_H                     9
 #define TANK_AI_REG_L                   4
@@ -79,22 +79,35 @@ int udario_glavom_skok = 0;
 int map_move = 0;
 int udario_u_blok = 0;
 int counter = 0;
-int last = 0; //last state mario was in before current iteratoin (if he is walking it keeps walking) 
+int last = 0; //last state mario was in before current iteration (if he is walking it keeps walking)
 /*For testing purposes -- all is +1
-	0 - down stand
-	1 - down walk
-	2 - up walk
-	3 - right walk
-	4 - right stand
-	5 - down stand shield
-	6 - down walk shield
-	7 - right walk shield
-	8 - right stand shield
-	9 - down attack
-	10 - up attack
-	11 - right attack
-	12 - item picked up
-	13 - triforce picked up
+		0 - down stand
+		1 - down walk
+		2 - up walk
+		3 - right walk
+		4 - right stand
+		5 - down stand shield
+		6 - down walk shield
+		7 - right walk shield
+		8 - right stand shield
+		9 - down attack
+		10 - up attack
+		11 - right attack
+		12 - item picked up
+		13 - triforce picked up
+		14 - sword
+		15 - arrow
+		16 - boomerang 1
+		17 - boomerang 2
+		18 - boomerang 3
+		19 - magic 1
+		20 - magic 2
+		21 - up flipped
+		22 - left walk
+		23 - left stand
+		24 - left walk shield
+		25 - left stand shield
+		26 - left attack
 */
 	
 /*			16x16 IMAGES		 */
@@ -249,21 +262,19 @@ unsigned int rand_lfsr113(void) {
 }
 
 static void chhar_spawn(characters * chhar, int rotation) {
-	if (rotation == 1){ //rotira nadole
+	if (rotation == 1){																			 //rotate 90degrees clockwise
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
 				(unsigned int )0x8F100000 | (unsigned int )chhar->type);
-	} else if (rotation == 2){ //rotira nagore
+	} else if (rotation == 2){ 																	//rotate 90degrees aniclockwise
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
 				(unsigned int )0x8F010000 | (unsigned int )chhar->type);
-	} else if (rotation == 3){ //flipuje -> okreni nadole 2 puta !!!!!!!!!!!!!!!OVO NE RADI ZASTO NE RADIS
-		//unsigned int tmp = 0x8F010000 | (unsigned int )chhar->type;
-		//tmp = 0x8F010000 | tmp;
+	} else if (rotation == 3){ 																	//rotate 180degrees
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int )0x8F110000 | (unsigned int )chhar->type);        // Test this. I think it might work. (-iske)
-	}else {//no rotation1
+				(unsigned int )0x8F020000 | (unsigned int )chhar->type);
+	}else {																						//no rotation
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
 				(unsigned int )0x8F000000 | (unsigned int )chhar->type);
@@ -272,7 +283,7 @@ static void chhar_spawn(characters * chhar, int rotation) {
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
 			(chhar->y << 16) | chhar->x);
 }
-//fja koja brise mac
+
 static void delete_sword(characters* chhar){
 	int i  = 0;
 	for (; i < 100000; i++){
@@ -328,10 +339,11 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	unsigned int x;
 	unsigned int y;
 	int obstackle = 0;
+	int sword_rotation = 0;
 	int i;
 
 
-	//granice u frejmu i na mapi
+	//frame and map edges
     if (mario->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
     	mario->x = overw_x==15? mario->x-1 :SIDE_PADDING * 16;
     	load_frame(DIR_RIGHT);
@@ -425,49 +437,57 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 				sword->x = mario->x;
 				sword->y = mario->y+16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*9;
-				chhar_spawn(sword,1);
+				sword_rotation = 1;
+//				chhar_spawn(sword,1);
 				break;
 			case 1: //down
 				sword->x = mario->x;
 				sword->y = mario->y+16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*9;
-				chhar_spawn(sword,1);
+				sword_rotation = 1;
+//				chhar_spawn(sword,1);
 				break;
 			case 2: //up
 				sword->x = mario->x;
 				sword->y = mario->y-16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*10;
-				chhar_spawn(sword,2);
+				sword_rotation = 2;
+//				chhar_spawn(sword,2);
 				break;
 			case 21: //up
 				sword->x = mario->x;
 				sword->y = mario->y-16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*10;
-				chhar_spawn(sword,2);
+				sword_rotation = 2;
+//				chhar_spawn(sword,2);
 				break;
 			case 3: //right
 				sword->x = mario->x + 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*11;
+				sword_rotation = 0;
 				sword->y = mario->y;
-				chhar_spawn(sword,0);
+//				chhar_spawn(sword,0);
 				break;
 			case 4: //right
 				sword->x = mario->x + 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*11;
+				sword_rotation = 0;
 				sword->y = mario->y;
-				chhar_spawn(sword,0);
+//				chhar_spawn(sword,0);
 				break;
 			case 22: //left
 				sword->x = mario->x - 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*26;
+				sword_rotation = 3;
 				sword->y = mario->y;
-				chhar_spawn(sword,3);
+//				chhar_spawn(sword,3);
 				break;
 			case 23: //left
 				sword->x = mario->x - 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*26;
+				sword_rotation = 3;
 				sword->y = mario->y;
-				chhar_spawn(sword,3);
+//				chhar_spawn(sword,3);
 				break;
 		}
 		Xil_Out32(
@@ -476,21 +496,21 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
 				(mario->y << 16) | mario->x);
+		chhar_spawn(sword,sword_rotation);
 		for(i = 0; i <3000000; i++) {}
 		//After a short break (representing the attack animation) go back to standing sprite facing the same direciton
-		if (last ==22 || last == 23) { 				//left
+		if (last ==22 || last == 23) { 						//left
 			mario->type =  LINK_SPRITES_OFFSET + 64*23;
-		} else if (last == 3 || last == 4) { 		//right
+		} else if (last == 3 || last == 4) { 				//right
 			mario->type =  LINK_SPRITES_OFFSET + 64*4;
-		} else if (last == 2 || last == 21) {		//up
+		} else if (last == 2 || last == 21) {				//up
 			mario->type =  LINK_SPRITES_OFFSET + 64*21;
-		} else if (last == 0 || last == 1) {			//down
+		} else if (last == 0 || last == 1) {				//down
 			mario->type =  LINK_SPRITES_OFFSET + 64*1;
 		}
 	}
-	delete_sword(sword);
-	//mario->type =  LINK_SPRITES_OFFSET + 64*last;
-	
+
+
 	mario->x = x;
 	mario->y = y;
 
@@ -501,7 +521,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
 			(mario->y << 16) | mario->x);
 
-
+	delete_sword(sword);
 	for (i = 0; i < 1000; i++) { //100000 - good speed
 	}
 
