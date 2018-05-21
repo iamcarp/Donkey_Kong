@@ -27,7 +27,7 @@ typedef int bool;
 #define VERTICAL_PADDING			7
 #define INITIAL_FRAME_X				7
 #define INITIAL_FRAME_Y				7
-#define INITIAL_LINK_POSITION_X		200
+#define INITIAL_LINK_POSITION_X		200 + 64
 #define INITIAL_LINK_POSITION_Y		270
 
 /*      LINK SPRITES START ADDRESS - to move to next add 64    */
@@ -405,7 +405,6 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		if (counter%LINK_STEP == 0) {
 			last = (last == 22)? 23 : 22;
 		}
-		//TODO:	set sprite - dont forget to flip
 		mario->type =  LINK_SPRITES_OFFSET + 64*last;
 		counter++;
 	} else if (dir == DIR_RIGHT) {
@@ -431,63 +430,55 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		}
 		mario->type = LINK_SPRITES_OFFSET + 64*last;
 		counter++;
-	} else if (dir == DIR_ATTACK){ //pojavljivanje maca
+	} else if (dir == DIR_ATTACK){
 		switch(last){
 			case 0: //down
 				sword->x = mario->x;
 				sword->y = mario->y+16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*9;
 				sword_rotation = 1;
-//				chhar_spawn(sword,1);
 				break;
 			case 1: //down
 				sword->x = mario->x;
 				sword->y = mario->y+16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*9;
 				sword_rotation = 1;
-//				chhar_spawn(sword,1);
 				break;
 			case 2: //up
 				sword->x = mario->x;
 				sword->y = mario->y-16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*10;
 				sword_rotation = 2;
-//				chhar_spawn(sword,2);
 				break;
 			case 21: //up
 				sword->x = mario->x;
 				sword->y = mario->y-16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*10;
 				sword_rotation = 2;
-//				chhar_spawn(sword,2);
 				break;
 			case 3: //right
 				sword->x = mario->x + 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*11;
 				sword_rotation = 0;
 				sword->y = mario->y;
-//				chhar_spawn(sword,0);
 				break;
 			case 4: //right
 				sword->x = mario->x + 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*11;
 				sword_rotation = 0;
 				sword->y = mario->y;
-//				chhar_spawn(sword,0);
 				break;
 			case 22: //left
 				sword->x = mario->x - 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*26;
 				sword_rotation = 3;
 				sword->y = mario->y;
-//				chhar_spawn(sword,3);
 				break;
 			case 23: //left
 				sword->x = mario->x - 16;
 				mario->type =  LINK_SPRITES_OFFSET + 64*26;
 				sword_rotation = 3;
 				sword->y = mario->y;
-//				chhar_spawn(sword,3);
 				break;
 		}
 		Xil_Out32(
@@ -510,9 +501,16 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		}
 	}
 
+	if (!obstackles_detection(x,y, frame, dir)) {
 
-	mario->x = x;
-	mario->y = y;
+		mario->x = x;
+		mario->y = y;
+	}
+
+//Used this to determine if i'm in the right frame, -> I am+
+	//mario->type = frame[21];
+
+	print("Nesto");
 
 	Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
@@ -522,135 +520,52 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			(mario->y << 16) | mario->x);
 
 	delete_sword(sword);
-	for (i = 0; i < 1000; i++) { //100000 - good speed
+	for (i = 0; i < 1000; i++) { //1000 - good speed
 	}
 
 	return b_false;
 }
 
-bool tile_walkable(int index, int* map) {
-	int walkables[5] = {0, 2, 6, 8, 12, 14}; //only for the first row in Finaltiles
+bool tile_walkable(int index, unsigned short* map_frame) {
+	int walkables[20] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47}; // the last row in Finaltiles is not included
 	int i;
-	for(i = 0; i < 5; i++) {
-		if (map[index] == i) {
+
+	for(i = 0; i < 20; i++) {
+		if(map_frame[index] == SPRITES[walkables[i]]){ //ovo ne prolazi, znaci da ne nalazi adresu medju sprajtovima
 			return true;
 		}
 	}
+
 	return false;
 }
 
-bool obstackles_detection(int x, int y, int* deoMape, /*unsigned char * map,*/
+bool obstackles_detection(int x, int y, unsigned short* f, /*unsigned char * map,*/
 		int dir) {
-			int w = 0; //either width of frame or width of map, depends how you'll acces the tile from the index
-			int Tile_Index_UL = x/16 + w * y/16;
-			int Tile_Index_UR = (x+15)/16 + w * y/16;
-			int Tile_Index_DL = x/16 + w * (y+8)/16;
-			
-			int Left_Tile_Index = Tile_Index_UR - 1;
-			int Right_Tile_Index = Tile_Index_UL + 1;
-			int Up_Tile_Index = Tile_Index_DL - w;
-			int Down_Tile_Index = Tile_Index_UL + w;
+			int x_left = x - SIDE_PADDING*16;
+			int x_right = x + 13 - SIDE_PADDING*16;
+			int y_top = y + 8 - (VERTICAL_PADDING + 5)*16;
+			int y_bot = y + 15 - (VERTICAL_PADDING + 5)*16;
+
+			x_left/=16;
+			x_right/=16;
+			y_top/=16;
+			y_bot/=16;
 			
 			if (dir == DIR_UP) {
-				return tile_walkable(Up_Tile_Index, deoMape);
+				return !(tile_walkable(x_left + y_top*FRAME_WIDTH, f) && tile_walkable(x_right + y_top*FRAME_WIDTH, f));
 			} else if (dir == DIR_DOWN) {
-				return tile_walkable(Down_Tile_Index, deoMape);
+				return !(tile_walkable(x_left + y_bot*FRAME_WIDTH, f) && tile_walkable(x_right + y_bot*FRAME_WIDTH, f));
 			} else if (dir == DIR_LEFT) {
-				return tile_walkable(Left_Tile_Index, deoMape);				
+				return !(tile_walkable(x_left + y_top*FRAME_WIDTH, f) && tile_walkable(x_left + y_bot*FRAME_WIDTH, f));
 			} else if (dir == DIR_RIGHT) {
-				return tile_walkable(Right_Tile_Index, deoMape);
+				return !(tile_walkable(x_right + y_top*FRAME_WIDTH, f) && tile_walkable(x_right + y_bot*FRAME_WIDTH, f));
 			}
-			return true; //try with false also to see what happens
-			
-/*	unsigned char mario_position_right;
-	unsigned char mario_position_left;
-	unsigned char mario_position_up;
-
-	float Xx = x;
-	float Yy = y;
-
-	int roundX = 0;
-	int roundY = 0;
-
-	roundX = floor(Xx / 16);
-	roundY = floor(Yy / 16);
-
-	mario_position_right = map1[roundY + 1][roundX + 1];
-	mario_position_left = map1[roundY + 1][roundX];
-	mario_position_up = map1[roundY + 1][roundX];
-
-	if (dir == 1) {
-		switch (mario_position_right) {
-		case 0:
-			return 0;
-			break;
-		case 1:
-			return 1;
-			break;
-		case 2:
-			return 2;
-			break;
-		case 3:
-			return 3;
-			break;
-		case 4:
-			return 4;
-			break;
-		case 5:
-			return 5;
-			break;
-
-		}
-	} else if (dir == 2) {
-		switch (mario_position_left) {
-		case 0:
-			return 0;
-			break;
-		case 1:
-			return 1;
-			break;
-		case 2:
-			return 2;
-			break;
-		case 3:
-			return 3;
-			break;
-		case 4:
-			return 4;
-			break;
-		case 5:
-			return 5;
-			break;
-
-		}
-	} else if (dir == 3) {
-		switch (mario_position_up) {
-		case 0:
-			return 0;
-			break;
-		case 1:
-			return 1;
-			break;
-		case 2:
-			return 2;
-			break;
-		case 3:
-			return 3;
-			break;
-		case 4:
-			return 4;
-			break;
-		case 5:
-			return 5;
-			break;
-
-		}
-	}
-*/
+			return false;
 }
 
 void battle_city() {
 
+	print("Nesto0");
 	unsigned int buttons, tmpBtn = 0, tmpUp = 0;
 	int i, change = 0, jumpFlag = 0;
 	int block;
