@@ -327,6 +327,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	unsigned int y;
 	int obstackle = 0;
 	int sword_rotation = 0;
+	int lasting_attack = 0;
 	int i;
 
 
@@ -336,8 +337,8 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
     	load_frame(DIR_RIGHT);
     	return b_false;
 	}
-    if (mario->y > (SIDE_PADDING + FRAME_HEIGHT) * 16 - 16) {
-    	mario->y = overw_y==7 ? mario->y-1 : 12 * 16;
+    if (mario->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16) {
+    	mario->y = overw_y==7 ? mario->y-1 : (HEADER_HEIGHT+ VERTICAL_PADDING) * 16;
     	load_frame(DIR_DOWN);
     	return b_false;
     }
@@ -474,6 +475,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
 				(mario->y << 16) | mario->x);
+		for(i =0; i <900000; i++) {}
 		chhar_spawn(sword,sword_rotation);
 		for(i = 0; i <3000000; i++) {}
 		//After a short break (representing the attack animation) go back to standing sprite facing the same direciton
@@ -489,13 +491,15 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	}
 
 	/*		skip collision detection if on the bottom of the frame ? - something is wrong when moving down		*/
-	if (!obstackles_detection(x,y, frame, dir)) {
+	if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
 		mario->x = x;
 		mario->y = y;
+	} else {
+		if (!obstackles_detection(x,y, frame, dir)) {
+			mario->x = x;
+			mario->y = y;
+		}
 	}
-
-//Used this to determine if i'm in the right frame, -> I am+
-	//mario->type = frame[21];
 
 	print("Nesto");
 
