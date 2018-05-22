@@ -6,8 +6,8 @@ xc6slx45fgg676-2 -intstyle silent -i -sd .. battle_city_microblaze_0_wrapper.ngc
 ../battle_city_microblaze_0_wrapper
 
 Reading NGO file
-"D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/microblaze_0_wrappe
-r/battle_city_microblaze_0_wrapper.ngc" ...
+"C:/Users/student/Desktop/ra22-2015/LPRS2-Zelda/battle_city_design/implementatio
+n/microblaze_0_wrapper/battle_city_microblaze_0_wrapper.ngc" ...
 
 Partition Implementation Status
 -------------------------------

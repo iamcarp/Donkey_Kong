@@ -1,6 +1,9 @@
 #ifndef _MAP_H_
 #define _MAP_H_
 
+#define OVERWORLD_VERTICAL				8	//	the height of the overworld in frames
+#define OVERWORLD_HORIZONTAL			16	//	the width of the overworld in frames
+
 unsigned short overworld[8*16][11*16] = {
 
 

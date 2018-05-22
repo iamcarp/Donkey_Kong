@@ -4,6 +4,7 @@
 #include "xil_io.h"
 #include "xio.h"
 #include <math.h>
+#include "sprites.h"
 
 typedef int bool;
 #define true 1
@@ -17,9 +18,11 @@ typedef int bool;
 #define SCREEN_BASE_ADDRESS			6900
 #define SCR_HEIGHT					30
 #define SCR_WIDTH					40
+#define SPRITE_SIZE					16
 
 /*		FRAME HEADER		*/
 #define HEADER_BASE_ADDRESS			7192
+#define HEADER_HEIGHT				5
 
 /*      FRAME       */
 #define FRAME_BASE_ADDRESS			7392 // FRAME_OFFSET in battle_city.vhd
@@ -31,8 +34,8 @@ typedef int bool;
 #define INITIAL_LINK_POSITION_Y		270
 
 /*      LINK SPRITES START ADDRESS - to move to next add 64    */
-#define LINK_SPRITES_OFFSET             3519
-#define SWORD_SPRITE                    4415 
+#define LINK_SPRITES_OFFSET             5172
+#define SWORD_SPRITE                    6068
 #define LINK_STEP						10
 
 /*		find out what the below lines stand for		 */
@@ -71,6 +74,9 @@ typedef int bool;
 #define TANK_AI_REG_H7                  17
 #define BASE_REG_L						0
 #define BASE_REG_H	                    1
+
+/*			contains true if in the corresponding frame in overworld has enemies	*/
+bool ENEMY_FRAMES[OVERWORLD_VERTICAL][OVERWORLD_HORIZONTAL] = {};
 
 int lives = 0;
 int score = 0;
@@ -111,7 +117,7 @@ int last = 0; //last state mario was in before current iteration (if he is walki
 */
 	
 /*			16x16 IMAGES		 */
-unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
+//unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
 
 /*		 ACTIVE FRAME		*/
 unsigned short* frame;
@@ -210,6 +216,10 @@ void load_frame(direction_t dir) {
     }
     frame = overworld[overw_y*16 + overw_x];
 
+    if (ENEMY_FRAMES[overw_y][overw_x]) {
+    	initialize_enemy();
+    }
+
     /*      loading next frame into memory      */
     int x,y;
     long int addr;
@@ -220,45 +230,42 @@ void load_frame(direction_t dir) {
 		}
 	}
 
-    /*      setting the correct palette for the current frame     */
-    long int addr_fill, addr_floor;
-    addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
-    addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET+1);
-    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (LINK_COLORS_OFFSET);
+    set_frame_palette();
 
-    if ((overw_y==2 & (overw_x<3 || overw_x==15)) || (overw_y == 3 & (overw_x<2 || overw_x==3)) || (overw_y==4 & overw_x<2) || (overw_y==5 & overw_x ==0) ) {
-		/*    red/green -> white    */
-		Xil_Out32(addr_fill, 0x00FCFCFC);
-		/*    sand -> gray    */
-		Xil_Out32(addr_floor, 0x747474);
-		//Xil_Out32(addr, 0x747474);
-    } else if ((overw_y==3 & (overw_x==12 || overw_x==13)) || (overw_y==4 & (overw_x>5 & overw_x<15)) || ((overw_y==4 || overw_y==5) & (overw_x>3 & overw_x<15)) || (overw_y==7 & (overw_x>3 & overw_x<9)) || (overw_y==6 &  overw_x > 3 & overw_x <15) ) {
-		/*    red/white -> green    */
-		Xil_Out32(addr_fill, 0x00A800);
-		/*    gray -> sand    */
-		Xil_Out32(addr_floor, 0xA8D8FC); 
-		//Xil_Out32(addr, 0xA8D8FC);
-    } else {
-		/*    green/white -> red    */
-		Xil_Out32(addr_fill, 0x0C4CC8);
-		/*    gray -> sand    */
-		Xil_Out32(addr_floor, 0xA8D8FC); 
-		//Xil_Out32(addr, 0xA8D8FC);
-    }
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
 }
 
-unsigned int rand_lfsr113(void) {
-	static unsigned int z1 = 12345, z2 = 12345;
-	unsigned int b;
+/*      setting the correct palette for the current frame     */
+void set_frame_palette() {
+	long int addr_fill, addr_floor;
+	addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
+	addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET+1);
 
-	b = ((z1 << 6) ^ z1) >> 13;
-	z1 = ((z1 & 4294967294U) << 18) ^ b;
-	b = ((z2 << 2) ^ z2) >> 27;
-	z2 = ((z2 & 4294967288U) << 2) ^ b;
+	if ((overw_y==2 & (overw_x<3 || overw_x==15)) || (overw_y == 3 & (overw_x<2 || overw_x==3)) || (overw_y==4 & overw_x<2) || (overw_y==5 & overw_x ==0) ) {
+		/*    red/green -> white    */
+		Xil_Out32(addr_fill, 0x00FCFCFC);
+		/*    sand -> gray    */
+		Xil_Out32(addr_floor, 0x747474);
+	} else if ((overw_y==3 & (overw_x==12 || overw_x==13)) || (overw_y==4 & (overw_x>5 & overw_x<15)) || ((overw_y==4 || overw_y==5) & (overw_x>3 & overw_x<15)) || (overw_y==7 & (overw_x>3 & overw_x<9)) || (overw_y==6 &  overw_x > 3 & overw_x <15) ) {
+		/*    red/white -> green    */
+		Xil_Out32(addr_fill, 0x00A800);
+		/*    gray -> sand    */
+		Xil_Out32(addr_floor, 0xA8D8FC); 
+	} else {
+		/*    green/white -> red    */
+		Xil_Out32(addr_fill, 0x0C4CC8);
+		/*    gray -> sand    */
+		Xil_Out32(addr_floor, 0xA8D8FC); 
+	}
 
-	return (z1 ^ z2);
+}
+
+void initialize_enemy() {
+	//TODO:		depending on the frame, set enemie positions
+	//chhar_spawn(&enemy);
+	// add enemy movement logic in another function
+
 }
 
 static void chhar_spawn(characters * chhar, int rotation) {
@@ -297,26 +304,6 @@ static void delete_sword(characters* chhar){
 			(chhar->y << 16) | chhar->x);
 }
 
-static void map_update(characters * mario) {
-	int x, y, i;
-	long int addr;
-
-	if (mario->x >= 330) {
-		if (udario_u_blok <= 0) {
-			map_move++;
-		}
-		if (mario->x == 2560) {
-			map_move = 2520;
-		}
-	}
-
-	for (y = 0; y < FRAME_HEIGHT; y++) {
-		for (x = 0; x < FRAME_WIDTH; x++) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
-			Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
-		}
-	}
-}
 // currently, this function is cleaning the registers used for movind characters sprites; two registers are used for each sprite
 static void map_reset() {
 	unsigned int i;
@@ -501,8 +488,8 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		}
 	}
 
+	/*		skip collision detection if on the bottom of the frame ? - something is wrong when moving down		*/
 	if (!obstackles_detection(x,y, frame, dir)) {
-
 		mario->x = x;
 		mario->y = y;
 	}
@@ -541,16 +528,16 @@ bool tile_walkable(int index, unsigned short* map_frame) {
 
 bool obstackles_detection(int x, int y, unsigned short* f, /*unsigned char * map,*/
 		int dir) {
-			int x_left = x - SIDE_PADDING*16;
-			int x_right = x + 13 - SIDE_PADDING*16;
-			int y_top = y + 8 - (VERTICAL_PADDING + 5)*16;
-			int y_bot = y + 15 - (VERTICAL_PADDING + 5)*16;
+			int x_left = x - SIDE_PADDING*SPRITE_SIZE;
+			int x_right = x + 13 - SIDE_PADDING*SPRITE_SIZE;
+			int y_top = y + 8 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
+			int y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
 
 			x_left/=16;
 			x_right/=16;
 			y_top/=16;
 			y_bot/=16;
-			
+
 			if (dir == DIR_UP) {
 				return !(tile_walkable(x_left + y_top*FRAME_WIDTH, f) && tile_walkable(x_right + y_top*FRAME_WIDTH, f));
 			} else if (dir == DIR_DOWN) {
@@ -578,12 +565,7 @@ void battle_city() {
 	overw_x = INITIAL_FRAME_X;
 	overw_y = INITIAL_FRAME_Y;
 	map_reset(/*map1*/);
-	map_update(&mario);
 
-	//chhar_spawn(&enemie1);
-	//chhar_spawn(&enemie2);
-	//chhar_spawn(&enemie3);
-	//chhar_spawn(&enemie4);
 	chhar_spawn(&mario,0);
     load_frame(DIR_STILL);
 
@@ -605,8 +587,8 @@ void battle_city() {
 		}
 
 		mario_move(/*map1,*/ &mario, &sword, d);
-
-		map_update(&mario);
+		//if (enemies_exist) {
+		//TODO: enemy_move(); }
 
 		for (i = 0; i < 1; i++) {
 		}
