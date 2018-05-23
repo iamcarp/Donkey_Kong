@@ -10,6 +10,8 @@ typedef int bool;
 #define true 1
 #define false 0
 
+
+#define ENEMY_FRAMES_NUM 			34
 /*          COLOR PALETTE - base addresses in ram.vhd         */
 #define FRAME_COLORS_OFFSET         0
 #define LINK_COLORS_OFFSET          8
@@ -37,6 +39,10 @@ typedef int bool;
 #define LINK_SPRITES_OFFSET             5172
 #define SWORD_SPRITE                    6068
 #define LINK_STEP						10
+
+/*      ENEMIE SPRITES START ADDRESS - to move to next add 64    */
+#define ENEMIE_SPRITES_OFFSET          4596
+#define ENEMY_STEP						10
 
 /*		find out what the below lines stand for		 */
 #define MAP_X							0
@@ -76,7 +82,9 @@ typedef int bool;
 #define BASE_REG_H	                    1
 
 /*			contains true if in the corresponding frame in overworld has enemies	*/
-bool ENEMY_FRAMES[OVERWORLD_VERTICAL][OVERWORLD_HORIZONTAL] = {};
+bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
+									   84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
+									   105, 106, 110, 111, 120, 125, 126};
 
 int lives = 0;
 int score = 0;
@@ -163,18 +171,19 @@ characters sword = {
 		TANK_AI_REG_L,            		// reg_l
 		TANK_AI_REG_H             		// reg_h
 		};
-/*
-characters enemie2 = { 450,						// x
-		431,						// y
-		DIR_LEFT,              		// dir
-		IMG_16x16_enemi1,  		// type
+
+characters octorok = {
+		0,								// x
+		0,								// y
+		DIR_LEFT,              			// dir
+		SWORD_SPRITE,  					// type
 
 		b_false,                		// destroyed
 
 		TANK_AI_REG_L2,            		// reg_l
 		TANK_AI_REG_H2             		// reg_h
 		};
-
+/*
 characters enemie3 = { 330,						// x
 		272,						// y
 		DIR_LEFT,              		// dir
@@ -203,100 +212,51 @@ int overw_y = INITIAL_FRAME_Y;
 bool inCave = false;
 int door_x, door_y;
 
-void load_cave() {
-    inCave = true;
-    set_frame_palette();
-    int x,y;
-    long int addr;
-    unsigned short value;
+void load_frame(direction_t dir) {
+	if(!inCave) {
+		switch(dir) {
+			case DIR_LEFT:
+				overw_x = (--overw_x<0)? 0 : overw_x;
+				break;
+			case DIR_RIGHT:
+				overw_x = (++overw_x>15)? 15 : overw_x;
+				break;
+			case DIR_UP:
+				overw_y = (--overw_y<0)? 0 : overw_y;
+				break;
+			case DIR_DOWN:
+				overw_y = (++overw_y>7)? 7 : overw_y;
+				break;
+		}
 
-    for (y = 0; y < FRAME_HEIGHT; y++) {
-		for (x = 0; x < FRAME_WIDTH; x++) {
-            /*      set cave floor - this will be used if not on edge     */
-            value = SPRITES[2];
-
-            /*      set left and right edges    */
-			switch(x) {
-                case 0:
-                    value = SPRITES[19];    
-                    break;
-                case 15:
-                    value = SPRITES[19];
-                    break;
-            }
-
-            /*      set top and bottom edges    */
-            switch(y) {
-                case 0:
-                    value = SPRITES[19];
-                    break;
-                case 1:
-                	if(x == 1) {
-						value = SPRITES[20];
-					} else if (x == 14) {
-						value = SPRITES[18];
-					}
-                	break;
-                case 9:
-                	if(x == 1) {
-						value = SPRITES[14];
-					} else if (x == 14) {
-						value = SPRITES[12];
-					}
-                	break;
-                case 10:
-                	if (x == 7 || x == 8) {
-						value = SPRITES[2];
-					} else {
-						value = SPRITES[13];
-					}
-                    break;
-            }
-
-            addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
-			Xil_Out32(addr, value);
+		frame = overworld[overw_y*16 + overw_x];
+	} else {
+		if (dir == DIR_DOWN) {
+			frame = overworld[overw_y*16 + overw_x];
+			inCave = false;
+		} else {
+			frame = CAVE;
 		}
 	}
-}
-
-void load_frame(direction_t dir) {
-    switch(dir) {
-        case DIR_LEFT:
-            overw_x = (--overw_x<0)? 0 : overw_x;
-            break;
-        case DIR_RIGHT:
-            overw_x = (++overw_x>15)? 15 : overw_x;
-            break;
-        case DIR_UP:
-            overw_y = (--overw_y<0)? 0 : overw_y;
-            break;
-        case DIR_DOWN:
-            if (inCave) {
-                inCave = false;
-            } else {
-                overw_y = (++overw_y>7)? 7 : overw_y;
-            }
-            break;
-    }
-
-    frame = overworld[overw_y*16 + overw_x];
-
-    if (ENEMY_FRAMES[overw_y][overw_x]) {
-    	initialize_enemy();
+    /* odredjivanje frejma i inicijalizovanje enemy-a ukoliko na datom frejmu treba da bude enemy) */
+    int i;
+    int frame_index = overw_y * 16 + overw_x;
+    for (i = 0; i < ENEMY_FRAMES_NUM; i++){
+    	if(frame_index == ENEMY_FRAMES[i]){
+    		initialize_enemy(frame_index);
+    	}
     }
 
     /*      loading next frame into memory      */
-    if(!inCave) {       // not sure if this "if" is needen since load_frame is called only when on the edge of the frame, and the dorrs are never on edge...
-        int x,y;
-        long int addr;
-        for (y = 0; y < FRAME_HEIGHT; y++) {
-		    for (x = 0; x < FRAME_WIDTH; x++) {
-			    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
-			    Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
-	    	}
-	    }
-        set_frame_palette();
-    }
+	int x,y;
+	long int addr;
+	for (y = 0; y < FRAME_HEIGHT; y++) {
+		for (x = 0; x < FRAME_WIDTH; x++) {
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
+			Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
+		}
+	}
+	set_frame_palette();
 
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
@@ -336,10 +296,20 @@ void set_frame_palette() {
 
 }
 
-void initialize_enemy() {
-	//TODO:		depending on the frame, set enemie positions
+void initialize_enemy(int frame_index) {
+	//TODO:		depending on the frame, set enemy positions
 	//chhar_spawn(&enemy);
-	// add enemy movement logic in another function
+	/* na random poziciju na frejmu postavi enemy
+	 * moras proveriti da nije obstacle
+	 * ovde ce se samo inicijalizovati enemy
+	 * kretanje ce biti odradjeno u drugoj fji
+	 * u zavisnosti od frejma zavisice pozicija enemy-a
+	 * dakle prosledjujes mu koordinate overw_x i _y
+	 */
+
+
+
+
 
 }
 
@@ -590,12 +560,13 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
     if(!inCave && isDoor(x,y)) {
         mario->x = (SIDE_PADDING + (int)(FRAME_WIDTH)/2)*16;        // set to the middle of the frame
         mario->y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT)*SPRITE_SIZE - SPRITE_SIZE;     //set to the bottom of the cave
-        load_cave(); 
+        inCave = true;
+        load_frame(DIR_UP);
     } else if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
 		mario->x = x;
 		mario->y = y;
 	} else {
-		if (!obstackles_detection(x,y, frame, dir) || inCave) {
+		if (!obstackles_detection(x,y, frame, dir)) {
 			mario->x = x;
 			mario->y = y;
 		}
