@@ -1,1 +1,1 @@
- -p spartan6 -lang vhdl$(PROJECT_SEARCHPATHOPT) $(GLOBAL_SEARCHPATHOPT) -msg __xps/ise/xmsgprops.lst -s isim -X C:/Users/student/Desktop/ra22-2015/LPRS2-Zelda/battle_city_design/
+ -p spartan6 -lang vhdl$(PROJECT_SEARCHPATHOPT) $(GLOBAL_SEARCHPATHOPT) -msg __xps/ise/xmsgprops.lst -s isim -X C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/

@@ -6,8 +6,8 @@ xc6slx45fgg676-2 -intstyle silent -i -sd .. battle_city_microblaze_0_wrapper.ngc
 ../battle_city_microblaze_0_wrapper
 
 Reading NGO file
-"C:/Users/student/Desktop/ra22-2015/LPRS2-Zelda/battle_city_design/implementatio
-n/microblaze_0_wrapper/battle_city_microblaze_0_wrapper.ngc" ...
+"C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/implementation/microblaze_0_wr
+apper/battle_city_microblaze_0_wrapper.ngc" ...
 
 Partition Implementation Status
 -------------------------------
@@ -20,7 +20,7 @@ NGCBUILD Design Results Summary:
   Number of errors:     0
   Number of warnings:   0
 
-Total memory usage is 170208 kilobytes
+Total memory usage is 169696 kilobytes
 
 Writing NGC file "../battle_city_microblaze_0_wrapper.ngc" ...
 Total REAL time to NGCBUILD completion:  2 sec
