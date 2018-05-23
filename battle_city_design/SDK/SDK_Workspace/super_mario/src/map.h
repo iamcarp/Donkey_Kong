@@ -4,6 +4,8 @@
 #define OVERWORLD_VERTICAL				8	//	the height of the overworld in frames
 #define OVERWORLD_HORIZONTAL			16	//	the width of the overworld in frames
 
+unsigned char cave[11*16] = {};	//	fill with sprite addresses
+
 unsigned short overworld[8*16][11*16] = {
 
 

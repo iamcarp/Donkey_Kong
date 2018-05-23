@@ -201,13 +201,14 @@ int overw_x = INITIAL_FRAME_X;
 int overw_y = INITIAL_FRAME_Y;
 
 bool inCave = false;
+int door_x, door_y;
 
 void load_cave() {
     inCave = true;
     set_frame_palette();
     int x,y;
     long int addr;
-    unsigned char value;
+    unsigned short value;
 
     for (y = 0; y < FRAME_HEIGHT; y++) {
 		for (x = 0; x < FRAME_WIDTH; x++) {
@@ -227,24 +228,28 @@ void load_cave() {
             /*      set top and bottom edges    */
             switch(y) {
                 case 0:
-                    if(x == 0) {
-                        value = SPRITES[20];
-                    } else if (x == 15) {
-                        value = SPRITES[18];
-                    } else {
-                        value = SPRITES[19];
-                    }
+                    value = SPRITES[19];
                     break;
-                case 15:
-                    if(x == 0) {
-                        value = SPRITES[14];
-                    } else if (x == 15) {
-                        value = SPRITES[12];
-                    } else if (x == 7) {
-                        value = SPRITES[10];
-                    } else {
-                        value = SPRITES[13];
-                    }
+                case 1:
+                	if(x == 1) {
+						value = SPRITES[20];
+					} else if (x == 14) {
+						value = SPRITES[18];
+					}
+                	break;
+                case 9:
+                	if(x == 1) {
+						value = SPRITES[14];
+					} else if (x == 14) {
+						value = SPRITES[12];
+					}
+                	break;
+                case 10:
+                	if (x == 7 || x == 8) {
+						value = SPRITES[2];
+					} else {
+						value = SPRITES[13];
+					}
                     break;
             }
 
@@ -305,7 +310,7 @@ void set_frame_palette() {
 
     if(inCave) {
 		/*    red/green/gray -> red    */
-		Xil_Out32(addr_fill, 0, 0x0C4CC8);       // fix the color
+		Xil_Out32(addr_fill,  0x0C4CC8);       // fix the color
 		/*    sand/gray -> black    */
 		Xil_Out32(addr_floor, 0x000000);
         
@@ -407,18 +412,23 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
     	load_frame(DIR_RIGHT);
     	return b_false;
 	}
-    if (mario->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16) {
-    	mario->y = overw_y==7 ? mario->y-1 : (HEADER_HEIGHT+ VERTICAL_PADDING) * 16;
+    if (mario->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE) {
+    	if(inCave) {
+    		mario->x = (SIDE_PADDING + door_x) * SPRITE_SIZE;
+    		mario->y = (VERTICAL_PADDING + HEADER_HEIGHT + door_y) * SPRITE_SIZE + 15;
+    	} else {
+    		mario->y = overw_y==7 ? mario->y-1 : (HEADER_HEIGHT+ VERTICAL_PADDING) * SPRITE_SIZE;
+    	}
     	load_frame(DIR_DOWN);
     	return b_false;
     }
-    if (mario->y < SIDE_PADDING * 16) {
-    	mario->y = overw_y==0 ? mario->y+1 : (SIDE_PADDING + FRAME_HEIGHT) * 16 - 16;
+    if (mario->y < SIDE_PADDING * SPRITE_SIZE) {
+    	mario->y = overw_y==0 ? mario->y+1 : (HEADER_HEIGHT + VERTICAL_PADDING + FRAME_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE;
     	load_frame(DIR_UP);
 		return b_false;
     }
-    if (mario->x < SIDE_PADDING * 16) {
-    	mario->x = overw_x==0 ? mario->x+1 :((SIDE_PADDING + FRAME_WIDTH) * 16 - 16);
+    if (mario->x < SIDE_PADDING * SPRITE_SIZE) {
+    	mario->x = overw_x==0 ? mario->x+1 :((SIDE_PADDING + FRAME_WIDTH) * SPRITE_SIZE - SPRITE_SIZE);
     	load_frame(DIR_LEFT);
 
 		return b_false;
@@ -577,15 +587,15 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	}
 
 	/*		skip collision detection if on the bottom of the frame 			*/
-    if(!inCave && isDoor(x,y)) { 
-        mario->x = (SIDE_PADDING + (int)(FRAME_WIDTH - 1)/2)*16;        // set to the middle of the frame
+    if(!inCave && isDoor(x,y)) {
+        mario->x = (SIDE_PADDING + (int)(FRAME_WIDTH)/2)*16;        // set to the middle of the frame
         mario->y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT)*SPRITE_SIZE - SPRITE_SIZE;     //set to the bottom of the cave
         load_cave(); 
     } else if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
 		mario->x = x;
 		mario->y = y;
 	} else {
-		if (!obstackles_detection(x,y, frame, dir)) {
+		if (!obstackles_detection(x,y, frame, dir) || inCave) {
 			mario->x = x;
 			mario->y = y;
 		}
@@ -610,13 +620,16 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 
 bool isDoor(x,y) {
     /*      calculate the index of the position in the frame     */
-	x = x + 2 - SIDE_PADDING*SPRITE_SIZE;
-	y = y + 2 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
+	x = x + 13 - SIDE_PADDING*SPRITE_SIZE;
+	y = y + 14 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
     x/=SPRITE_SIZE;
     y/=SPRITE_SIZE;
     
+
     /*      check if sprite is on the door      */
     if(frame[y*FRAME_WIDTH + x] == SPRITES[10]) {
+    	door_x = x;
+    	door_y = y;
         return true;
     }
 
@@ -638,9 +651,9 @@ bool tile_walkable(int index, unsigned short* map_frame) {
 
 bool obstackles_detection(int x, int y, unsigned short* f, /*unsigned char * map,*/
 		int dir) {
-			int x_left = x - SIDE_PADDING*SPRITE_SIZE;
-			int x_right = x + 13 - SIDE_PADDING*SPRITE_SIZE;
-			int y_top = y + 8 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
+			int x_left = x + 3 - SIDE_PADDING*SPRITE_SIZE;
+			int x_right = x + 12 - SIDE_PADDING*SPRITE_SIZE;
+			int y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
 			int y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
 
 			x_left/=16;
@@ -695,7 +708,7 @@ void battle_city() {
 			d = DIR_ATTACK;
 		}
 
-		mario_move(/*map1,*/ &mario, &sword, d);
+		mario_move(&mario, &sword, d);
 		//if (enemies_exist) {
 		//TODO: enemy_move(); }
 
