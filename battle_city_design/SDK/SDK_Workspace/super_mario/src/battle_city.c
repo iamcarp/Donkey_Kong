@@ -5,6 +5,7 @@
 #include "xio.h"
 #include <math.h>
 #include "sprites.h"
+#include "text_operations.h"
 
 typedef int bool;
 #define true 1
@@ -44,14 +45,6 @@ typedef int bool;
 #define ENEMIE_SPRITES_OFFSET          4596
 #define ENEMY_STEP						10
 
-/*		find out what the below lines stand for		 */
-#define MAP_X							0
-#define MAP_X2							640
-#define MAP_Y							4
-#define MAP_W							64
-#define MAP_H							56
-/*		find out what the above lines stand for		 */
-
 #define REGS_BASE_ADDRESS               ( SCREEN_BASE_ADDRESS + SCR_WIDTH * SCR_HEIGHT )
 
 #define BTN_DOWN( b )                   ( !( b & 0x01 ) )
@@ -62,22 +55,22 @@ typedef int bool;
 
 
 /*			these are the high and low registers that store moving sprites - two registers for each sprite		 */
-#define TANK1_REG_L                     8
-#define TANK1_REG_H                     9
-#define TANK_AI_REG_L                   4
-#define TANK_AI_REG_H                   5
-#define TANK_AI_REG_L2                  6
-#define TANK_AI_REG_H2                  7
-#define TANK_AI_REG_L3                  2
-#define TANK_AI_REG_H3                  3
-#define TANK_AI_REG_L4                  10
-#define TANK_AI_REG_H4                  11
-#define TANK_AI_REG_L5                  12
-#define TANK_AI_REG_H5                  13
-#define TANK_AI_REG_L6                  14
-#define TANK_AI_REG_H6                  15
-#define TANK_AI_REG_L7                  16
-#define TANK_AI_REG_H7                  17
+#define LINK_REG_L                     8
+#define LINK_REG_H                     9
+#define WEAPON_REG_L                   4
+#define WEAPON_REG_H                   5
+#define ENEMY_2_REG_L                  6
+#define ENEMY_2_REG_H                  7
+#define ENEMY_3_REG_L                  2
+#define ENEMY_3_REG_H                  3
+#define ENEMY_4_REG_L                  10
+#define ENEMY_4_REG_H                  11
+#define ENEMY_5_REG_L                  12
+#define ENEMY_5_REG_H                  13
+#define ENEMY_6_REG_L                  14
+#define ENEMY_6_REG_H                  15
+#define ENEMY_7_REG_L                  16
+#define ENEMY_7_REG_H                  17
 #define BASE_REG_L						0
 #define BASE_REG_H	                    1
 
@@ -93,7 +86,7 @@ int udario_glavom_skok = 0;
 int map_move = 0;
 int udario_u_blok = 0;
 int counter = 0;
-int last = 0; //last state mario was in before current iteration (if he is walking it keeps walking)
+int last = 0; //last state link was in before current iteration (if he is walking it keeps walking)
 /*For testing purposes -- all is +1
 		0 - down stand
 		1 - down walk
@@ -131,10 +124,6 @@ int last = 0; //last state mario was in before current iteration (if he is walki
 unsigned short* frame;
 
 typedef enum {
-	b_false, b_true
-} bool_t;
-
-typedef enum {
 	DIR_LEFT, DIR_RIGHT, DIR_UP, DIR_DOWN, DIR_STILL, DIR_ATTACK
 } direction_t;
 
@@ -144,20 +133,20 @@ typedef struct {
 	direction_t dir;
 	unsigned int type;
 
-	bool_t destroyed;
+	bool destroyed;
 
 	unsigned int reg_l;
 	unsigned int reg_h;
 } characters;
 
-characters mario = { 
+characters link = { 
 		INITIAL_LINK_POSITION_X,		// x
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_DOWN, 	             		// dir
 		0x0DFF,							// type - sprite address in ram.vhdl
-		b_false,                		// destroyed
-		TANK1_REG_L,            		// reg_l
-		TANK1_REG_H             		// reg_h
+		false,                		// destroyed
+		LINK_REG_L,            		// reg_l
+		LINK_REG_H             		// reg_h
 		};
 
 characters sword = {
@@ -166,10 +155,10 @@ characters sword = {
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
 
-		b_false,                		// destroyed
+		false,                		// destroyed
 
-		TANK_AI_REG_L,            		// reg_l
-		TANK_AI_REG_H             		// reg_h
+		WEAPON_REG_L,            		// reg_l
+		WEAPON_REG_H             		// reg_h
 		};
 
 characters octorok = {
@@ -178,10 +167,10 @@ characters octorok = {
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
 
-		b_false,                		// destroyed
+		false,                		// destroyed
 
-		TANK_AI_REG_L2,            		// reg_l
-		TANK_AI_REG_H2             		// reg_h
+		ENEMY_2_REG_L,            		// reg_l
+		ENEMY_2_REG_H             		// reg_h
 		};
 /*
 characters enemie3 = { 330,						// x
@@ -189,10 +178,10 @@ characters enemie3 = { 330,						// x
 		DIR_LEFT,              		// dir
 		IMG_16x16_enemi1,  		// type
 
-		b_false,                		// destroyed
+		false,                		// destroyed
 
-		TANK_AI_REG_L3,            		// reg_l
-		TANK_AI_REG_H3             		// reg_h
+		ENEMY_3_REG_L,            		// reg_l
+		ENEMY_3_REG_H             		// reg_h
 		};
 
 characters enemie4 = { 635,						// x
@@ -200,10 +189,10 @@ characters enemie4 = { 635,						// x
 		DIR_LEFT,              		// dir
 		IMG_16x16_enemi1,  		// type
 
-		b_false,                		// destroyed
+		false,                		// destroyed
 
-		TANK_AI_REG_L4,            		// reg_l
-		TANK_AI_REG_H4             		// reg_h
+		ENEMY_4_REG_L,            		// reg_l
+		ENEMY_4_REG_H             		// reg_h
 		};
 */
 int overw_x = INITIAL_FRAME_X;
@@ -367,7 +356,7 @@ static void map_reset() {
 }
 
 
-static bool_t mario_move(characters * mario, characters* sword, direction_t dir) {
+static bool link_move(characters * link, characters* sword, direction_t dir) {
 	unsigned int x;
 	unsigned int y;
 	int obstackle = 0;
@@ -377,35 +366,35 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 
 
 	//frame and map edges
-    if (mario->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
-    	mario->x = overw_x==15? mario->x-1 :SIDE_PADDING * 16;
+    if (link->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
+    	link->x = overw_x==15? link->x-1 :SIDE_PADDING * 16;
     	load_frame(DIR_RIGHT);
-    	return b_false;
+    	return false;
 	}
-    if (mario->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE) {
+    if (link->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE) {
     	if(inCave) {
-    		mario->x = (SIDE_PADDING + door_x) * SPRITE_SIZE;
-    		mario->y = (VERTICAL_PADDING + HEADER_HEIGHT + door_y) * SPRITE_SIZE + 15;
+    		link->x = (SIDE_PADDING + door_x) * SPRITE_SIZE;
+    		link->y = (VERTICAL_PADDING + HEADER_HEIGHT + door_y) * SPRITE_SIZE + 15;
     	} else {
-    		mario->y = overw_y==7 ? mario->y-1 : (HEADER_HEIGHT+ VERTICAL_PADDING) * SPRITE_SIZE;
+    		link->y = overw_y==7 ? link->y-1 : (HEADER_HEIGHT+ VERTICAL_PADDING) * SPRITE_SIZE;
     	}
     	load_frame(DIR_DOWN);
-    	return b_false;
+    	return false;
     }
-    if (mario->y < SIDE_PADDING * SPRITE_SIZE) {
-    	mario->y = overw_y==0 ? mario->y+1 : (HEADER_HEIGHT + VERTICAL_PADDING + FRAME_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE;
+    if (link->y < SIDE_PADDING * SPRITE_SIZE) {
+    	link->y = overw_y==0 ? link->y+1 : (HEADER_HEIGHT + VERTICAL_PADDING + FRAME_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE;
     	load_frame(DIR_UP);
-		return b_false;
+		return false;
     }
-    if (mario->x < SIDE_PADDING * SPRITE_SIZE) {
-    	mario->x = overw_x==0 ? mario->x+1 :((SIDE_PADDING + FRAME_WIDTH) * SPRITE_SIZE - SPRITE_SIZE);
+    if (link->x < SIDE_PADDING * SPRITE_SIZE) {
+    	link->x = overw_x==0 ? link->x+1 :((SIDE_PADDING + FRAME_WIDTH) * SPRITE_SIZE - SPRITE_SIZE);
     	load_frame(DIR_LEFT);
 
-		return b_false;
+		return false;
 	}
 
-	x = mario->x;
-	y = mario->y;
+	x = link->x;
+	y = link->y;
 
 	/*For testing purposes -- all is +1
 		0 - down stand
@@ -444,7 +433,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			last = (last == 22)? 23 : 22;
 		}
 		lasting_attack = 0;
-		mario->type =  LINK_SPRITES_OFFSET + 64*last;
+		link->type =  LINK_SPRITES_OFFSET + 64*last;
 		counter++;
 	} else if (dir == DIR_RIGHT) {
 		x++;
@@ -453,7 +442,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		}
 		lasting_attack = 0;
 		//TODO:	set sprite
-		mario->type =  LINK_SPRITES_OFFSET + 64*last;
+		link->type =  LINK_SPRITES_OFFSET + 64*last;
 		counter++;
 	} else if (dir == DIR_UP) {
 		y--;
@@ -461,7 +450,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			last = (last == 2)? 21 : 2;
 		}
 		lasting_attack = 0;
-		mario->type =  LINK_SPRITES_OFFSET+64*last;
+		link->type =  LINK_SPRITES_OFFSET+64*last;
 		counter++;
 
 	} else if (dir == DIR_DOWN) {
@@ -470,66 +459,66 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			last = (last == 0) ? 1 : 0;
 		}
 		lasting_attack = 0;
-		mario->type = LINK_SPRITES_OFFSET + 64*last;
+		link->type = LINK_SPRITES_OFFSET + 64*last;
 		counter++;
 	} else if (dir == DIR_ATTACK){
 		switch(last){
 			case 0: //down
-				sword->x = mario->x;
-				sword->y = mario->y+16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*9;
+				sword->x = link->x;
+				sword->y = link->y+16;
+				link->type =  LINK_SPRITES_OFFSET + 64*9;
 				sword_rotation = 1;
 				break;
 			case 1: //down
-				sword->x = mario->x;
-				sword->y = mario->y+16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*9;
+				sword->x = link->x;
+				sword->y = link->y+16;
+				link->type =  LINK_SPRITES_OFFSET + 64*9;
 				sword_rotation = 1;
 				break;
 			case 2: //up
-				sword->x = mario->x;
-				sword->y = mario->y-16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*10;
+				sword->x = link->x;
+				sword->y = link->y-16;
+				link->type =  LINK_SPRITES_OFFSET + 64*10;
 				sword_rotation = 2;
 				break;
 			case 21: //up
-				sword->x = mario->x;
-				sword->y = mario->y-16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*10;
+				sword->x = link->x;
+				sword->y = link->y-16;
+				link->type =  LINK_SPRITES_OFFSET + 64*10;
 				sword_rotation = 2;
 				break;
 			case 3: //right
-				sword->x = mario->x + 16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*11;
+				sword->x = link->x + 16;
+				link->type =  LINK_SPRITES_OFFSET + 64*11;
 				sword_rotation = 0;
-				sword->y = mario->y;
+				sword->y = link->y;
 				break;
 			case 4: //right
-				sword->x = mario->x + 16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*11;
+				sword->x = link->x + 16;
+				link->type =  LINK_SPRITES_OFFSET + 64*11;
 				sword_rotation = 0;
-				sword->y = mario->y;
+				sword->y = link->y;
 				break;
 			case 22: //left
-				sword->x = mario->x - 16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*26;
+				sword->x = link->x - 16;
+				link->type =  LINK_SPRITES_OFFSET + 64*26;
 				sword_rotation = 3;
-				sword->y = mario->y;
+				sword->y = link->y;
 				break;
 			case 23: //left
-				sword->x = mario->x - 16;
-				mario->type =  LINK_SPRITES_OFFSET + 64*26;
+				sword->x = link->x - 16;
+				link->type =  LINK_SPRITES_OFFSET + 64*26;
 				sword_rotation = 3;
-				sword->y = mario->y;
+				sword->y = link->y;
 				break;
 		}
 		if (lasting_attack != 1){
 			Xil_Out32(
-					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
-					(unsigned int )0x8F000000 | (unsigned int )mario->type);
+					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
+					(unsigned int )0x8F000000 | (unsigned int )link->type);
 			Xil_Out32(
-					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
-					(mario->y << 16) | mario->x);
+					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
+					(link->y << 16) | link->x);
 		}
 
 		for(i =0; i <900000; i++) {}
@@ -546,47 +535,47 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 
 		//After a short break (representing the attack animation) go back to standing sprite facing the same direciton
 		if (last ==22 || last == 23) { 						//left
-			mario->type =  LINK_SPRITES_OFFSET + 64*23;
+			link->type =  LINK_SPRITES_OFFSET + 64*23;
 		} else if (last == 3 || last == 4) { 				//right
-			mario->type =  LINK_SPRITES_OFFSET + 64*4;
+			link->type =  LINK_SPRITES_OFFSET + 64*4;
 		} else if (last == 2 || last == 21) {				//up
-			mario->type =  LINK_SPRITES_OFFSET + 64*21;
+			link->type =  LINK_SPRITES_OFFSET + 64*21;
 		} else if (last == 0 || last == 1) {				//down
-			mario->type =  LINK_SPRITES_OFFSET + 64*1;
+			link->type =  LINK_SPRITES_OFFSET + 64*1;
 		}
 	}
 
 	/*		skip collision detection if on the bottom of the frame 			*/
     if(!inCave && isDoor(x,y)) {
-        mario->x = (SIDE_PADDING + (int)(FRAME_WIDTH)/2)*16;        // set to the middle of the frame
-        mario->y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT)*SPRITE_SIZE - SPRITE_SIZE;     //set to the bottom of the cave
+        link->x = (SIDE_PADDING + (int)(FRAME_WIDTH)/2)*16;        // set to the middle of the frame
+        link->y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT)*SPRITE_SIZE - SPRITE_SIZE;     //set to the bottom of the cave
         inCave = true;
         load_frame(DIR_UP);
     } else if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
-		mario->x = x;
-		mario->y = y;
+		link->x = x;
+		link->y = y;
 	} else {
 		if (!obstackles_detection(x,y, frame, dir)) {
-			mario->x = x;
-			mario->y = y;
+			link->x = x;
+			link->y = y;
 		}
 	}
 
 
 	if (lasting_attack != 1){
 		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
-				(unsigned int )0x8F000000 | (unsigned int )mario->type);
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
+				(unsigned int )0x8F000000 | (unsigned int )link->type);
 		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
-				(mario->y << 16) | mario->x);
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
+				(link->y << 16) | link->x);
 		delete_sword(sword);
 
 	}
 	for (i = 0; i < 1000; i++) { //1000 - good speed
 	}
 
-	return b_false;
+	return false;
 }
 
 bool isDoor(x,y) {
@@ -650,16 +639,16 @@ void battle_city() {
 	int i, change = 0, jumpFlag = 0;
 	int block;
 	frame = overworld[0];
-	mario.x = INITIAL_LINK_POSITION_X;
-	mario.y = INITIAL_LINK_POSITION_Y;
-	mario.type = LINK_SPRITES_OFFSET;
+	link.x = INITIAL_LINK_POSITION_X;
+	link.y = INITIAL_LINK_POSITION_Y;
+	link.type = LINK_SPRITES_OFFSET;
 	sword.x = INITIAL_LINK_POSITION_X+13;
 	sword.y = INITIAL_LINK_POSITION_Y;
 	overw_x = INITIAL_FRAME_X;
 	overw_y = INITIAL_FRAME_Y;
 	map_reset(/*map1*/);
 
-	chhar_spawn(&mario,0);
+	chhar_spawn(&link,0);
     load_frame(DIR_STILL);
 
 	while (1) {
@@ -679,7 +668,7 @@ void battle_city() {
 			d = DIR_ATTACK;
 		}
 
-		mario_move(&mario, &sword, d);
+		link_move(&link, &sword, d);
 		//if (enemies_exist) {
 		//TODO: enemy_move(); }
 
