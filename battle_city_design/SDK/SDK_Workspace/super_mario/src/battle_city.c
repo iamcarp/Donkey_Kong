@@ -199,6 +199,61 @@ characters enemie4 = { 635,						// x
 */
 int overw_x = INITIAL_FRAME_X;
 int overw_y = INITIAL_FRAME_Y;
+
+bool inCave = false;
+
+void load_cave() {
+    inCave = true;
+    set_frame_palette();
+    int x,y;
+    long int addr;
+    unsigned char value;
+
+    for (y = 0; y < FRAME_HEIGHT; y++) {
+		for (x = 0; x < FRAME_WIDTH; x++) {
+            /*      set cave floor - this will be used if not on edge     */
+            value = SPRITES[2];
+
+            /*      set left and right edges    */
+			switch(x) {
+                case 0:
+                    value = SPRITES[19];    
+                    break;
+                case 15:
+                    value = SPRITES[19];
+                    break;
+            }
+
+            /*      set top and bottom edges    */
+            switch(y) {
+                case 0:
+                    if(x == 0) {
+                        value = SPRITES[20];
+                    } else if (x == 15) {
+                        value = SPRITES[18];
+                    } else {
+                        value = SPRITES[19];
+                    }
+                    break;
+                case 15:
+                    if(x == 0) {
+                        value = SPRITES[14];
+                    } else if (x == 15) {
+                        value = SPRITES[12];
+                    } else if (x == 7) {
+                        value = SPRITES[10];
+                    } else {
+                        value = SPRITES[13];
+                    }
+                    break;
+            }
+
+            addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
+			Xil_Out32(addr, value);
+		}
+	}
+}
+
 void load_frame(direction_t dir) {
     switch(dir) {
         case DIR_LEFT:
@@ -211,9 +266,14 @@ void load_frame(direction_t dir) {
             overw_y = (--overw_y<0)? 0 : overw_y;
             break;
         case DIR_DOWN:
-            overw_y = (++overw_y>7)? 7 : overw_y;
+            if (inCave) {
+                inCave = false;
+            } else {
+                overw_y = (++overw_y>7)? 7 : overw_y;
+            }
             break;
     }
+
     frame = overworld[overw_y*16 + overw_x];
 
     if (ENEMY_FRAMES[overw_y][overw_x]) {
@@ -221,16 +281,17 @@ void load_frame(direction_t dir) {
     }
 
     /*      loading next frame into memory      */
-    int x,y;
-    long int addr;
-    for (y = 0; y < FRAME_HEIGHT; y++) {
-		for (x = 0; x < FRAME_WIDTH; x++) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
-			Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
-		}
-	}
-
-    set_frame_palette();
+    if(!inCave) {       // not sure if this "if" is needen since load_frame is called only when on the edge of the frame, and the dorrs are never on edge...
+        int x,y;
+        long int addr;
+        for (y = 0; y < FRAME_HEIGHT; y++) {
+		    for (x = 0; x < FRAME_WIDTH; x++) {
+			    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
+			    Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
+	    	}
+	    }
+        set_frame_palette();
+    }
 
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
@@ -241,6 +302,15 @@ void set_frame_palette() {
 	long int addr_fill, addr_floor;
 	addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
 	addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET+1);
+
+    if(inCave) {
+		/*    red/green/gray -> red    */
+		Xil_Out32(addr_fill, 0, 0x0C4CC8);       // fix the color
+		/*    sand/gray -> black    */
+		Xil_Out32(addr_floor, 0x000000);
+        
+        return;
+    }
 
 	if ((overw_y==2 & (overw_x<3 || overw_x==15)) || (overw_y == 3 & (overw_x<2 || overw_x==3)) || (overw_y==4 & overw_x<2) || (overw_y==5 & overw_x ==0) ) {
 		/*    red/green -> white    */
@@ -507,7 +577,11 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	}
 
 	/*		skip collision detection if on the bottom of the frame 			*/
-	if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
+    if(!inCave && isDoor(x,y)) { 
+        mario->x = (SIDE_PADDING + (int)(FRAME_WIDTH - 1)/2)*16;        // set to the middle of the frame
+        mario->y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT)*SPRITE_SIZE - SPRITE_SIZE;     //set to the bottom of the cave
+        load_cave(); 
+    } else if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
 		mario->x = x;
 		mario->y = y;
 	} else {
@@ -516,7 +590,6 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 			mario->y = y;
 		}
 	}
-
 
 
 	if (lasting_attack != 1){
@@ -533,6 +606,21 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 	}
 
 	return b_false;
+}
+
+bool isDoor(x,y) {
+    /*      calculate the index of the position in the frame     */
+	x = x + 2 - SIDE_PADDING*SPRITE_SIZE;
+	y = y + 2 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
+    x/=SPRITE_SIZE;
+    y/=SPRITE_SIZE;
+    
+    /*      check if sprite is on the door      */
+    if(frame[y*FRAME_WIDTH + x] == SPRITES[10]) {
+        return true;
+    }
+
+    return false;
 }
 
 bool tile_walkable(int index, unsigned short* map_frame) {
