@@ -5,7 +5,6 @@
 #include "xio.h"
 #include <math.h>
 #include "sprites.h"
-#include "text_operations.h"
 
 typedef int bool;
 #define true 1
@@ -15,6 +14,7 @@ typedef int bool;
 /*          COLOR PALETTE - base addresses in ram.vhd         */
 #define FRAME_COLORS_OFFSET         0
 #define LINK_COLORS_OFFSET          8
+#define ENEMY_COLORS_OFFSET         35
 
 /*		SCREEN PARAMETERS		 - in this case, "screen" stands for one full-screen picture	 */
 #define SCREEN_BASE_ADDRESS			6900
@@ -152,7 +152,7 @@ void load_frame( direction_t dir ) {
 				overw_y = ( --overw_y < 0 ) ? 0 : overw_y;
 				break;
 			case DIR_DOWN:
-				overw_y = ( ++overw_y < OVERWORL_VERTICAL )? overw_y : OVERWORLD_VERTICAL - 1;
+				overw_y = ( ++overw_y < OVERWORLD_VERTICAL )? overw_y : OVERWORLD_VERTICAL - 1;
 				break;
 		}
 
@@ -164,6 +164,7 @@ void load_frame( direction_t dir ) {
 		} else {
 			frame = CAVE;
 		}
+        //TODO: load_sprites(inCave);
 	}
 
     /*      checking if there should be enemies on the current frame     */
@@ -225,6 +226,7 @@ void set_frame_palette() {
 void set_header() {
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
+
 }
 
 void initialize_enemy( int frame_index ) {
@@ -480,6 +482,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
         link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
         inCave = true;
         load_frame( DIR_UP );
+        //TODO: write_introduction();
 	    /*		skip collision detection if on the bottom of the frame 			*/
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
@@ -525,7 +528,7 @@ bool isDoor(x,y) {
 }
 
 bool tile_walkable(int index, unsigned short* map_frame) {
-	int walkables[20] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47}; // the last row in Finaltiles is not included
+	int walkables[20] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49}; 
 	int i;
 
 	for ( i = 0; i < 20; i++) {
