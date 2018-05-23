@@ -393,6 +393,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		if (counter%LINK_STEP == 0) {
 			last = (last == 22)? 23 : 22;
 		}
+		lasting_attack = 0;
 		mario->type =  LINK_SPRITES_OFFSET + 64*last;
 		counter++;
 	} else if (dir == DIR_RIGHT) {
@@ -400,6 +401,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		if (counter%LINK_STEP == 0) {
 			last = (last == 3)? 4 : 3;
 		}
+		lasting_attack = 0;
 		//TODO:	set sprite
 		mario->type =  LINK_SPRITES_OFFSET + 64*last;
 		counter++;
@@ -408,14 +410,16 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		if (counter%LINK_STEP == 0) {
 			last = (last == 2)? 21 : 2;
 		}
-			mario->type =  LINK_SPRITES_OFFSET+64*last;
-			counter++;
+		lasting_attack = 0;
+		mario->type =  LINK_SPRITES_OFFSET+64*last;
+		counter++;
 
 	} else if (dir == DIR_DOWN) {
 		y++;
 		if (counter%LINK_STEP == 0) {
 			last = (last == 0) ? 1 : 0;
 		}
+		lasting_attack = 0;
 		mario->type = LINK_SPRITES_OFFSET + 64*last;
 		counter++;
 	} else if (dir == DIR_ATTACK){
@@ -469,15 +473,27 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 				sword->y = mario->y;
 				break;
 		}
-		Xil_Out32(
+		if (lasting_attack != 1){
+			Xil_Out32(
 					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
 					(unsigned int )0x8F000000 | (unsigned int )mario->type);
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
-				(mario->y << 16) | mario->x);
+			Xil_Out32(
+					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
+					(mario->y << 16) | mario->x);
+		}
+
 		for(i =0; i <900000; i++) {}
-		chhar_spawn(sword,sword_rotation);
-		for(i = 0; i <3000000; i++) {}
+		if (lasting_attack != 1){
+			chhar_spawn(sword,sword_rotation);
+		}
+		if(dir == DIR_ATTACK) {
+			lasting_attack = 1;
+		}
+
+		for(i =0; i <3000000; i++) {}
+
+
+
 		//After a short break (representing the attack animation) go back to standing sprite facing the same direciton
 		if (last ==22 || last == 23) { 						//left
 			mario->type =  LINK_SPRITES_OFFSET + 64*23;
@@ -490,7 +506,7 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		}
 	}
 
-	/*		skip collision detection if on the bottom of the frame ? - something is wrong when moving down		*/
+	/*		skip collision detection if on the bottom of the frame 			*/
 	if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
 		mario->x = x;
 		mario->y = y;
@@ -501,16 +517,18 @@ static bool_t mario_move(characters * mario, characters* sword, direction_t dir)
 		}
 	}
 
-	print("Nesto");
 
-	Xil_Out32(
+
+	if (lasting_attack != 1){
+		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_l ),
 				(unsigned int )0x8F000000 | (unsigned int )mario->type);
-	Xil_Out32(
-			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
-			(mario->y << 16) | mario->x);
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + mario->reg_h ),
+				(mario->y << 16) | mario->x);
+		delete_sword(sword);
 
-	delete_sword(sword);
+	}
 	for (i = 0; i < 1000; i++) { //1000 - good speed
 	}
 
@@ -556,7 +574,6 @@ bool obstackles_detection(int x, int y, unsigned short* f, /*unsigned char * map
 
 void battle_city() {
 
-	print("Nesto0");
 	unsigned int buttons, tmpBtn = 0, tmpUp = 0;
 	int i, change = 0, jumpFlag = 0;
 	int block;
