@@ -12,7 +12,6 @@ typedef int bool;
 #define false 0
 
 
-#define ENEMY_FRAMES_NUM 			34
 /*          COLOR PALETTE - base addresses in ram.vhd         */
 #define FRAME_COLORS_OFFSET         0
 #define LINK_COLORS_OFFSET          8
@@ -74,51 +73,16 @@ typedef int bool;
 #define BASE_REG_L						0
 #define BASE_REG_H	                    1
 
-/*			contains true if in the corresponding frame in overworld has enemies	*/
+
+#define ENEMY_FRAMES_NUM 			34
+/*			contains the indexes of frames in overworld which have enemies  	*/
 bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
-									   84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
-									   105, 106, 110, 111, 120, 125, 126};
+					    84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
+						     105, 106, 110, 111, 120, 125, 126};
 
 int lives = 0;
-int score = 0;
-int mapPart = 1;
-int udario_glavom_skok = 0;
-int map_move = 0;
-int udario_u_blok = 0;
 int counter = 0;
 int last = 0; //last state link was in before current iteration (if he is walking it keeps walking)
-/*For testing purposes -- all is +1
-		0 - down stand
-		1 - down walk
-		2 - up walk
-		3 - right walk
-		4 - right stand
-		5 - down stand shield
-		6 - down walk shield
-		7 - right walk shield
-		8 - right stand shield
-		9 - down attack
-		10 - up attack
-		11 - right attack
-		12 - item picked up
-		13 - triforce picked up
-		14 - sword
-		15 - arrow
-		16 - boomerang 1
-		17 - boomerang 2
-		18 - boomerang 3
-		19 - magic 1
-		20 - magic 2
-		21 - up flipped
-		22 - left walk
-		23 - left stand
-		24 - left walk shield
-		25 - left stand shield
-		26 - left attack
-*/
-	
-/*			16x16 IMAGES		 */
-//unsigned short SPRITES[53] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x027F, 0x02BF, 0x02FF, 0x033F, 0x037F, 0x03BF, 0x03FF, 0x043F, 0x047F, 0x04BF, 0x04FF, 0x053F, 0x057F, 0x05BF, 0x05FF, 0x063F, 0x067F, 0x06BF, 0x06FF, 0x073F, 0x077F, 0x07BF, 0x07FF, 0x083F, 0x087F, 0x08BF, 0x08FF, 0x093F, 0x097F, 0x09BF, 0x09FF, 0x0A3F, 0x0A7F, 0x0ABF, 0x0AFF, 0x0B3F, 0x0B7F, 0x0BBF, 0x0BFF, 0x0C3F, 0x0C7F, 0x0CBF, 0x0CFF, 0x0D3F, 0x0D7F, 0x0DBF, 0x0DFF, 0x0E3F };
 
 /*		 ACTIVE FRAME		*/
 unsigned short* frame;
@@ -131,10 +95,8 @@ typedef struct {
 	unsigned int x;
 	unsigned int y;
 	direction_t dir;
-	unsigned int type;
-
+	unsigned short sprite;
 	bool destroyed;
-
 	unsigned int reg_l;
 	unsigned int reg_h;
 } characters;
@@ -154,9 +116,7 @@ characters sword = {
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
-
 		false,                		// destroyed
-
 		WEAPON_REG_L,            		// reg_l
 		WEAPON_REG_H             		// reg_h
 		};
@@ -166,195 +126,168 @@ characters octorok = {
 		0,								// y
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
-
 		false,                		// destroyed
-
 		ENEMY_2_REG_L,            		// reg_l
 		ENEMY_2_REG_H             		// reg_h
 		};
-/*
-characters enemie3 = { 330,						// x
-		272,						// y
-		DIR_LEFT,              		// dir
-		IMG_16x16_enemi1,  		// type
 
-		false,                		// destroyed
-
-		ENEMY_3_REG_L,            		// reg_l
-		ENEMY_3_REG_H             		// reg_h
-		};
-
-characters enemie4 = { 635,						// x
-		431,						// y
-		DIR_LEFT,              		// dir
-		IMG_16x16_enemi1,  		// type
-
-		false,                		// destroyed
-
-		ENEMY_4_REG_L,            		// reg_l
-		ENEMY_4_REG_H             		// reg_h
-		};
-*/
-int overw_x = INITIAL_FRAME_X;
-int overw_y = INITIAL_FRAME_Y;
+/*      indexes of the active frame in overworld        */
+int overw_x;
+int overw_y;
 
 bool inCave = false;
+/*      the position of the door so link could have the correct position when coming out of the cave    */
 int door_x, door_y;
 
-void load_frame(direction_t dir) {
-	if(!inCave) {
-		switch(dir) {
+void load_frame( direction_t dir ) {
+	if( !inCave ) {
+		switch( dir ) {
 			case DIR_LEFT:
-				overw_x = (--overw_x<0)? 0 : overw_x;
+				overw_x = ( --overw_x < 0 ) ? 0 : overw_x;
 				break;
 			case DIR_RIGHT:
-				overw_x = (++overw_x>15)? 15 : overw_x;
+				overw_x = ( ++overw_x < OVERWORLD_HORIZONTAL ) ? overw_x : OVERWORLD_HORIZONTAL - 1;
 				break;
 			case DIR_UP:
-				overw_y = (--overw_y<0)? 0 : overw_y;
+				overw_y = ( --overw_y < 0 ) ? 0 : overw_y;
 				break;
 			case DIR_DOWN:
-				overw_y = (++overw_y>7)? 7 : overw_y;
+				overw_y = ( ++overw_y < OVERWORL_VERTICAL )? overw_y : OVERWORLD_VERTICAL - 1;
 				break;
 		}
 
-		frame = overworld[overw_y*16 + overw_x];
+		frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
 	} else {
-		if (dir == DIR_DOWN) {
-			frame = overworld[overw_y*16 + overw_x];
+		if ( dir == DIR_DOWN ) {
+			frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
 			inCave = false;
 		} else {
 			frame = CAVE;
 		}
 	}
-    /* odredjivanje frejma i inicijalizovanje enemy-a ukoliko na datom frejmu treba da bude enemy) */
+
+    /*      checking if there should be enemies on the current frame     */
     int i;
-    int frame_index = overw_y * 16 + overw_x;
-    for (i = 0; i < ENEMY_FRAMES_NUM; i++){
-    	if(frame_index == ENEMY_FRAMES[i]){
-    		initialize_enemy(frame_index);
+    int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
+    for ( i = 0; i < ENEMY_FRAMES_NUM; i++ ){
+    	if( frame_index == ENEMY_FRAMES[i] ){
+    		initialize_enemy( frame_index );
     	}
     }
 
     /*      loading next frame into memory      */
+	set_frame_palette();
 	int x,y;
 	long int addr;
-	for (y = 0; y < FRAME_HEIGHT; y++) {
-		for (x = 0; x < FRAME_WIDTH; x++) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_BASE_ADDRESS + y * (SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING) + x);
-			Xil_Out32(addr, frame[y*FRAME_WIDTH + x]);
+	for ( y = 0; y < FRAME_HEIGHT; y++ ) {
+		for ( x = 0; x < FRAME_WIDTH; x++ ) {
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + y * ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + x );
+			Xil_Out32( addr, frame[ y * FRAME_WIDTH + x ] );
 		}
 	}
-	set_frame_palette();
 
-    /*      TODO: add logic for updating the overworld position in header   */
-    /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
 }
 
 /*      setting the correct palette for the current frame     */
 void set_frame_palette() {
 	long int addr_fill, addr_floor;
-	addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET);
-	addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (FRAME_COLORS_OFFSET+1);
+	addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_COLORS_OFFSET );
+	addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_COLORS_OFFSET + 1 );
 
-    if(inCave) {
+    if( inCave ) {
 		/*    red/green/gray -> red    */
-		Xil_Out32(addr_fill,  0x0C4CC8);       // fix the color
+		Xil_Out32( addr_fill,  0x0C4CC8 );       
 		/*    sand/gray -> black    */
-		Xil_Out32(addr_floor, 0x000000);
+		Xil_Out32( addr_floor, 0x000000 );
         
         return;
     }
 
-	if ((overw_y==2 & (overw_x<3 || overw_x==15)) || (overw_y == 3 & (overw_x<2 || overw_x==3)) || (overw_y==4 & overw_x<2) || (overw_y==5 & overw_x ==0) ) {
+	if ((overw_y==2 && (overw_x<3 || overw_x==15)) || (overw_y == 3 && (overw_x<2 || overw_x==3)) || (overw_y==4 && overw_x<2) || (overw_y==5 && overw_x ==0) ) {
 		/*    red/green -> white    */
-		Xil_Out32(addr_fill, 0x00FCFCFC);
+		Xil_Out32( addr_fill, 0x00FCFCFC );
 		/*    sand -> gray    */
-		Xil_Out32(addr_floor, 0x747474);
-	} else if ((overw_y==3 & (overw_x==12 || overw_x==13)) || (overw_y==4 & (overw_x>5 & overw_x<15)) || ((overw_y==4 || overw_y==5) & (overw_x>3 & overw_x<15)) || (overw_y==7 & (overw_x>3 & overw_x<9)) || (overw_y==6 &  overw_x > 3 & overw_x <15) ) {
+		Xil_Out32( addr_floor, 0x747474 );
+	} else if ((overw_y==3 && (overw_x==12 || overw_x==13)) || (overw_y==4 && (overw_x>5 && overw_x<15)) || ((overw_y==4 || overw_y==5) && (overw_x>3 && overw_x<15)) || (overw_y==7 && (overw_x>3 && overw_x<9)) || (overw_y==6 && overw_x > 3 && overw_x <15) ) {
 		/*    red/white -> green    */
-		Xil_Out32(addr_fill, 0x00A800);
+		Xil_Out32( addr_fill, 0x00A800 );
 		/*    gray -> sand    */
-		Xil_Out32(addr_floor, 0xA8D8FC); 
+		Xil_Out32( addr_floor, 0xA8D8FC ); 
 	} else {
 		/*    green/white -> red    */
-		Xil_Out32(addr_fill, 0x0C4CC8);
+		Xil_Out32( addr_fill, 0x0C4CC8 );
 		/*    gray -> sand    */
-		Xil_Out32(addr_floor, 0xA8D8FC); 
+		Xil_Out32( addr_floor, 0xA8D8FC ); 
 	}
 
 }
 
-void initialize_enemy(int frame_index) {
-	//TODO:		depending on the frame, set enemy positions
-	//chhar_spawn(&enemy);
-	/* na random poziciju na frejmu postavi enemy
-	 * moras proveriti da nije obstacle
-	 * ovde ce se samo inicijalizovati enemy
-	 * kretanje ce biti odradjeno u drugoj fji
-	 * u zavisnosti od frejma zavisice pozicija enemy-a
-	 * dakle prosledjujes mu koordinate overw_x i _y
-	 */
-
-
-
-
-
+void set_header() {
+    /*      TODO: add logic for updating the overworld position in header   */
+    /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
 }
 
-static void chhar_spawn(characters * chhar, int rotation) {
-	if (rotation == 1){																			 //rotate 90degrees clockwise
+void initialize_enemy( int frame_index ) {
+	//TODO:	define function
+	/* set enemy on a random position 
+	 * check if there is an obstacle on that position
+	 * this function is only for initializing the enemy!
+	 * enemy movement logic will be defined in an other function
+	 * the enemy's position should depend on the frame
+	 * in other words, it will use overw_x and overw_y
+	 */
+    
+}
+
+static void chhar_spawn( characters * chhar, int rotation ) {
+	if ( rotation == 1 ) {																			 //rotate 90degrees clockwise
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int )0x8F100000 | (unsigned int )chhar->type);
-	} else if (rotation == 2){ 																	//rotate 90degrees aniclockwise
+				(unsigned int) 0x8F100000 | (unsigned int) chhar->sprite );
+	} else if ( rotation == 2 ) { 																	//rotate 90degrees aniclockwise
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int )0x8F010000 | (unsigned int )chhar->type);
-	} else if (rotation == 3){ 																	//rotate 180degrees
+				(unsigned int) 0x8F010000 | (unsigned int) chhar->sprite );
+	} else if ( rotation == 3 ) { 																	//rotate 180degrees
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int )0x8F020000 | (unsigned int )chhar->type);
-	}else {																						//no rotation
+				(unsigned int) 0x8F020000 | (unsigned int) chhar->sprite );
+	}else {					    																	//no rotation
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int )0x8F000000 | (unsigned int )chhar->type);
+				(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite );
 	}
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
-			(chhar->y << 16) | chhar->x);
+			(chhar->y << 16) | chhar->x );      //  the higher 2 bytes represent the row (y)
 }
 
-static void delete_sword(characters* chhar){
-	int i  = 0;
-	for (; i < 100000; i++){
+static void delete_sword( characters* chhar ){
+	int i;
+	for ( i = 0; i < 100000; i++ );         //  delay
 
-	}
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-			(unsigned int )0x80000000 | (unsigned int )chhar->type);
+			(unsigned int) 0x80000000 | (unsigned int) chhar->sprite );
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
-			(chhar->y << 16) | chhar->x);
+			(chhar->y << 16) | chhar->x );      //  the higher 2 bytes represent the row (y)
 }
 
-// currently, this function is cleaning the registers used for movind characters sprites; two registers are used for each sprite
-static void map_reset() {
+/*  cleaning the registers used for moving characters sprites; two registers are used for each sprite   */
+static void reset_memory() {
 	unsigned int i;
 	long int addr;
 
-	for(i = 0; i<SCR_WIDTH*SCR_HEIGHT; i++) {
-		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + i);
-		Xil_Out32(addr, SPRITES[10]); // SPRITES[10] is a black square
+	for( i = 0; i < SCR_WIDTH*SCR_HEIGHT; i++ ) {
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( SCREEN_BASE_ADDRESS + i );
+		Xil_Out32( addr, SPRITES[10] );             // SPRITES[10] is a black square
 	}
 
-	for (i = 0; i <= 20; i += 2) {
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + i ),
-				(unsigned int )0x0F000000);
+	for ( i = 0; i <= 20; i += 2 ) {
+		Xil_Out32( XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + i ), (unsigned int) 0x0F000000);
 	}
 }
-
 
 static bool link_move(characters * link, characters* sword, direction_t dir) {
 	unsigned int x;
@@ -364,35 +297,34 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	int lasting_attack = 0;
 	int i;
 
-
-	//frame and map edges
-    if (link->x > ((SIDE_PADDING + FRAME_WIDTH) * 16 - 16)){
-    	link->x = overw_x==15? link->x-1 :SIDE_PADDING * 16;
-    	load_frame(DIR_RIGHT);
+	/*      change frame if on the edge     */
+    if (link->x > ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
+    	link->x = overw_x == OVERWORLD_HORIZONTAL - 1? link->x-1 : SIDE_PADDING * SPRITE_SIZE;
+    	load_frame( DIR_RIGHT );
     	return false;
 	}
-    if (link->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE) {
-    	if(inCave) {
-    		link->x = (SIDE_PADDING + door_x) * SPRITE_SIZE;
-    		link->y = (VERTICAL_PADDING + HEADER_HEIGHT + door_y) * SPRITE_SIZE + 15;
+    if ( link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE ) {
+    	if( inCave ) {
+    		link->x = ( SIDE_PADDING + door_x ) * SPRITE_SIZE;
+    		link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + door_y ) * SPRITE_SIZE + 15;
     	} else {
-    		link->y = overw_y==7 ? link->y-1 : (HEADER_HEIGHT+ VERTICAL_PADDING) * SPRITE_SIZE;
+    		link->y = overw_y == OVERWORLD_VERTICAL - 1 ? link->y - 1 : ( HEADER_HEIGHT + VERTICAL_PADDING ) * SPRITE_SIZE;
     	}
-    	load_frame(DIR_DOWN);
+    	load_frame( DIR_DOWN );
     	return false;
     }
-    if (link->y < SIDE_PADDING * SPRITE_SIZE) {
-    	link->y = overw_y==0 ? link->y+1 : (HEADER_HEIGHT + VERTICAL_PADDING + FRAME_HEIGHT) * SPRITE_SIZE - SPRITE_SIZE;
-    	load_frame(DIR_UP);
+    if ( link->y < SIDE_PADDING * SPRITE_SIZE ) {
+    	link->y = overw_y == 0 ? link->y+1 : ( HEADER_HEIGHT + VERTICAL_PADDING + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;
+    	load_frame( DIR_UP );
 		return false;
     }
-    if (link->x < SIDE_PADDING * SPRITE_SIZE) {
-    	link->x = overw_x==0 ? link->x+1 :((SIDE_PADDING + FRAME_WIDTH) * SPRITE_SIZE - SPRITE_SIZE);
-    	load_frame(DIR_LEFT);
-
+    if ( link->x < SIDE_PADDING * SPRITE_SIZE ) {
+    	link->x = overw_x == 0 ? link->x + 1 : ( SIDE_PADDING + FRAME_WIDTH - 1 ) * SPRITE_SIZE;
+    	load_frame( DIR_LEFT );
 		return false;
 	}
 
+    /*      get the current position of link    */
 	x = link->x;
 	y = link->y;
 
@@ -426,154 +358,151 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		26 - left attack
 	*/
 
-	//animacija kretanja
-	if (dir == DIR_LEFT) {
+	/*      movement animation      */
+	if ( dir == DIR_LEFT ) {
 		x--;
-		if (counter%LINK_STEP == 0) {
-			last = (last == 22)? 23 : 22;
+		if ( counter%LINK_STEP == 0 ) {
+			last = ( last == 22 ) ? 23 : 22;
 		}
 		lasting_attack = 0;
-		link->type =  LINK_SPRITES_OFFSET + 64*last;
+		link->sprite = LINK_SPRITES_OFFSET + 64 * last;
 		counter++;
-	} else if (dir == DIR_RIGHT) {
+	} else if ( dir == DIR_RIGHT ) {
 		x++;
-		if (counter%LINK_STEP == 0) {
-			last = (last == 3)? 4 : 3;
+		if ( counter % LINK_STEP == 0 ) {
+			last = (last == 3) ? 4 : 3;
 		}
 		lasting_attack = 0;
 		//TODO:	set sprite
-		link->type =  LINK_SPRITES_OFFSET + 64*last;
+		link->sprite =  LINK_SPRITES_OFFSET + 64 * last;
 		counter++;
-	} else if (dir == DIR_UP) {
+	} else if ( dir == DIR_UP ) {
 		y--;
-		if (counter%LINK_STEP == 0) {
-			last = (last == 2)? 21 : 2;
+		if ( counter % LINK_STEP == 0 ) {
+			last = (last == 2) ? 21 : 2;
 		}
 		lasting_attack = 0;
-		link->type =  LINK_SPRITES_OFFSET+64*last;
+		link->sprite = LINK_SPRITES_OFFSET + 64 * last;
 		counter++;
-
-	} else if (dir == DIR_DOWN) {
+	} else if ( dir == DIR_DOWN ) {
 		y++;
-		if (counter%LINK_STEP == 0) {
+		if ( counter % LINK_STEP == 0) {
 			last = (last == 0) ? 1 : 0;
 		}
 		lasting_attack = 0;
-		link->type = LINK_SPRITES_OFFSET + 64*last;
+		link->sprite = LINK_SPRITES_OFFSET + 64 * last;
 		counter++;
-	} else if (dir == DIR_ATTACK){
-		switch(last){
-			case 0: //down
+	} else if ( dir == DIR_ATTACK ){
+		switch( last ){
+			case 0:                     //down
 				sword->x = link->x;
-				sword->y = link->y+16;
-				link->type =  LINK_SPRITES_OFFSET + 64*9;
+				sword->y = link->y + SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 9;
 				sword_rotation = 1;
 				break;
-			case 1: //down
+			case 1:                     //down
 				sword->x = link->x;
-				sword->y = link->y+16;
-				link->type =  LINK_SPRITES_OFFSET + 64*9;
+				sword->y = link->y + SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 9;
 				sword_rotation = 1;
 				break;
-			case 2: //up
+			case 2:                     //up
 				sword->x = link->x;
-				sword->y = link->y-16;
-				link->type =  LINK_SPRITES_OFFSET + 64*10;
+				sword->y = link->y - SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 10;
 				sword_rotation = 2;
 				break;
-			case 21: //up
+			case 21:                    //up
 				sword->x = link->x;
-				sword->y = link->y-16;
-				link->type =  LINK_SPRITES_OFFSET + 64*10;
+				sword->y = link->y - SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 10;
 				sword_rotation = 2;
 				break;
-			case 3: //right
-				sword->x = link->x + 16;
-				link->type =  LINK_SPRITES_OFFSET + 64*11;
+			case 3:                     //right
+				sword->x = link->x + SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 11;
 				sword_rotation = 0;
 				sword->y = link->y;
 				break;
-			case 4: //right
-				sword->x = link->x + 16;
-				link->type =  LINK_SPRITES_OFFSET + 64*11;
+			case 4:                     //right
+				sword->x = link->x + SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 11;
 				sword_rotation = 0;
 				sword->y = link->y;
 				break;
-			case 22: //left
-				sword->x = link->x - 16;
-				link->type =  LINK_SPRITES_OFFSET + 64*26;
+			case 22:                    //left
+				sword->x = link->x - SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 26;
 				sword_rotation = 3;
 				sword->y = link->y;
 				break;
-			case 23: //left
-				sword->x = link->x - 16;
-				link->type =  LINK_SPRITES_OFFSET + 64*26;
+			case 23:                    //left
+				sword->x = link->x - SPRITE_SIZE;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 26;
 				sword_rotation = 3;
 				sword->y = link->y;
 				break;
 		}
-		if (lasting_attack != 1){
+		if ( lasting_attack != 1 ){
 			Xil_Out32(
 					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
-					(unsigned int )0x8F000000 | (unsigned int )link->type);
+					(unsigned int) 0x8F000000 | (unsigned int) link->sprite);
 			Xil_Out32(
 					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
-					(link->y << 16) | link->x);
+					 ( link->y << 16) | link->x);      //  the higher 2 bytes represent the row (y)
 		}
 
-		for(i =0; i <900000; i++) {}
-		if (lasting_attack != 1){
-			chhar_spawn(sword,sword_rotation);
+		for ( i =0; i <900000; i++ );             //      delay
+
+		if ( lasting_attack != 1 ){
+			chhar_spawn( sword, sword_rotation );
 		}
-		if(dir == DIR_ATTACK) {
+		if ( dir == DIR_ATTACK) {
 			lasting_attack = 1;
 		}
 
-		for(i =0; i <3000000; i++) {}
+		for ( i =0; i <3000000; i++);             //      delay
 
-
-
-		//After a short break (representing the attack animation) go back to standing sprite facing the same direciton
-		if (last ==22 || last == 23) { 						//left
-			link->type =  LINK_SPRITES_OFFSET + 64*23;
-		} else if (last == 3 || last == 4) { 				//right
-			link->type =  LINK_SPRITES_OFFSET + 64*4;
-		} else if (last == 2 || last == 21) {				//up
-			link->type =  LINK_SPRITES_OFFSET + 64*21;
-		} else if (last == 0 || last == 1) {				//down
-			link->type =  LINK_SPRITES_OFFSET + 64*1;
+		/*   After a short break (representing the attack animation), go back to standing sprite facing the same direciton    */
+		if ( last ==22 || last == 23 ) { 						//left
+			link->sprite = LINK_SPRITES_OFFSET + 64 * 23;
+		} else if ( last == 3 || last == 4 ) { 				//right
+			link->sprite = LINK_SPRITES_OFFSET + 64 * 4;
+		} else if ( last == 2 || last == 21 ) {				//up
+			link->sprite = LINK_SPRITES_OFFSET + 64 * 21;
+		} else if ( last == 0 || last == 1 ) {				//down
+			link->sprite = LINK_SPRITES_OFFSET + 64 * 1;
 		}
 	}
 
-	/*		skip collision detection if on the bottom of the frame 			*/
-    if(!inCave && isDoor(x,y)) {
-        link->x = (SIDE_PADDING + (int)(FRAME_WIDTH)/2)*16;        // set to the middle of the frame
-        link->y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT)*SPRITE_SIZE - SPRITE_SIZE;     //set to the bottom of the cave
+    if( !inCave && isDoor(x, y) ) {
+        link->x = ( SIDE_PADDING + (int) FRAME_WIDTH/2 ) * SPRITE_SIZE;                         // set to the middle of the frame
+        link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
         inCave = true;
-        load_frame(DIR_UP);
-    } else if(dir == DIR_DOWN && y ==( (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT) * 16 - 16+1)) {
+        load_frame( DIR_UP );
+	    /*		skip collision detection if on the bottom of the frame 			*/
+    } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
 		link->y = y;
 	} else {
-		if (!obstackles_detection(x,y, frame, dir)) {
+		if ( !obstackles_detection(x, y, frame, dir ) ) {
 			link->x = x;
 			link->y = y;
 		}
 	}
 
 
-	if (lasting_attack != 1){
+	if ( lasting_attack != 1 ){
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
-				(unsigned int )0x8F000000 | (unsigned int )link->type);
+				(unsigned int) 0x8F000000 | (unsigned int) link->sprite );
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
-				(link->y << 16) | link->x);
-		delete_sword(sword);
+				(link->y << 16) | link->x );      //  the higher 2 bytes represent the row (y)
+		delete_sword( sword );
+	}
 
-	}
-	for (i = 0; i < 1000; i++) { //1000 - good speed
-	}
+	for (i = 0; i < 1000; i++);          //     delay = 1000 <- good speed
 
 	return false;
 }
@@ -581,14 +510,13 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 bool isDoor(x,y) {
     /*      calculate the index of the position in the frame     */
 	x = x + 13 - SIDE_PADDING*SPRITE_SIZE;
-	y = y + 14 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
-    x/=SPRITE_SIZE;
-    y/=SPRITE_SIZE;
+	y = y + 14 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+    x /= SPRITE_SIZE;
+    y /= SPRITE_SIZE;
     
-
-    /*      check if sprite is on the door      */
-    if(frame[y*FRAME_WIDTH + x] == SPRITES[10]) {
-    	door_x = x;
+    /*      check if link reached the door      */
+    if (  frame[y * FRAME_WIDTH + x] == SPRITES[10] ) {
+        door_x = x;
     	door_y = y;
         return true;
     }
@@ -600,8 +528,9 @@ bool tile_walkable(int index, unsigned short* map_frame) {
 	int walkables[20] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47}; // the last row in Finaltiles is not included
 	int i;
 
-	for(i = 0; i < 20; i++) {
-		if(map_frame[index] == SPRITES[walkables[i]]){ //ovo ne prolazi, znaci da ne nalazi adresu medju sprajtovima
+	for ( i = 0; i < 20; i++) {
+        /*      check if the current sprite is walkable     */
+		if (  map_frame[index] == SPRITES[walkables[i]] ){ 
 			return true;
 		}
 	}
@@ -609,71 +538,67 @@ bool tile_walkable(int index, unsigned short* map_frame) {
 	return false;
 }
 
-bool obstackles_detection(int x, int y, unsigned short* f, /*unsigned char * map,*/
-		int dir) {
-			int x_left = x + 3 - SIDE_PADDING*SPRITE_SIZE;
-			int x_right = x + 12 - SIDE_PADDING*SPRITE_SIZE;
-			int y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
-			int y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT)*SPRITE_SIZE;
+bool obstackles_detection(int x, int y, unsigned short* f, int dir) {
+			int x_left = x + 3 - SIDE_PADDING * SPRITE_SIZE;
+			int x_right = x + 12 - SIDE_PADDING * SPRITE_SIZE;
+			int y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+			int y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
 
-			x_left/=16;
-			x_right/=16;
-			y_top/=16;
-			y_bot/=16;
+			x_left /= SPRITE_SIZE;
+			x_right /= SPRITE_SIZE;
+			y_top /= SPRITE_SIZE;
+			y_bot /= SPRITE_SIZE;
 
-			if (dir == DIR_UP) {
-				return !(tile_walkable(x_left + y_top*FRAME_WIDTH, f) && tile_walkable(x_right + y_top*FRAME_WIDTH, f));
-			} else if (dir == DIR_DOWN) {
-				return !(tile_walkable(x_left + y_bot*FRAME_WIDTH, f) && tile_walkable(x_right + y_bot*FRAME_WIDTH, f));
-			} else if (dir == DIR_LEFT) {
-				return !(tile_walkable(x_left + y_top*FRAME_WIDTH, f) && tile_walkable(x_left + y_bot*FRAME_WIDTH, f));
-			} else if (dir == DIR_RIGHT) {
-				return !(tile_walkable(x_right + y_top*FRAME_WIDTH, f) && tile_walkable(x_right + y_bot*FRAME_WIDTH, f));
+			if ( dir == DIR_UP ) {
+				return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_top * FRAME_WIDTH, f) );
+			} else if ( dir == DIR_DOWN ) {
+				return !( tile_walkable(x_left + y_bot * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
+			} else if ( dir == DIR_LEFT ) {
+				return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_left + y_bot * FRAME_WIDTH, f) );
+			} else if ( dir == DIR_RIGHT ) {
+				return !( tile_walkable(x_right + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
 			}
+
 			return false;
 }
 
 void battle_city() {
-
 	unsigned int buttons, tmpBtn = 0, tmpUp = 0;
-	int i, change = 0, jumpFlag = 0;
-	int block;
-	frame = overworld[0];
-	link.x = INITIAL_LINK_POSITION_X;
-	link.y = INITIAL_LINK_POSITION_Y;
-	link.type = LINK_SPRITES_OFFSET;
-	sword.x = INITIAL_LINK_POSITION_X+13;
-	sword.y = INITIAL_LINK_POSITION_Y;
+	int i;
+    
+    /*      initialization      */
+	reset_memory();
 	overw_x = INITIAL_FRAME_X;
 	overw_y = INITIAL_FRAME_Y;
-	map_reset(/*map1*/);
+    load_frame( DIR_STILL );
 
-	chhar_spawn(&link,0);
-    load_frame(DIR_STILL);
+	link.x = INITIAL_LINK_POSITION_X;
+	link.y = INITIAL_LINK_POSITION_Y;
+	link.sprite = LINK_SPRITES_OFFSET;
+	sword.x = INITIAL_LINK_POSITION_X + 13;
+	sword.y = INITIAL_LINK_POSITION_Y;
+
+	chhar_spawn(&link, 0);
 
 	while (1) {
-
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
 		direction_t d = DIR_STILL;
-		if (BTN_LEFT(buttons)) {
+		if ( BTN_LEFT(buttons) ) {
 			d = DIR_LEFT;
-		} else if (BTN_RIGHT(buttons)) {
+		} else if ( BTN_RIGHT(buttons) ) {
 			d = DIR_RIGHT;
-		} else if (BTN_UP(buttons)) {
+		} else if ( BTN_UP(buttons) ) {
 			d = DIR_UP;
-		} else if (BTN_DOWN(buttons)) {
+		} else if ( BTN_DOWN(buttons) ) {
 			d = DIR_DOWN;
-		} else if (BTN_SHOOT(buttons)) {
+		} else if ( BTN_SHOOT(buttons) ) {
 			d = DIR_ATTACK;
 		}
 
 		link_move(&link, &sword, d);
 		//if (enemies_exist) {
 		//TODO: enemy_move(); }
-
-		for (i = 0; i < 1; i++) {
-		}
 
 	}
 }
