@@ -94,9 +94,9 @@ architecture arch of ram is
 		55 =>	x"00584000",
 		56 =>	x"00d8e800",
 	        --  heart colors	
-        57 => x"00000000",
-        58 => x"002131b5"
-        59 => x"00c4cdfe"
+        57 => 	x"00000000",
+        58 => 	x"002131b5",
+        59 =>	x"00c4cdfe",
 			--below not fellas
 		60 =>	x"003F95E4", -- Unused
 		61 =>	x"003598FF", -- Unused

@@ -9,28 +9,30 @@
       <VARIABLE COL_INDEX="1" COL_WIDTH="100" IS_VISIBLE="TRUE" VIEWDISP="Bus Name" VIEWTYPE="HEADER"/>
       <VARIABLE COL_INDEX="2" IS_VISIBLE="FALSE" VIEWDISP="Bus Standard" VIEWTYPE="HEADER"/>
       <VARIABLE COL_INDEX="3" COL_WIDTH="160" IS_VISIBLE="TRUE" VIEWDISP="IP Type" VIEWTYPE="HEADER"/>
-      <VARIABLE COL_INDEX="4" COL_WIDTH="886" IS_VISIBLE="TRUE" VIEWDISP="IP Version" VIEWTYPE="HEADER"/>
+      <VARIABLE COL_INDEX="4" COL_WIDTH="632" IS_VISIBLE="TRUE" VIEWDISP="IP Version" VIEWTYPE="HEADER"/>
       <VARIABLE COL_INDEX="5" IS_VISIBLE="FALSE" VIEWDISP="IP Classification" VIEWTYPE="HEADER"/>
       <VARIABLE COL_INDEX="6" IS_VISIBLE="FALSE" VIEWDISP="Type" VIEWTYPE="HEADER"/>
     </HEADERS>
     <SPLITTERS COLLAPSIBLE="1" HANDLEWIDTH="4" MARKER="255" ORIENTATION="1" RESIZE="1" SIZES="62,577,227" VERSION="0"/>
     <SET ID="io_periph" IS_EXPANDED="TRUE"/>
     <STATUS>
-      <SELECTIONS/>
+      <SELECTIONS>
+        <VARIABLE ID="microblaze_0_i_bram_ctrl"/>
+      </SELECTIONS>
     </STATUS>
-    <SEQUENCES IS_DEF_SEQUENCES="TRUE">
-      <VARIABLE ID="proc_sys_reset_0" ROW_INDEX="11"/>
+    <SEQUENCES IS_DEF_SEQUENCES="FALSE">
+      <VARIABLE ID="proc_sys_reset_0" ROW_INDEX="10"/>
       <VARIABLE ID="microblaze_0_ilmb" ROW_INDEX="2"/>
-      <VARIABLE ID="microblaze_0_i_bram_ctrl" ROW_INDEX="6"/>
+      <VARIABLE ID="microblaze_0_i_bram_ctrl" ROW_INDEX="11"/>
       <VARIABLE ID="microblaze_0_dlmb" ROW_INDEX="1"/>
       <VARIABLE ID="microblaze_0_d_bram_ctrl" ROW_INDEX="5"/>
       <VARIABLE ID="microblaze_0_bram_block" ROW_INDEX="4"/>
       <VARIABLE ID="microblaze_0" ROW_INDEX="3"/>
-      <VARIABLE ID="debug_module" ROW_INDEX="7"/>
-      <VARIABLE ID="clock_generator_0" ROW_INDEX="10"/>
+      <VARIABLE ID="debug_module" ROW_INDEX="6"/>
+      <VARIABLE ID="clock_generator_0" ROW_INDEX="9"/>
       <VARIABLE ID="axi4lite_0" ROW_INDEX="0"/>
-      <VARIABLE ID="battle_city_periph_0" ROW_INDEX="9"/>
-      <VARIABLE ID="io_periph" IS_EXPANDED="TRUE" ROW_INDEX="8"/>
+      <VARIABLE ID="battle_city_periph_0" ROW_INDEX="8"/>
+      <VARIABLE ID="io_periph" IS_EXPANDED="TRUE" ROW_INDEX="7"/>
     </SEQUENCES>
   </SET>
 

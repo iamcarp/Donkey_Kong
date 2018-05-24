@@ -18,17 +18,17 @@ typedef int bool;
 #define ENEMY_COLORS_OFFSET         35
 
 /*		SCREEN PARAMETERS		 - in this case, "screen" stands for one full-screen picture	 */
-#define SCREEN_BASE_ADDRESS			6900
+#define SCREEN_BASE_ADDRESS			6900	//	old: 6900	,	new: 6992
 #define SCR_HEIGHT					30
 #define SCR_WIDTH					40
 #define SPRITE_SIZE					16
 
 /*		FRAME HEADER		*/
-#define HEADER_BASE_ADDRESS			7192
+#define HEADER_BASE_ADDRESS			7192	//	old: 7192	,	new: 7124
 #define HEADER_HEIGHT				5
 
 /*      FRAME       */
-#define FRAME_BASE_ADDRESS			7392 // FRAME_OFFSET in battle_city.vhd
+#define FRAME_BASE_ADDRESS			7392 // 	old: 7392	,	new: 7284		FRAME_OFFSET in battle_city.vhd
 #define SIDE_PADDING				12
 #define VERTICAL_PADDING			7
 #define INITIAL_FRAME_X				7
@@ -37,12 +37,12 @@ typedef int bool;
 #define INITIAL_LINK_POSITION_Y		270
 
 /*      LINK SPRITES START ADDRESS - to move to next add 64    */
-#define LINK_SPRITES_OFFSET             5172
-#define SWORD_SPRITE                    6068
+#define LINK_SPRITES_OFFSET             5648		//	old: 5172	,	new: 5648
+#define SWORD_SPRITE                    LINK_SPRITES_OFFSET + 14*64			//6068		//	old: 7192	,	new: 7124
 #define LINK_STEP						10
 
 /*      ENEMIE SPRITES START ADDRESS - to move to next add 64    */
-#define ENEMIE_SPRITES_OFFSET          4596
+#define ENEMIE_SPRITES_OFFSET          5072			//	old: 4596	,	new: 5072
 #define ENEMY_STEP						10
 
 #define REGS_BASE_ADDRESS               ( SCREEN_BASE_ADDRESS + SCR_WIDTH * SCR_HEIGHT )
@@ -165,7 +165,7 @@ characters octorok1 = {
 characters octorok2 = {
 		0,								// x
 		0,								// y
-		DIR_LEFT,              			// dir
+		DIR_UP,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
 		false,                			// destroyed
 		ENEMY_3_REG_L,            		// reg_l
@@ -175,7 +175,7 @@ characters octorok2 = {
 characters octorok3 = {
 		0,								// x
 		0,								// y
-		DIR_LEFT,              			// dir
+		DIR_DOWN,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
 		false,                			// destroyed
 		ENEMY_4_REG_L,            		// reg_l
@@ -206,31 +206,34 @@ characters octorok5 = {
 int overw_x;
 int overw_y;
 
+int enemy_exists = 0;
+
 bool inCave = false;
 /*      the position of the door so link could have the correct position when coming out of the cave    */
 int door_x, door_y;
+
 
 void load_sprites(bool textMode) {
     int i;
     unsigned char * load;
     unsigned long color;
     long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4*(1599);  //  1599 = base address of sprites[21]
-    load = VHDL_CHAR_SPRITES;	// textMode ? VHDL_CHAR_SPRITES : VHDL_reload_map;
+//    load = VHDL_CHAR_SPRITES;	// textMode ? VHDL_CHAR_SPRITES : VHDL_reload_map;
 
     for (i = 0; i < 30*64; i++) {
 	    Xil_Out32(addr + 4*i, load[i]);
     }
 }
 
-unsigned short char_to_addr(char c) {
+/*unsigned short char_to_addr(char c) {
     if(c > '0' - 1 && c < '9' + 1) {
-        return CHAR_SPRITES[c-48];
+        //return CHAR_SPRITES[c-48];
     } else if (c > 'a' - 1 && c < 'b' + 1) {
-        return CHAR_SPRITES[c-65+10];
+       // return CHAR_SPRITES[c-65+10];
     } else if (c > 'A' - 1 && c < 'B' + 1) {
-        return CHAR_SPRITES[c-97+10];
+        //return CHAR_SPRITES[c-97+10];
     } else {
-        return CHAR_SPRITES[0];     // fix case for signs
+        //return CHAR_SPRITES[0];     // fix case for signs
     }
 }
 
@@ -242,7 +245,7 @@ void write_line(char* text, int len, long int addr) {
 		Xil_Out32(addr+4*i, c);
         for (j = 0; j<1000; j++);               //      delay
     }
-}
+}*/
 
 void write_introduction() {
     char text[] = "its dangerous";
@@ -264,6 +267,8 @@ void write_introduction() {
 
 void load_frame( direction_t dir ) {
 	chhar_delete();
+	bool init = initialize_enemy(overw_x * overw_y);
+
 	if( !inCave ) {
 		switch( dir ) {
 			case DIR_LEFT:
@@ -356,33 +361,115 @@ void set_header() {
 
 }
 
-void initialize_enemy( int frame_index ) {
+bool initialize_enemy( int frame_index) {
 	//TODO:	define function
 	/* set enemy on a random position 
 	 * check if there is an obstacle on that position
 	 * this function is only for initializing the enemy!
-	 * enemy movement logic will be defined in an other function
+	 * enemy movement logic will be defined in other function
 	 * the enemy's position should depend on the frame
 	 * in other words, it will use overw_x and overw_y
 	 */
-
 	switch(frame_index)
 	{
 		case 120:
-			octorok1.x = 264;
-			octorok1.y = 270;
+			enemy_exists = 1;
+			octorok1.x = 240;
+			octorok1.y = 220;
+			octorok1.dir = DIR_DOWN;
 			chhar_spawn(&octorok1, 0);
+			enemy_move(&octorok1);
+
 			octorok2.x = 320;
-			octorok2.y = 310;
-			chhar_spawn(&octorok2, 1);
-			octorok3.x = 310;
-			octorok3.y = 270;
-			chhar_spawn(&octorok3, 2);
+			octorok2.y = 240;
+			octorok2.dir = DIR_UP;
+			enemy_move(&octorok1);
+			chhar_spawn(&octorok2, 3);
+			enemy_move(&octorok2);
+
+
+			octorok3.x = 320;
+			octorok3.y = 290;
+			octorok3.dir = DIR_DOWN;
+			enemy_move(&octorok1);
+			chhar_spawn(&octorok3, 0);
+			enemy_move(&octorok3);
+
+			octorok4.x = 355;
+			octorok4.y = 250;
+			octorok4.dir = DIR_LEFT;
+			enemy_move(&octorok1);
+			chhar_spawn(&octorok4, 0);
+			enemy_move(&octorok4);
+			return 1;
 			break;
+		case 125:
+			break;
+
+		default:
+			enemy_exists = 0;
+
 	}
     
 }
 
+
+direction_t random_direction(direction_t dir){
+	if (dir == DIR_DOWN){
+		dir = DIR_LEFT;
+	} else if(dir == DIR_LEFT){
+		dir = DIR_RIGHT;
+	} else if (dir == DIR_UP){
+		dir = DIR_DOWN;
+	} else if (dir == DIR_RIGHT){
+		dir = DIR_UP;
+	}
+	return dir;
+}
+
+void enemy_move(characters* chhar){
+	direction_t direction;
+	int x,y;
+	x = chhar->x;
+	y = chhar->y;
+
+	/* detection of edges of frame */
+	if( chhar->y < SIDE_PADDING * SPRITE_SIZE){
+		chhar->dir = DIR_DOWN;
+	} else if (chhar->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE) {
+		chhar->dir = DIR_UP;
+	} else if (chhar->x > (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
+		chhar->dir = DIR_LEFT;
+	} else if ( chhar->x < SIDE_PADDING * SPRITE_SIZE){
+		chhar->dir = DIR_RIGHT;
+	}
+
+	if(chhar->dir == DIR_DOWN) {
+				y++;
+	} else if (chhar->dir == DIR_UP){
+				y--;
+	} else if (chhar->dir == DIR_LEFT){
+				x--;
+	} else if (chhar->dir == DIR_RIGHT){
+				x++;
+	}
+
+	if (obstackles_detection(x, y, frame, chhar->dir)){
+		chhar->dir = random_direction(chhar->dir);
+	} else {
+		chhar->y = y;
+		chhar->x = x;
+	}
+
+	Xil_Out32(
+			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+			(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite);
+	Xil_Out32(
+			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
+			( chhar->y << 16) | chhar->x);
+
+
+}
 
 void chhar_delete(){
 	delete_sword(&octorok1);
@@ -450,9 +537,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	int i;
 	int blocked_sword = 0; //0 false - not blocked, 1 true - blocked
 
-	//+/-28 instead of 32 and 16 because of sprite graphic
-	//ako je na desnoj ivici i okrenut je desno blokiraj
-	//ako je na levoj ivici i okrenut je levo blokiraj
+	//+/-28 instead of 32 because of sprite graphic
 	if ((link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 3) || //if right edge and link is right faced
 		(link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 4) ||
 		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 22) || //if left edge and link is left faced
@@ -461,7 +546,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		((link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE  - 16) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 1) ||
 		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 2) || //if up edge and link is up faced
 		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 21) )
-	{ //levo i okrenut je levo
+	{
 		blocked_sword = 1;
 	}
 
@@ -718,6 +803,11 @@ void battle_city() {
 
 	chhar_spawn(&link, 0);
 
+	Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( HEADER_BASE_ADDRESS ),
+				CHAR_L);
+
+
 	while (1) {
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
@@ -733,10 +823,13 @@ void battle_city() {
 		} else if ( BTN_SHOOT(buttons) ) {
 			d = DIR_ATTACK;
 		}
-
 		link_move(&link, &sword, d);
-		//if (enemies_exist) {
-		//TODO: enemy_move(); }
 
+		if(enemy_exists) {
+			enemy_move(&octorok1);
+			enemy_move(&octorok2);
+			enemy_move(&octorok3);
+			enemy_move(&octorok4);
+		}
 	}
 }
