@@ -55,8 +55,8 @@ typedef int bool;
 
 
 /*			these are the high and low registers that store moving sprites - two registers for each sprite		 */
-#define LINK_REG_L                     8
-#define LINK_REG_H                     9
+#define LINK_REG_L                     0
+#define LINK_REG_H                     1
 #define WEAPON_REG_L                   4
 #define WEAPON_REG_H                   5
 #define ENEMY_2_REG_L                  6
@@ -71,8 +71,8 @@ typedef int bool;
 #define ENEMY_6_REG_H                  15
 #define ENEMY_7_REG_L                  16
 #define ENEMY_7_REG_H                  17
-#define BASE_REG_L						0
-#define BASE_REG_H	                    1
+#define BASE_REG_L						8
+#define BASE_REG_H	                    9
 
 
 #define ENEMY_FRAMES_NUM 			34
@@ -155,7 +155,7 @@ characters octorok1 = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
-		SWORD_SPRITE,  					// type
+		ENEMIE_SPRITES_OFFSET,  					// type
 		false,                			// destroyed
 		ENEMY_2_REG_L,            		// reg_l
 		ENEMY_2_REG_H             		// reg_h
@@ -166,7 +166,7 @@ characters octorok2 = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
-		SWORD_SPRITE,  					// type
+		ENEMIE_SPRITES_OFFSET,  					// type
 		false,                			// destroyed
 		ENEMY_3_REG_L,            		// reg_l
 		ENEMY_3_REG_H             		// reg_h
@@ -176,7 +176,7 @@ characters octorok3 = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
-		SWORD_SPRITE,  					// type
+		ENEMIE_SPRITES_OFFSET,  					// type
 		false,                			// destroyed
 		ENEMY_4_REG_L,            		// reg_l
 		ENEMY_4_REG_H             		// reg_h
@@ -186,7 +186,7 @@ characters octorok4 = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
-		SWORD_SPRITE,  					// type
+		ENEMIE_SPRITES_OFFSET,  					// type
 		false,                			// destroyed
 		ENEMY_5_REG_L,            		// reg_l
 		ENEMY_5_REG_H             		// reg_h
@@ -196,7 +196,7 @@ characters octorok5 = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
-		SWORD_SPRITE,  					// type
+		ENEMIE_SPRITES_OFFSET,  					// type
 		false,                			// destroyed
 		ENEMY_6_REG_L,            		// reg_l
 		ENEMY_6_REG_H             		// reg_h
@@ -263,6 +263,7 @@ void write_introduction() {
 
 
 void load_frame( direction_t dir ) {
+	chhar_delete();
 	if( !inCave ) {
 		switch( dir ) {
 			case DIR_LEFT:
@@ -364,10 +365,33 @@ void initialize_enemy( int frame_index ) {
 	 * the enemy's position should depend on the frame
 	 * in other words, it will use overw_x and overw_y
 	 */
+
+	switch(frame_index)
+	{
+		case 120:
+			octorok1.x = 264;
+			octorok1.y = 270;
+			chhar_spawn(&octorok1, 0);
+			octorok2.x = 320;
+			octorok2.y = 310;
+			chhar_spawn(&octorok2, 1);
+			octorok3.x = 310;
+			octorok3.y = 270;
+			chhar_spawn(&octorok3, 2);
+			break;
+	}
     
 }
 
-static void chhar_spawn( characters * chhar, int rotation ) {
+
+void chhar_delete(){
+	delete_sword(&octorok1);
+	delete_sword(&octorok2);
+	delete_sword(&octorok3);
+	delete_sword(&octorok4);
+	delete_sword(&octorok5);
+}
+void chhar_spawn( characters * chhar, int rotation ) {
 	if ( rotation == 1 ) {																			 //rotate 90degrees clockwise
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
@@ -390,7 +414,7 @@ static void chhar_spawn( characters * chhar, int rotation ) {
 			(chhar->y << 16) | chhar->x );      //  the higher 2 bytes represent the row (y)
 }
 
-static void delete_sword( characters* chhar ){
+void delete_sword( characters* chhar ){
 	int i;
 	for ( i = 0; i < 100000; i++ );         //  delay
 
@@ -427,10 +451,17 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	int blocked_sword = 0; //0 false - not blocked, 1 true - blocked
 
 	//+/-28 instead of 32 and 16 because of sprite graphic
-	if (link->x >= ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - 28) ||
-			( link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE  - 16  ) ||
-			( link->y < SIDE_PADDING * SPRITE_SIZE + 16) ||
-			( link->x < SIDE_PADDING * SPRITE_SIZE + 28)){
+	//ako je na desnoj ivici i okrenut je desno blokiraj
+	//ako je na levoj ivici i okrenut je levo blokiraj
+	if ((link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 3) || //if right edge and link is right faced
+		(link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 4) ||
+		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 22) || //if left edge and link is left faced
+		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 23) ||
+		((link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE  - 16) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 0) || //if down edge and link is up faced
+		((link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE  - 16) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 1) ||
+		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 2) || //if up edge and link is up faced
+		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 21) )
+	{ //levo i okrenut je levo
 		blocked_sword = 1;
 	}
 
@@ -480,7 +511,6 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 			last = (last == 3) ? 4 : 3;
 		}
 		lasting_attack = 0;
-		//TODO:	set sprite
 		link->sprite =  LINK_SPRITES_OFFSET + 64 * last;
 		counter++;
 	} else if ( dir == DIR_UP ) {
