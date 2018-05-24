@@ -10,6 +10,11 @@
 #define SCREEN_HEIGHT		480
 
 
+unsigned short char_to_addr(char c);
+void write_line(char* text, int len, long int addr):
+void write_introduction();
+
+
 
 void battle_city();
 

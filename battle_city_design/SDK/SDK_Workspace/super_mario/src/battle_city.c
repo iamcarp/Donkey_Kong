@@ -382,9 +382,17 @@ void set_header() {
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
 
-	/*			print "LIFE"		*/
-	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
-	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( + pos++);
+	/*			set minimap		*/
+	int i,j, pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 1;
+	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+	for(j = 0 ; j < 2 ; j++ ) {
+		for(i = 0; i < 4; i++) {
+			Xil_Out32(addr+4*(j * SCR_WIDTH + i),	MINIMAP_BLANK);
+		}
+	}
+	/*			print "LIFE"		*/		//		use write line
+	pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
 	Xil_Out32(addr,	CHAR_L);
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
 	Xil_Out32(addr,	CHAR_I);
@@ -395,7 +403,6 @@ void set_header() {
 
 	/*			put hearts under life		*/
 	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + FRAME_WIDTH - 6;
-	int i;
 	for(i = 0; i < lives/2; i++) {
 		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
 		Xil_Out32(addr,	HEART_FULL);

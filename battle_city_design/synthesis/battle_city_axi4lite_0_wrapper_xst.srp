@@ -2102,7 +2102,7 @@ axi4lite_0/si_converter_bank/gen_conv_slot[0].clock_conv_inst/S_AXI_ACLK|    1.6
 
 
 Total REAL time to Xst completion: 6.00 secs
-Total CPU time to Xst completion: 6.29 secs
+Total CPU time to Xst completion: 6.19 secs
  
 --> 
 
