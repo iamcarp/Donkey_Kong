@@ -81,6 +81,8 @@ bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
 					   84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
 					   105, 106, 110, 111, 120, 125, 126};
 
+unsigned short fire1 = FIRE_0;
+unsigned short fire2 = FIRE_1;
 int lives = 6;		//		number of hearts is lives/2
 int counter = 0;
 int last = 0; //last state link was in before current iteration (if he is walking it keeps walking)
@@ -275,7 +277,7 @@ void write_introduction() {
     len = 12;
     addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*3 + 1 );
     write_line(text , len, addr);
-    int d = 10000000;
+    int d = 3000000;
     while(d) {d--;}
 
     strcpy(text, "take this.");
@@ -283,8 +285,6 @@ void write_introduction() {
     addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*4 + 1 );
     write_line(text , len, addr);
 }
-
-
 
 void load_frame( direction_t dir ) {
 	chhar_delete();
@@ -372,6 +372,15 @@ void set_frame_palette() {
 		/*    gray -> sand    */
 		Xil_Out32( addr_floor, 0xA8D8FC ); 
 	}
+
+}
+
+void set_sword() {
+	static unsigned long addr;
+	unsigned int pos = FRAME_BASE_ADDRESS + 7*SCR_WIDTH + 7;
+
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+	Xil_Out32(addr,	SWORD_SPRITE);
 
 }
 
@@ -741,7 +750,8 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
         link->x = ( SIDE_PADDING + (int) FRAME_WIDTH/2 ) * SPRITE_SIZE;                         // set to the middle of the frame
         link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
         inCave = true;
-        load_frame( DIR_UP );											///////////////////////////////////////////////////////////////////////
+        load_frame( DIR_UP );
+		//set_sword();
 	    /*		skip collision detection if on the bottom of the frame 			*/
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
@@ -805,38 +815,33 @@ bool tile_walkable(int index, unsigned short* map_frame) {
 }
 
 bool obstackles_detection(int x, int y, unsigned short* f, int dir) {
-			int x_left = x + 3 - SIDE_PADDING * SPRITE_SIZE;
-			int x_right = x + 12 - SIDE_PADDING * SPRITE_SIZE;
-			int y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
-			int y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+	int x_left = x + 3 - SIDE_PADDING * SPRITE_SIZE;
+	int x_right = x + 12 - SIDE_PADDING * SPRITE_SIZE;
+	int y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+	int y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
 
-			x_left /= SPRITE_SIZE;
-			x_right /= SPRITE_SIZE;
-			y_top /= SPRITE_SIZE;
-			y_bot /= SPRITE_SIZE;
+	x_left /= SPRITE_SIZE;
+	x_right /= SPRITE_SIZE;
+	y_top /= SPRITE_SIZE;
+	y_bot /= SPRITE_SIZE;
 
-			if ( dir == DIR_UP ) {
-				return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_top * FRAME_WIDTH, f) );
-			} else if ( dir == DIR_DOWN ) {
-				return !( tile_walkable(x_left + y_bot * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
-			} else if ( dir == DIR_LEFT ) {
-				return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_left + y_bot * FRAME_WIDTH, f) );
-			} else if ( dir == DIR_RIGHT ) {
-				return !( tile_walkable(x_right + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
-			}
+	if ( dir == DIR_UP ) {
+		return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_top * FRAME_WIDTH, f) );
+	} else if ( dir == DIR_DOWN ) {
+		return !( tile_walkable(x_left + y_bot * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
+	} else if ( dir == DIR_LEFT ) {
+		return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_left + y_bot * FRAME_WIDTH, f) );
+	} else if ( dir == DIR_RIGHT ) {
+		return !( tile_walkable(x_right + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
+	}
 
-			return false;
+	return false;
 }
 
 void set_fire() {
 	static unsigned long addr;
 	unsigned int pos = FRAME_BASE_ADDRESS + 5*SCR_WIDTH + 4;
 	int i;
-	static unsigned short fire1 = FIRE_0;
-	static unsigned short fire2 = FIRE_1;
-
-	int d = 1000000;
-	while (d) d--;			//		delay
 
 	if(fire1 == FIRE_0) {
 		fire1 = FIRE_1;
@@ -871,8 +876,6 @@ void battle_city() {
 
 	chhar_spawn(&link, 0);
 
-	int delay;
-
 	while (1) {
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
@@ -888,14 +891,7 @@ void battle_city() {
 		} else if ( BTN_SHOOT(buttons) ) {
 			d = DIR_ATTACK;
 		}
-		if (d != DIR_STILL) {
-			link_move(&link, &sword, d);
-		}
-		if(inCave && overw_x == INITIAL_FRAME_X && overw_x == INITIAL_FRAME_X) {
-			set_fire();
-			delay = 1000000;
-			while (delay) delay--;			//		delay
-		}
+		link_move(&link, &sword, d);
 
 		if(enemy_exists) {
 			enemy_move(&octorok1);

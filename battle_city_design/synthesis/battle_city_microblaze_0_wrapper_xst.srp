@@ -3,7 +3,7 @@ Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
 --> Parameter TMPDIR set to D:\ra22-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
 
 
-Total REAL time to Xst completion: 1.00 secs
+Total REAL time to Xst completion: 0.00 secs
 Total CPU time to Xst completion: 0.06 secs
  
 --> 
@@ -7599,12 +7599,12 @@ DCACHE_FSL_OUT_CLK|    8.851|         |         |         |
 =========================================================================
 
 
-Total REAL time to Xst completion: 22.00 secs
-Total CPU time to Xst completion: 21.97 secs
+Total REAL time to Xst completion: 23.00 secs
+Total CPU time to Xst completion: 22.59 secs
  
 --> 
 
-Total memory usage is 370744 kilobytes
+Total memory usage is 370808 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings : 4738 (   0 filtered)
