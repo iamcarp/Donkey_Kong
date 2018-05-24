@@ -285,6 +285,7 @@ void load_frame( direction_t dir ) {
 		}
 
 		frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
+		set_minimap();
 	} else {
 		if ( dir == DIR_DOWN ) {
 			frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
@@ -350,6 +351,7 @@ void set_frame_palette() {
 
 }
 
+/*		set sword in cave		*/
 void set_sword() {
 	static unsigned long addr;
 	unsigned int pos = FRAME_BASE_ADDRESS + 7*SCR_WIDTH + 7;
@@ -361,6 +363,7 @@ void set_sword() {
 
 void set_minimap() {
 	int i,j, pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 1;
+	int m_x, m_y;
 	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
 	for(j = 0 ; j < 2 ; j++ ) {
 		for(i = 0; i < 4; i++) {
@@ -368,12 +371,27 @@ void set_minimap() {
 		}
 	}
 
+
+	/*		reset sprite	*/
+	for (i = 0; i < 64; i++) {
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MINIMAP_BLANK + 64 + i);
+		Xil_Out32(addr,	0x07070707);
+	}
+
+	/*		relative position inside ine sprite		*/
+	m_x = overw_x % 4;
+	m_y = overw_y % 4;
+
 	for (i = 0; i < 4; i++) {
-		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MINIMAP_BLANK + 64 + i*4);
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MINIMAP_BLANK + 64 + m_y*16 + (i)*4 + m_x);
 		Xil_Out32(addr,	0x18181818);
 	}
 
-	pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 1;
+	/*		the position of the sprite in minimap		*/
+	m_x = overw_x / 4;
+	m_y = overw_y / 4;
+
+	pos = HEADER_BASE_ADDRESS + (2 + m_y)*SCR_WIDTH + 1 + m_x;
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
 	Xil_Out32(addr,	MINIMAP_BLANK + 64);
 }
