@@ -5,6 +5,7 @@
 #include "xio.h"
 #include <math.h>
 #include "sprites.h"
+#include <string.h>
 
 typedef int bool;
 #define true 1
@@ -83,6 +84,35 @@ bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
 int lives = 0;
 int counter = 0;
 int last = 0; //last state link was in before current iteration (if he is walking it keeps walking)
+/*For testing purposes - values for last - Link sprites
+	0 - down stand
+	1 - down walk
+	2 - up walk
+	3 - right walk
+	4 - right stand
+	5 - down stand shield
+	6 - down walk shield
+	7 - right walk shield
+	8 - right stand shield
+	9 - down attack
+	10 - up attack
+	11 - right attack
+	12 - item picked up
+	13 - triforce picked up
+	14 - sword
+	15 - arrow
+	16 - boomerang 1
+	17 - boomerang 2
+	18 - boomerang 3
+	19 - magic 1
+	20 - magic 2
+	21 - up flipped
+	22 - left walk
+	23 - left stand
+	24 - left walk shield
+	25 - left stand shield
+	26 - left attack
+*/
 
 /*		 ACTIVE FRAME		*/
 unsigned short* frame;
@@ -106,9 +136,9 @@ characters link = {
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_DOWN, 	             		// dir
 		0x0DFF,							// type - sprite address in ram.vhdl
-		false,                		// destroyed
-		LINK_REG_L,            		// reg_l
-		LINK_REG_H             		// reg_h
+		false,                			// destroyed
+		LINK_REG_L,            			// reg_l
+		LINK_REG_H             			// reg_h
 		};
 
 characters sword = {
@@ -116,7 +146,7 @@ characters sword = {
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
-		false,                		// destroyed
+		false,                			// destroyed
 		WEAPON_REG_L,            		// reg_l
 		WEAPON_REG_H             		// reg_h
 		};
@@ -126,7 +156,7 @@ characters octorok = {
 		0,								// y
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
-		false,                		// destroyed
+		false,                			// destroyed
 		ENEMY_2_REG_L,            		// reg_l
 		ENEMY_2_REG_H             		// reg_h
 		};
@@ -138,6 +168,58 @@ int overw_y;
 bool inCave = false;
 /*      the position of the door so link could have the correct position when coming out of the cave    */
 int door_x, door_y;
+
+void load_sprites(bool textMode) {
+    int i;
+    unsigned char * load;
+    unsigned long color;
+    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4*(1599);  //  1599 = base address of sprites[21]
+    load = VHDL_CHAR_SPRITES;	// textMode ? VHDL_CHAR_SPRITES : VHDL_reload_map;
+
+    for (i = 0; i < 30*64; i++) {
+	    Xil_Out32(addr + 4*i, load[i]);
+    }
+}
+
+unsigned short char_to_addr(char c) {
+    if(c > '0' - 1 && c < '9' + 1) {
+        return CHAR_SPRITES[c-48];
+    } else if (c > 'a' - 1 && c < 'b' + 1) {
+        return CHAR_SPRITES[c-65+10];
+    } else if (c > 'A' - 1 && c < 'B' + 1) {
+        return CHAR_SPRITES[c-97+10];
+    } else {
+        return CHAR_SPRITES[0];     // fix case for signs
+    }
+}
+
+void write_line(char* text, int len, long int addr) {
+    int i, j;
+    unsigned short c;
+    for (i = 0; i < len; i++) {
+    	c = char_to_addr(text[i]);
+		Xil_Out32(addr+4*i, c);
+        for (j = 0; j<1000; j++);               //      delay
+    }
+}
+
+void write_introduction() {
+    char text[] = "its dangerous";
+    short len = 13;
+    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH + 1 );
+    write_line(text , len, addr);
+
+    strcpy(text, "to go alone.");
+    len = 12;
+    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*2 + 1 );
+    write_line(text , len, addr);
+
+    strcpy(text, "take this.");
+    len = 10;
+    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*3 + 1 );
+    write_line(text , len, addr);
+}
+
 
 void load_frame( direction_t dir ) {
 	if( !inCave ) {
@@ -154,6 +236,9 @@ void load_frame( direction_t dir ) {
 			case DIR_DOWN:
 				overw_y = ( ++overw_y < OVERWORLD_VERTICAL )? overw_y : OVERWORLD_VERTICAL - 1;
 				break;
+			default:
+				overw_x = overw_x;
+				overw_y = overw_y;
 		}
 
 		frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
@@ -164,7 +249,7 @@ void load_frame( direction_t dir ) {
 		} else {
 			frame = CAVE;
 		}
-        //TODO: load_sprites(inCave);
+		//load_sprites(inCave);											////////////////////////////////////////////
 	}
 
     /*      checking if there should be enemies on the current frame     */
@@ -330,40 +415,10 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	x = link->x;
 	y = link->y;
 
-	/*For testing purposes -- all is +1
-		0 - down stand
-		1 - down walk
-		2 - up walk
-		3 - right walk
-		4 - right stand
-		5 - down stand shield
-		6 - down walk shield
-		7 - right walk shield
-		8 - right stand shield
-		9 - down attack
-		10 - up attack
-		11 - right attack
-		12 - item picked up
-		13 - triforce picked up
-		14 - sword
-		15 - arrow
-		16 - boomerang 1
-		17 - boomerang 2
-		18 - boomerang 3
-		19 - magic 1
-		20 - magic 2
-		21 - up flipped
-		22 - left walk
-		23 - left stand
-		24 - left walk shield
-		25 - left stand shield
-		26 - left attack
-	*/
-
 	/*      movement animation      */
 	if ( dir == DIR_LEFT ) {
 		x--;
-		if ( counter%LINK_STEP == 0 ) {
+		if ( counter % LINK_STEP == 0 ) {
 			last = ( last == 22 ) ? 23 : 22;
 		}
 		lasting_attack = 0;
@@ -482,7 +537,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
         link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
         inCave = true;
         load_frame( DIR_UP );
-        //TODO: write_introduction();
+        //write_introduction();												///////////////////////////////////////////////////////////////////////
 	    /*		skip collision detection if on the bottom of the frame 			*/
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
@@ -512,7 +567,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 
 bool isDoor(x,y) {
     /*      calculate the index of the position in the frame     */
-	x = x + 13 - SIDE_PADDING*SPRITE_SIZE;
+	x = x + 10 - SIDE_PADDING*SPRITE_SIZE;
 	y = y + 14 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
     x /= SPRITE_SIZE;
     y /= SPRITE_SIZE;
