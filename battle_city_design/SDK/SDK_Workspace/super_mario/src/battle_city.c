@@ -102,18 +102,12 @@ int last = 0; //last state link was in before current iteration (if he is walkin
 	12 - item picked up
 	13 - triforce picked up
 	14 - sword
-	15 - arrow
-	16 - boomerang 1
-	17 - boomerang 2
-	18 - boomerang 3
-	19 - magic 1
-	20 - magic 2
-	21 - up flipped
-	22 - left walk
-	23 - left stand
-	24 - left walk shield
-	25 - left stand shield
-	26 - left attack
+	15 - up flipped
+	16 - left walk
+	17 - left stand
+	18 - left walk shield
+	19 - left stand shield
+	20 - left attack
 */
 
 /*		 ACTIVE FRAME		*/
@@ -588,12 +582,12 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	//+/-28 instead of 32 because of sprite graphic
 	if ((link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 3) || //if right edge and link is right faced
 		(link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 4) ||
-		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 22) || //if left edge and link is left faced
-		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 23) ||
+		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 16) || //if left edge and link is left faced
+		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 17) ||
 		((link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE  - 16) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 0) || //if down edge and link is up faced
 		((link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE  - 16) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 1) ||
 		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 2) || //if up edge and link is up faced
-		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 21) )
+		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 15) )
 	{
 		blocked_sword = 1;
 	}
@@ -633,7 +627,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	if ( dir == DIR_LEFT ) {
 		x--;
 		if ( counter % LINK_STEP == 0 ) {
-			last = ( last == 22 ) ? 23 : 22;
+			last = ( last == 16 ) ? 17 : 16;
 		}
 		lasting_attack = 0;
 		link->sprite = LINK_SPRITES_OFFSET + 64 * last;
@@ -649,7 +643,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	} else if ( dir == DIR_UP ) {
 		y--;
 		if ( counter % LINK_STEP == 0 ) {
-			last = (last == 2) ? 21 : 2;
+			last = (last == 2) ? 15 : 2;
 		}
 		lasting_attack = 0;
 		link->sprite = LINK_SPRITES_OFFSET + 64 * last;
@@ -682,7 +676,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 				link->sprite =  LINK_SPRITES_OFFSET + 64 * 10;
 				sword_rotation = 2;
 				break;
-			case 21:                    //up
+			case 15:                    //up
 				sword->x = link->x;
 				sword->y = link->y - SPRITE_SIZE;
 				link->sprite =  LINK_SPRITES_OFFSET + 64 * 10;
@@ -700,15 +694,15 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 				sword_rotation = 0;
 				sword->y = link->y;
 				break;
-			case 22:                    //left
+			case 16:                    //left
 				sword->x = link->x - SPRITE_SIZE;
-				link->sprite =  LINK_SPRITES_OFFSET + 64 * 26;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 18;
 				sword_rotation = 3;
 				sword->y = link->y;
 				break;
-			case 23:                    //left
+			case 17:                    //left
 				sword->x = link->x - SPRITE_SIZE;
-				link->sprite =  LINK_SPRITES_OFFSET + 64 * 26;
+				link->sprite =  LINK_SPRITES_OFFSET + 64 * 18;
 				sword_rotation = 3;
 				sword->y = link->y;
 				break;
@@ -735,12 +729,12 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 			for ( i =0; i <3000000; i++);             //      delay
 		}
 		/*   After a short break (representing the attack animation), go back to standing sprite facing the same direciton    */
-		if ( last ==22 || last == 23 ) { 						//left
-			link->sprite = LINK_SPRITES_OFFSET + 64 * 23;
+		if ( last ==16 || last == 17 ) { 						//left
+			link->sprite = LINK_SPRITES_OFFSET + 64 * 17;
 		} else if ( last == 3 || last == 4 ) { 				//right
 			link->sprite = LINK_SPRITES_OFFSET + 64 * 4;
-		} else if ( last == 2 || last == 21 ) {				//up
-			link->sprite = LINK_SPRITES_OFFSET + 64 * 21;
+		} else if ( last == 2 || last == 15 ) {				//up
+			link->sprite = LINK_SPRITES_OFFSET + 64 * 15;
 		} else if ( last == 0 || last == 1 ) {				//down
 			link->sprite = LINK_SPRITES_OFFSET + 64 * 1;
 		}

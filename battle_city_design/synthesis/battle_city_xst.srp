@@ -1463,12 +1463,12 @@ debug_module/debug_module/drck_i|    2.860|    4.093|    3.740|         |
 =========================================================================
 
 
-Total REAL time to Xst completion: 12.00 secs
-Total CPU time to Xst completion: 12.39 secs
+Total REAL time to Xst completion: 13.00 secs
+Total CPU time to Xst completion: 12.79 secs
  
 --> 
 
-Total memory usage is 313272 kilobytes
+Total memory usage is 312760 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :    6 (   0 filtered)
