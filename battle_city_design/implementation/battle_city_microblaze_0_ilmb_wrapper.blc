@@ -7,8 +7,8 @@ battle_city_microblaze_0_ilmb_wrapper.ngc
 ../battle_city_microblaze_0_ilmb_wrapper
 
 Reading NGO file
-"C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/implementation/microblaze_0_il
-mb_wrapper/battle_city_microblaze_0_ilmb_wrapper.ngc" ...
+"D:/ra22-2015/LPRS2-Zelda/battle_city_design/implementation/microblaze_0_ilmb_wr
+apper/battle_city_microblaze_0_ilmb_wrapper.ngc" ...
 
 Partition Implementation Status
 -------------------------------
@@ -21,10 +21,10 @@ NGCBUILD Design Results Summary:
   Number of errors:     0
   Number of warnings:   0
 
-Total memory usage is 160992 kilobytes
+Total memory usage is 160004 kilobytes
 
 Writing NGC file "../battle_city_microblaze_0_ilmb_wrapper.ngc" ...
-Total REAL time to NGCBUILD completion:  1 sec
+Total REAL time to NGCBUILD completion:  2 sec
 Total CPU time to NGCBUILD completion:   1 sec
 
 Writing NGCBUILD log file "../battle_city_microblaze_0_ilmb_wrapper.blc"...

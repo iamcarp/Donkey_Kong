@@ -1,10 +1,10 @@
 Release 14.6 - xst P.68d (nt64)
 Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
---> Parameter TMPDIR set to C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
+--> Parameter TMPDIR set to D:\ra22-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
 
 
-Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.08 secs
+Total REAL time to Xst completion: 1.00 secs
+Total CPU time to Xst completion: 0.06 secs
  
 --> 
 TABLE OF CONTENTS
@@ -35,7 +35,7 @@ TABLE OF CONTENTS
 ---- Source Parameters
 Input Format                       : MIXED
 Input File Name                    : "battle_city_microblaze_0_i_bram_ctrl_wrapper_xst.prj"
-Verilog Include Directory          : {"C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
+Verilog Include Directory          : {"D:\ra22-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
 
 ---- Target Parameters
 Target Device                      : xc6slx45fgg676-2
@@ -98,7 +98,7 @@ Parsing architecture <imp> of entity <lmb_mux>.
 Parsing VHDL file "C:/Xilinx/14.6/ISE_DS/EDK/hw/XilinxProcessorIPLib/pcores/lmb_bram_if_cntlr_v3_10_c/hdl/vhdl/lmb_bram_if_cntlr.vhd" into library lmb_bram_if_cntlr_v3_10_c
 Parsing entity <lmb_bram_if_cntlr>.
 Parsing architecture <imp> of entity <lmb_bram_if_cntlr>.
-Parsing VHDL file "C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_microblaze_0_i_bram_ctrl_wrapper.vhd" into library work
+Parsing VHDL file "D:\ra22-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_microblaze_0_i_bram_ctrl_wrapper.vhd" into library work
 Parsing entity <battle_city_microblaze_0_i_bram_ctrl_wrapper>.
 Parsing architecture <STRUCTURE> of entity <battle_city_microblaze_0_i_bram_ctrl_wrapper>.
 
@@ -119,7 +119,7 @@ Elaborating entity <pselect_mask> (architecture <imp>) with generics from librar
 =========================================================================
 
 Synthesizing Unit <battle_city_microblaze_0_i_bram_ctrl_wrapper>.
-    Related source file is "C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_microblaze_0_i_bram_ctrl_wrapper.vhd".
+    Related source file is "D:\ra22-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_microblaze_0_i_bram_ctrl_wrapper.vhd".
     Summary:
 	no macro.
 Unit <battle_city_microblaze_0_i_bram_ctrl_wrapper> synthesized.
@@ -448,12 +448,12 @@ Cross Clock Domains Report:
 =========================================================================
 
 
-Total REAL time to Xst completion: 4.00 secs
-Total CPU time to Xst completion: 3.96 secs
+Total REAL time to Xst completion: 5.00 secs
+Total CPU time to Xst completion: 4.06 secs
  
 --> 
 
-Total memory usage is 274516 kilobytes
+Total memory usage is 273656 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :   57 (   0 filtered)

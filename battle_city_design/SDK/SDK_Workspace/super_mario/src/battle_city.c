@@ -78,8 +78,8 @@ typedef int bool;
 #define ENEMY_FRAMES_NUM 			34
 /*			contains the indexes of frames in overworld which have enemies  	*/
 bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
-					    84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
-						     105, 106, 110, 111, 120, 125, 126};
+					   84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
+					   105, 106, 110, 111, 120, 125, 126};
 
 int lives = 0;
 int counter = 0;
@@ -151,7 +151,7 @@ characters sword = {
 		WEAPON_REG_H             		// reg_h
 		};
 
-characters octorok = {
+characters octorok1 = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
@@ -159,6 +159,47 @@ characters octorok = {
 		false,                			// destroyed
 		ENEMY_2_REG_L,            		// reg_l
 		ENEMY_2_REG_H             		// reg_h
+		};
+
+
+characters octorok2 = {
+		0,								// x
+		0,								// y
+		DIR_LEFT,              			// dir
+		SWORD_SPRITE,  					// type
+		false,                			// destroyed
+		ENEMY_3_REG_L,            		// reg_l
+		ENEMY_3_REG_H             		// reg_h
+		};
+
+characters octorok3 = {
+		0,								// x
+		0,								// y
+		DIR_LEFT,              			// dir
+		SWORD_SPRITE,  					// type
+		false,                			// destroyed
+		ENEMY_4_REG_L,            		// reg_l
+		ENEMY_4_REG_H             		// reg_h
+		};
+
+characters octorok4 = {
+		0,								// x
+		0,								// y
+		DIR_LEFT,              			// dir
+		SWORD_SPRITE,  					// type
+		false,                			// destroyed
+		ENEMY_5_REG_L,            		// reg_l
+		ENEMY_5_REG_H             		// reg_h
+		};
+
+characters octorok5 = {
+		0,								// x
+		0,								// y
+		DIR_LEFT,              			// dir
+		SWORD_SPRITE,  					// type
+		false,                			// destroyed
+		ENEMY_6_REG_L,            		// reg_l
+		ENEMY_6_REG_H             		// reg_h
 		};
 
 /*      indexes of the active frame in overworld        */
@@ -383,6 +424,15 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	int sword_rotation = 0;
 	int lasting_attack = 0;
 	int i;
+	int blocked_sword = 0; //0 false - not blocked, 1 true - blocked
+
+	//+/-28 instead of 32 and 16 because of sprite graphic
+	if (link->x >= ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - 28) ||
+			( link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE  - 16  ) ||
+			( link->y < SIDE_PADDING * SPRITE_SIZE + 16) ||
+			( link->x < SIDE_PADDING * SPRITE_SIZE + 28)){
+		blocked_sword = 1;
+	}
 
 	/*      change frame if on the edge     */
     if (link->x > ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
@@ -509,17 +559,18 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 					 ( link->y << 16) | link->x);      //  the higher 2 bytes represent the row (y)
 		}
 
-		for ( i =0; i <900000; i++ );             //      delay
+		if (blocked_sword == 0) {
+			for ( i =0; i <900000; i++ );             //      delay
 
-		if ( lasting_attack != 1 ){
-			chhar_spawn( sword, sword_rotation );
+			if ( lasting_attack != 1 ){
+				chhar_spawn( sword, sword_rotation );
+			}
+			if ( dir == DIR_ATTACK) {
+				lasting_attack = 1;
+			}
+
+			for ( i =0; i <3000000; i++);             //      delay
 		}
-		if ( dir == DIR_ATTACK) {
-			lasting_attack = 1;
-		}
-
-		for ( i =0; i <3000000; i++);             //      delay
-
 		/*   After a short break (representing the attack animation), go back to standing sprite facing the same direciton    */
 		if ( last ==22 || last == 23 ) { 						//left
 			link->sprite = LINK_SPRITES_OFFSET + 64 * 23;
@@ -548,7 +599,6 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 			link->y = y;
 		}
 	}
-
 
 	if ( lasting_attack != 1 ){
 		Xil_Out32(

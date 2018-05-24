@@ -1,6 +1,6 @@
 Release 14.6 - xst P.68d (nt64)
 Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
---> Parameter TMPDIR set to C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
+--> Parameter TMPDIR set to D:\ra22-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
 
 
 Total REAL time to Xst completion: 0.00 secs
@@ -35,7 +35,7 @@ TABLE OF CONTENTS
 ---- Source Parameters
 Input Format                       : MIXED
 Input File Name                    : "battle_city_battle_city_periph_0_wrapper_xst.prj"
-Verilog Include Directory          : {"C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
+Verilog Include Directory          : {"D:\ra22-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
 
 ---- Target Parameters
 Target Device                      : xc6slx45fgg676-2
@@ -62,24 +62,24 @@ Cores Search Directories           : {../implementation}
 =========================================================================
 *                          HDL Parsing                                  *
 =========================================================================
-Parsing VHDL file "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/vga_ctrl_e.vhd" into library battle_city_periph_v1_01_a
+Parsing VHDL file "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/vga_ctrl_e.vhd" into library battle_city_periph_v1_01_a
 Parsing entity <vga_ctrl>.
-Parsing VHDL file "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd" into library battle_city_periph_v1_01_a
+Parsing VHDL file "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd" into library battle_city_periph_v1_01_a
 Parsing entity <battle_city>.
 Parsing architecture <Behavioral> of entity <battle_city>.
-Parsing VHDL file "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city_periph.vhd" into library battle_city_periph_v1_01_a
+Parsing VHDL file "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city_periph.vhd" into library battle_city_periph_v1_01_a
 Parsing entity <battle_city_periph>.
 Parsing architecture <IMP> of entity <battle_city_periph>.
-Parsing VHDL file "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/ram.vhd" into library battle_city_periph_v1_01_a
+Parsing VHDL file "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/ram.vhd" into library battle_city_periph_v1_01_a
 Parsing entity <ram>.
 Parsing architecture <arch> of entity <ram>.
-Parsing VHDL file "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/vga_ctrl_a.vhd" into library battle_city_periph_v1_01_a
+Parsing VHDL file "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/vga_ctrl_a.vhd" into library battle_city_periph_v1_01_a
 Parsing architecture <arch_v1> of entity <vga_ctrl>.
-Parsing VHDL file "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/clk_gen_100MHz_e.vhd" into library battle_city_periph_v1_01_a
+Parsing VHDL file "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/clk_gen_100MHz_e.vhd" into library battle_city_periph_v1_01_a
 Parsing entity <clk_gen_100MHz>.
-Parsing VHDL file "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/clk_gen_100MHz_a.vhd" into library battle_city_periph_v1_01_a
+Parsing VHDL file "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/clk_gen_100MHz_a.vhd" into library battle_city_periph_v1_01_a
 Parsing architecture <arch_v1> of entity <clk_gen_100mhz>.
-Parsing VHDL file "C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_battle_city_periph_0_wrapper.vhd" into library work
+Parsing VHDL file "D:\ra22-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_battle_city_periph_0_wrapper.vhd" into library work
 Parsing entity <battle_city_battle_city_periph_0_wrapper>.
 Parsing architecture <STRUCTURE> of entity <battle_city_battle_city_periph_0_wrapper>.
 
@@ -94,8 +94,8 @@ Elaborating entity <battle_city_periph> (architecture <IMP>) with generics from 
 Elaborating entity <vga_ctrl> (architecture <arch_v1>) from library <battle_city_periph_v1_01_a>.
 
 Elaborating entity <battle_city> (architecture <Behavioral>) with generics from library <battle_city_periph_v1_01_a>.
-WARNING:HDLCompiler:1127 - "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd" Line 506: Assignment to img_addr_r7 ignored, since the identifier is never used
-WARNING:HDLCompiler:1127 - "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd" Line 634: Assignment to reg_intsect_r13 ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd" Line 506: Assignment to img_addr_r7 ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd" Line 634: Assignment to reg_intsect_r13 ignored, since the identifier is never used
 
 Elaborating entity <ram> (architecture <arch>) with generics from library <battle_city_periph_v1_01_a>.
 
@@ -104,13 +104,13 @@ Elaborating entity <ram> (architecture <arch>) with generics from library <battl
 =========================================================================
 
 Synthesizing Unit <battle_city_battle_city_periph_0_wrapper>.
-    Related source file is "C:\Temp\ra41-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_battle_city_periph_0_wrapper.vhd".
+    Related source file is "D:\ra22-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_battle_city_periph_0_wrapper.vhd".
     Summary:
 	no macro.
 Unit <battle_city_battle_city_periph_0_wrapper> synthesized.
 
 Synthesizing Unit <battle_city_periph>.
-    Related source file is "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city_periph.vhd".
+    Related source file is "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city_periph.vhd".
 WARNING:Xst:37 - Detected unknown constraint/property "sigis". This constraint/property is not supported by the current software release and will be ignored.
 WARNING:Xst:37 - Detected unknown constraint/property "sigis". This constraint/property is not supported by the current software release and will be ignored.
         C_S_AXI_DATA_WIDTH = 32
@@ -144,7 +144,7 @@ WARNING:Xst:647 - Input <S_AXI_RREADY> is never used. This port will be preserve
 Unit <battle_city_periph> synthesized.
 
 Synthesizing Unit <vga_ctrl>.
-    Related source file is "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/vga_ctrl_e.vhd".
+    Related source file is "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/vga_ctrl_e.vhd".
     Found 10-bit register for signal <pixel_x>.
     Found 9-bit register for signal <pixel_y>.
     Found 1-bit register for signal <vga_clk>.
@@ -174,7 +174,7 @@ Synthesizing Unit <vga_ctrl>.
 Unit <vga_ctrl> synthesized.
 
 Synthesizing Unit <battle_city>.
-    Related source file is "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd".
+    Related source file is "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/battle_city.vhd".
         DATA_WIDTH = 32
         COLOR_WIDTH = 24
         ADDR_WIDTH = 13
@@ -352,7 +352,7 @@ WARNING:Xst:647 - Input <rst_n_i> is never used. This port will be preserved and
 Unit <battle_city> synthesized.
 
 Synthesizing Unit <ram>.
-    Related source file is "C:/Temp/ra41-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/ram.vhd".
+    Related source file is "D:/ra22-2015/LPRS2-Zelda/battle_city_design/pcores/battle_city_periph_v1_01_a/hdl/vhdl/ram.vhd".
         DATA_WIDTH = 32
         ADDR_WIDTH = 13
     Found 8192x32-bit dual-port RAM <Mram_mem> for signal <mem>.
@@ -1008,11 +1008,11 @@ S_AXI_ACLK     |    7.634|         |         |         |
 
 
 Total REAL time to Xst completion: 11.00 secs
-Total CPU time to Xst completion: 11.09 secs
+Total CPU time to Xst completion: 10.86 secs
  
 --> 
 
-Total memory usage is 288660 kilobytes
+Total memory usage is 287416 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :  223 (   0 filtered)
