@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename resource &apos;battle_city_soft/src/battle_city&apos; to &apos;battle_city.c&apos;" description="Rename resource &apos;battle_city&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/battle_city" name="battle_city.c" stamp="1436288391691" updateReferences="true"/>
-</session>

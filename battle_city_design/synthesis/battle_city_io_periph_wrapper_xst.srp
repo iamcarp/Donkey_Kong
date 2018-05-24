@@ -1189,7 +1189,7 @@ S_AXI_ACLK     |    3.024|         |         |         |
 
 
 Total REAL time to Xst completion: 5.00 secs
-Total CPU time to Xst completion: 5.62 secs
+Total CPU time to Xst completion: 5.56 secs
  
 --> 
 

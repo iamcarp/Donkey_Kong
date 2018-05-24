@@ -81,7 +81,7 @@ bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
 					   84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
 					   105, 106, 110, 111, 120, 125, 126};
 
-int lives = 0;
+int lives = 6;		//		number of hearts is lives/2
 int counter = 0;
 int last = 0; //last state link was in before current iteration (if he is walking it keeps walking)
 /*For testing purposes - values for last - Link sprites
@@ -212,28 +212,46 @@ bool inCave = false;
 /*      the position of the door so link could have the correct position when coming out of the cave    */
 int door_x, door_y;
 
-
-void load_sprites(bool textMode) {
-    int i;
-    unsigned char * load;
-    unsigned long color;
-    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4*(1599);  //  1599 = base address of sprites[21]
-//    load = VHDL_CHAR_SPRITES;	// textMode ? VHDL_CHAR_SPRITES : VHDL_reload_map;
-
-    for (i = 0; i < 30*64; i++) {
-	    Xil_Out32(addr + 4*i, load[i]);
-    }
-}
-
-/*unsigned short char_to_addr(char c) {
-    if(c > '0' - 1 && c < '9' + 1) {
-        //return CHAR_SPRITES[c-48];
-    } else if (c > 'a' - 1 && c < 'b' + 1) {
-       // return CHAR_SPRITES[c-65+10];
-    } else if (c > 'A' - 1 && c < 'B' + 1) {
-        //return CHAR_SPRITES[c-97+10];
-    } else {
-        //return CHAR_SPRITES[0];     // fix case for signs
+unsigned short char_to_addr(char c) {
+    switch(c) {
+		case 'a':
+			return CHAR_A;
+		case 'd':
+			return CHAR_D;
+		case 'e':
+			return CHAR_E;
+		case 'f':
+			return CHAR_F;
+		case 'g':
+			return CHAR_G;
+		case 'h':
+			return CHAR_H;
+		case 'i':
+			return CHAR_I;
+		case 'k':
+			return CHAR_K;
+		case 'l':
+			return CHAR_L;
+		case 'n':
+			return CHAR_N;
+		case 'o':
+			return CHAR_O;
+		case 'r':
+			return CHAR_R;
+		case 's':
+			return CHAR_S;
+		case 't':
+			return CHAR_T;
+		case 'u':
+			return CHAR_U;
+		case ',':
+			return CHAR_COMA;
+		case '\'':
+			return CHAR_APOSTROPHE;
+		case '.':
+			return CHAR_DOT;
+		default:
+			return SPRITES[2];
     }
 }
 
@@ -243,24 +261,26 @@ void write_line(char* text, int len, long int addr) {
     for (i = 0; i < len; i++) {
     	c = char_to_addr(text[i]);
 		Xil_Out32(addr+4*i, c);
-        for (j = 0; j<1000; j++);               //      delay
+        for (j = 0; j<1000000; j++);               //      delay
     }
-}*/
+}
 
 void write_introduction() {
-    char text[] = "its dangerous";
-    short len = 13;
-    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH + 1 );
+    char text[] = "it's dangerous";
+    short len = 14;
+    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*2 + 1 );
     write_line(text , len, addr);
 
     strcpy(text, "to go alone.");
     len = 12;
-    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*2 + 1 );
+    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*3 + 1 );
     write_line(text , len, addr);
+    int d = 10000000;
+    while(d) {d--;}
 
     strcpy(text, "take this.");
     len = 10;
-    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*3 + 1 );
+    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*4 + 1 );
     write_line(text , len, addr);
 }
 
@@ -296,7 +316,6 @@ void load_frame( direction_t dir ) {
 		} else {
 			frame = CAVE;
 		}
-		//load_sprites(inCave);											////////////////////////////////////////////
 	}
 
     /*      checking if there should be enemies on the current frame     */
@@ -359,6 +378,24 @@ void set_header() {
     /*      TODO: add logic for updating the overworld position in header   */
     /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
 
+	/*			print "LIFE"		*/
+	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
+	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( + pos++);
+	Xil_Out32(addr,	CHAR_L);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
+	Xil_Out32(addr,	CHAR_I);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
+	Xil_Out32(addr,	CHAR_F);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+	Xil_Out32(addr,	CHAR_E);
+
+	/*			put hearts under life		*/
+	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + FRAME_WIDTH - 6;
+	int i;
+	for(i = 0; i < lives/2; i++) {
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
+		Xil_Out32(addr,	HEART_FULL);
+	}
 }
 
 bool initialize_enemy( int frame_index) {
@@ -478,6 +515,7 @@ void chhar_delete(){
 	delete_sword(&octorok4);
 	delete_sword(&octorok5);
 }
+
 void chhar_spawn( characters * chhar, int rotation ) {
 	if ( rotation == 1 ) {																			 //rotate 90degrees clockwise
 		Xil_Out32(
@@ -702,8 +740,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
         link->x = ( SIDE_PADDING + (int) FRAME_WIDTH/2 ) * SPRITE_SIZE;                         // set to the middle of the frame
         link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
         inCave = true;
-        load_frame( DIR_UP );
-        //write_introduction();												///////////////////////////////////////////////////////////////////////
+        load_frame( DIR_UP );											///////////////////////////////////////////////////////////////////////
 	    /*		skip collision detection if on the bottom of the frame 			*/
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
@@ -726,6 +763,10 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	}
 
 	for (i = 0; i < 1000; i++);          //     delay = 1000 <- good speed
+
+	if(inCave) {
+        write_introduction();
+	}
 
 	return false;
 }
@@ -794,6 +835,7 @@ void battle_city() {
 	overw_x = INITIAL_FRAME_X;
 	overw_y = INITIAL_FRAME_Y;
     load_frame( DIR_STILL );
+    set_header();
 
 	link.x = INITIAL_LINK_POSITION_X;
 	link.y = INITIAL_LINK_POSITION_Y;
@@ -803,9 +845,6 @@ void battle_city() {
 
 	chhar_spawn(&link, 0);
 
-	Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( HEADER_BASE_ADDRESS ),
-				CHAR_L);
 
 
 	while (1) {
