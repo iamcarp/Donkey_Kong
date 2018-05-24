@@ -7,11 +7,6 @@
 #include "sprites.h"
 #include <string.h>
 
-typedef int bool;
-#define true 1
-#define false 0
-
-
 /*          COLOR PALETTE - base addresses in ram.vhd         */
 #define FRAME_COLORS_OFFSET         0
 #define LINK_COLORS_OFFSET          8
@@ -112,20 +107,6 @@ int last = 0; //last state link was in before current iteration (if he is walkin
 
 /*		 ACTIVE FRAME		*/
 unsigned short* frame;
-
-typedef enum {
-	DIR_LEFT, DIR_RIGHT, DIR_UP, DIR_DOWN, DIR_STILL, DIR_ATTACK
-} direction_t;
-
-typedef struct {
-	unsigned int x;
-	unsigned int y;
-	direction_t dir;
-	unsigned short sprite;
-	bool destroyed;
-	unsigned int reg_l;
-	unsigned int reg_h;
-} characters;
 
 characters link = { 
 		INITIAL_LINK_POSITION_X,		// x
@@ -282,7 +263,7 @@ void write_introduction() {
 
 void load_frame( direction_t dir ) {
 	chhar_delete();
-	bool init = initialize_enemy(overw_x * overw_y);
+	//bool init = initialize_enemy(overw_x * overw_y);					//		unused so far
 
 	if( !inCave ) {
 		switch( dir ) {
@@ -378,11 +359,7 @@ void set_sword() {
 
 }
 
-void set_header() {
-    /*      TODO: add logic for updating the overworld position in header   */
-    /*  idea: 1x2 gray sprites, position is 2x2 pixels     */
-
-	/*			set minimap		*/
+void set_minimap() {
 	int i,j, pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 1;
 	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
 	for(j = 0 ; j < 2 ; j++ ) {
@@ -390,9 +367,23 @@ void set_header() {
 			Xil_Out32(addr+4*(j * SCR_WIDTH + i),	MINIMAP_BLANK);
 		}
 	}
+
+	for (i = 0; i < 4; i++) {
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MINIMAP_BLANK + 64 + i*4);
+		Xil_Out32(addr,	0x18181818);
+	}
+
+	pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 1;
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+	Xil_Out32(addr,	MINIMAP_BLANK + 64);
+}
+
+void set_header() {
+	set_minimap();
+
 	/*			print "LIFE"		*/		//		use write line
-	pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
+	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
+	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
 	Xil_Out32(addr,	CHAR_L);
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
 	Xil_Out32(addr,	CHAR_I);
@@ -402,6 +393,7 @@ void set_header() {
 	Xil_Out32(addr,	CHAR_E);
 
 	/*			put hearts under life		*/
+	int i;
 	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + FRAME_WIDTH - 6;
 	for(i = 0; i < lives/2; i++) {
 		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
@@ -450,15 +442,13 @@ bool initialize_enemy( int frame_index) {
 			chhar_spawn(&octorok4, 0);
 			enemy_move(&octorok4);
 			return 1;
-			break;
 		case 125:
-			break;
 
+			return 0;					//	added in order to cover this case, not sure if it-s correct
 		default:
 			enemy_exists = 0;
-
+			return 0;					//	added in order to cover this case, not sure if it-s correct
 	}
-    
 }
 
 
@@ -476,7 +466,6 @@ direction_t random_direction(direction_t dir){
 }
 
 void enemy_move(characters* chhar){
-	direction_t direction;
 	int x,y;
 	x = chhar->x;
 	y = chhar->y;
@@ -580,7 +569,6 @@ static void reset_memory() {
 static bool link_move(characters * link, characters* sword, direction_t dir) {
 	unsigned int x;
 	unsigned int y;
-	int obstackle = 0;
 	int sword_rotation = 0;
 	int lasting_attack = 0;
 	int i;
@@ -784,7 +772,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	return false;
 }
 
-bool isDoor(x,y) {
+bool isDoor(int x, int y) {
     /*      calculate the index of the position in the frame     */
 	x = x + 10 - SIDE_PADDING*SPRITE_SIZE;
 	y = y + 14 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
@@ -802,7 +790,7 @@ bool isDoor(x,y) {
 }
 
 bool tile_walkable(int index, unsigned short* map_frame) {
-	int walkables[20] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49}; 
+	int walkables[21] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49};
 	int i;
 
 	for ( i = 0; i < 20; i++) {
@@ -842,7 +830,6 @@ bool obstackles_detection(int x, int y, unsigned short* f, int dir) {
 void set_fire() {
 	static unsigned long addr;
 	unsigned int pos = FRAME_BASE_ADDRESS + 5*SCR_WIDTH + 4;
-	int i;
 
 	if(fire1 == FIRE_0) {
 		fire1 = FIRE_1;
@@ -859,8 +846,7 @@ void set_fire() {
 }
 
 void battle_city() {
-	unsigned int buttons, tmpBtn = 0, tmpUp = 0;
-	int i;
+	unsigned int buttons;
     
     /*      initialization      */
 	reset_memory();
