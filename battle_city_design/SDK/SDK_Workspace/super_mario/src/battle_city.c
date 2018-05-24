@@ -285,6 +285,7 @@ void write_introduction() {
 }
 
 
+
 void load_frame( direction_t dir ) {
 	chhar_delete();
 	bool init = initialize_enemy(overw_x * overw_y);
@@ -765,6 +766,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	for (i = 0; i < 1000; i++);          //     delay = 1000 <- good speed
 
 	if(inCave) {
+		set_fire();
         write_introduction();
 	}
 
@@ -826,6 +828,30 @@ bool obstackles_detection(int x, int y, unsigned short* f, int dir) {
 			return false;
 }
 
+void set_fire() {
+	static unsigned long addr;
+	unsigned int pos = FRAME_BASE_ADDRESS + 5*SCR_WIDTH + 4;
+	int i;
+	static unsigned short fire1 = FIRE_0;
+	static unsigned short fire2 = FIRE_1;
+
+	int d = 1000000;
+	while (d) d--;			//		delay
+
+	if(fire1 == FIRE_0) {
+		fire1 = FIRE_1;
+		fire2 = FIRE_0;
+	} else {
+		fire1 = FIRE_0;
+		fire2 = FIRE_1;
+	}
+
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+	Xil_Out32(addr,	fire1);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (pos + 6);
+	Xil_Out32(addr,	fire2);
+}
+
 void battle_city() {
 	unsigned int buttons, tmpBtn = 0, tmpUp = 0;
 	int i;
@@ -845,7 +871,7 @@ void battle_city() {
 
 	chhar_spawn(&link, 0);
 
-
+	int delay;
 
 	while (1) {
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
@@ -862,7 +888,14 @@ void battle_city() {
 		} else if ( BTN_SHOOT(buttons) ) {
 			d = DIR_ATTACK;
 		}
-		link_move(&link, &sword, d);
+		if (d != DIR_STILL) {
+			link_move(&link, &sword, d);
+		}
+		if(inCave && overw_x == INITIAL_FRAME_X && overw_x == INITIAL_FRAME_X) {
+			set_fire();
+			delay = 1000000;
+			while (delay) delay--;			//		delay
+		}
 
 		if(enemy_exists) {
 			enemy_move(&octorok1);

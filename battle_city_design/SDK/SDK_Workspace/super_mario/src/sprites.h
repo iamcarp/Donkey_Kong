@@ -16,6 +16,9 @@ unsigned short SPRITES[51] = {0x00FF, 0x013F, 0x017F, 0x01BF,
 #define HEART_HALF 				 HEART_FULL + 64
 #define HEART_EMPTY				 HEART_HALF + 64
 
+#define FIRE_0				5072 + 64			//5072 is the enemy_sprites_offset
+#define FIRE_1				5072 + 4*64
+
 unsigned short CHAR_A = 0x0DBF;
 unsigned short CHAR_D = 0x0DFF;
 unsigned short CHAR_E = 0x0E3F;
