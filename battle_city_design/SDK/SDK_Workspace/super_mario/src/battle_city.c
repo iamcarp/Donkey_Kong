@@ -50,10 +50,10 @@
 
 
 /*			these are the high and low registers that store moving sprites - two registers for each sprite		 */
-#define LINK_REG_L                     0
-#define LINK_REG_H                     1
-#define WEAPON_REG_L                   4
-#define WEAPON_REG_H                   5
+#define LINK_REG_L                     4
+#define LINK_REG_H                     5
+#define WEAPON_REG_L                   0
+#define WEAPON_REG_H                   1
 #define ENEMY_2_REG_L                  6
 #define ENEMY_2_REG_H                  7
 #define ENEMY_3_REG_L                  2
@@ -123,7 +123,7 @@ characters sword = {
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
-		false,                			// destroyed
+		true,                			// destroyed
 		WEAPON_REG_L,            		// reg_l
 		WEAPON_REG_H             		// reg_h
 		};
@@ -263,8 +263,7 @@ void write_introduction() {
 
 void load_frame( direction_t dir ) {
 	chhar_delete();
-	//bool init = initialize_enemy(overw_x * overw_y);					//		unused so far
-
+	//initialize_enemy(overw_y * overw_x);
 	if( !inCave ) {
 		switch( dir ) {
 			case DIR_LEFT:
@@ -300,7 +299,10 @@ void load_frame( direction_t dir ) {
     int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
     for ( i = 0; i < ENEMY_FRAMES_NUM; i++ ){
     	if( frame_index == ENEMY_FRAMES[i] ){
-    		initialize_enemy( frame_index );
+    		initialize_enemy(frame_index);
+    		enemy_exists = 1;
+    	} else {
+    		enemy_exists = 0;
     	}
     }
 
@@ -353,12 +355,19 @@ void set_frame_palette() {
 
 /*		set sword in cave		*/
 void set_sword() {
-	static unsigned long addr;
-	unsigned int pos = FRAME_BASE_ADDRESS + 7*SCR_WIDTH + 7;
+	int sword_rotation = 2;			//
 
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	Xil_Out32(addr,	SWORD_SPRITE);
+	sword.x = (SIDE_PADDING + FRAME_WIDTH / 2) * SPRITE_SIZE + SPRITE_SIZE / 2;
+	sword.y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT / 2) * SPRITE_SIZE;
 
+	chhar_spawn( &sword, sword_rotation );
+}
+
+void pick_up_sword() {
+	sword.destroyed = false;
+	sword.x = link.x + 13;
+	sword.y = link.y;
+	delete_sword(&sword);
 }
 
 void set_minimap() {
@@ -427,48 +436,52 @@ bool initialize_enemy( int frame_index) {
 	 * enemy movement logic will be defined in other function
 	 * the enemy's position should depend on the frame
 	 * in other words, it will use overw_x and overw_y
-	 */
-	switch(frame_index)
-	{
-		case 120:
-			enemy_exists = 1;
-			octorok1.x = 240;
-			octorok1.y = 220;
-			octorok1.dir = DIR_DOWN;
-			chhar_spawn(&octorok1, 0);
-			enemy_move(&octorok1);
-
-			octorok2.x = 320;
-			octorok2.y = 240;
-			octorok2.dir = DIR_UP;
-			enemy_move(&octorok1);
-			chhar_spawn(&octorok2, 3);
-			enemy_move(&octorok2);
-
-
-			octorok3.x = 320;
-			octorok3.y = 290;
-			octorok3.dir = DIR_DOWN;
-			enemy_move(&octorok1);
-			chhar_spawn(&octorok3, 0);
-			enemy_move(&octorok3);
-
-			octorok4.x = 355;
-			octorok4.y = 250;
-			octorok4.dir = DIR_LEFT;
-			enemy_move(&octorok1);
-			chhar_spawn(&octorok4, 0);
-			enemy_move(&octorok4);
-			return 1;
-		case 125:
-
-			return 0;					//	added in order to cover this case, not sure if it-s correct
-		default:
-			enemy_exists = 0;
-			return 0;					//	added in order to cover this case, not sure if it-s correct
-	}
+*/
+	random_enemy_position();
 }
 
+void random_enemy_position(){
+	octorok1.x = (SIDE_PADDING + SCREEN_WIDTH % 7) * SPRITE_SIZE;
+	octorok1.y = (VERTICAL_PADDING + HEADER_HEIGHT + SCREEN_WIDTH % 5) * SPRITE_SIZE;
+
+	octorok2.x = (SIDE_PADDING + SCREEN_WIDTH % 3)*SPRITE_SIZE;
+	octorok2.y = (VERTICAL_PADDING + HEADER_HEIGHT +  SCREEN_WIDTH % 3)*SPRITE_SIZE;
+
+	octorok3.x = (SIDE_PADDING + SCREEN_WIDTH % 11)*SPRITE_SIZE;
+	octorok3.y = (VERTICAL_PADDING +  HEADER_HEIGHT + SCREEN_WIDTH % 13)*SPRITE_SIZE;
+
+	octorok4.x = (SIDE_PADDING + SCREEN_WIDTH % 19)*SPRITE_SIZE;
+	octorok4.y = (VERTICAL_PADDING +  HEADER_HEIGHT + SCREEN_WIDTH % 3)*SPRITE_SIZE;
+
+	octorok5.x = (SIDE_PADDING + SCREEN_WIDTH % 17)*SPRITE_SIZE;
+	octorok5.y = (VERTICAL_PADDING +  HEADER_HEIGHT + SCREEN_WIDTH % 9)*SPRITE_SIZE;
+
+	while(obstackles_detection(octorok1.x, octorok1.y, frame, octorok1.dir)) {
+		octorok1.x++;
+		octorok1.y++;
+	}
+	while(obstackles_detection(octorok2.x, octorok2.y, frame, octorok2.dir)) {
+		octorok2.x++;
+		octorok2.y++;
+	}
+	while(obstackles_detection(octorok3.x, octorok3.y, frame, octorok3.dir)) {
+		octorok3.x++;
+		octorok3.y++;
+	}
+	while(obstackles_detection(octorok4.x, octorok4.y, frame, octorok4.dir)) {
+		octorok4.x++;
+		octorok4.y++;
+	}
+	while(obstackles_detection(octorok5.x, octorok5.y, frame, octorok5.dir)) {
+		octorok5.x++;
+		octorok5.y++;
+	}
+	chhar_spawn(&octorok1, octorok1.dir);
+	chhar_spawn(&octorok2, octorok2.dir);
+	chhar_spawn(&octorok3, octorok3.dir);
+	chhar_spawn(&octorok4, octorok4.dir);
+	chhar_spawn(&octorok5, octorok5.dir);
+}
 
 direction_t random_direction(direction_t dir){
 	if (dir == DIR_DOWN){
@@ -522,8 +535,6 @@ void enemy_move(characters* chhar){
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
 			( chhar->y << 16) | chhar->x);
-
-
 }
 
 void chhar_delete(){
@@ -605,6 +616,10 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		blocked_sword = 1;
 	}
 
+	if(sword->destroyed && inCave && link->x == sword->x && link->y == sword->y ) {
+		pick_up_sword();
+	}
+
 	/*      change frame if on the edge     */
     if (link->x > ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
     	link->x = overw_x == OVERWORLD_HORIZONTAL - 1? link->x-1 : SIDE_PADDING * SPRITE_SIZE;
@@ -669,17 +684,17 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		lasting_attack = 0;
 		link->sprite = LINK_SPRITES_OFFSET + 64 * last;
 		counter++;
-	} else if ( dir == DIR_ATTACK ){
+	} else if ( dir == DIR_ATTACK && !sword->destroyed){
 		switch( last ){
 			case 0:                     //down
 				sword->x = link->x;
-				sword->y = link->y + SPRITE_SIZE;
+				sword->y = link->y + SPRITE_SIZE - 2;
 				link->sprite =  LINK_SPRITES_OFFSET + 64 * 9;
 				sword_rotation = 1;
 				break;
 			case 1:                     //down
 				sword->x = link->x;
-				sword->y = link->y + SPRITE_SIZE;
+				sword->y = link->y + SPRITE_SIZE - 2;
 				link->sprite =  LINK_SPRITES_OFFSET + 64 * 9;
 				sword_rotation = 1;
 				break;
@@ -758,7 +773,6 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
         link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
         inCave = true;
         load_frame( DIR_UP );
-		//set_sword();
 	    /*		skip collision detection if on the bottom of the frame 			*/
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
@@ -770,7 +784,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		}
 	}
 
-	if ( lasting_attack != 1 ){
+	if ( lasting_attack != 1){
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
 				(unsigned int) 0x8F000000 | (unsigned int) link->sprite );
@@ -876,10 +890,15 @@ void battle_city() {
 	link.x = INITIAL_LINK_POSITION_X;
 	link.y = INITIAL_LINK_POSITION_Y;
 	link.sprite = LINK_SPRITES_OFFSET;
-	sword.x = INITIAL_LINK_POSITION_X + 13;
-	sword.y = INITIAL_LINK_POSITION_Y;
+	sword.destroyed = true;
+	//sword.x = INITIAL_LINK_POSITION_X + 13;
+	//sword.y = INITIAL_LINK_POSITION_Y;
 
 	chhar_spawn(&link, 0);
+
+	//if(sword.destroyed){
+			set_sword();
+	//	}
 
 	while (1) {
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
@@ -903,6 +922,7 @@ void battle_city() {
 			enemy_move(&octorok2);
 			enemy_move(&octorok3);
 			enemy_move(&octorok4);
+			enemy_move(&octorok5);
 		}
 	}
 }
