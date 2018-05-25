@@ -409,15 +409,16 @@ void set_header() {
 	set_minimap();
 
 	/*			print "LIFE"		*/		//		use write line
-	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
-	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
-	Xil_Out32(addr,	CHAR_L);
+	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 5;
+	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+    write_line("life", 4, addr);
+	/*Xil_Out32(addr,	CHAR_L);
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
 	Xil_Out32(addr,	CHAR_I);
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
 	Xil_Out32(addr,	CHAR_F);
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	Xil_Out32(addr,	CHAR_E);
+	Xil_Out32(addr,	CHAR_E);*/
 
 	/*			put hearts under life		*/
 	int i;
