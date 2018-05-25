@@ -113,7 +113,7 @@ characters link = {
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_DOWN, 	             		// dir
 		0x0DFF,							// type - sprite address in ram.vhdl
-		false,                			// destroyed
+		true,                			// active
 		LINK_REG_L,            			// reg_l
 		LINK_REG_H             			// reg_h
 		};
@@ -123,7 +123,7 @@ characters sword = {
 		INITIAL_LINK_POSITION_Y,		// y
 		DIR_LEFT,              			// dir
 		SWORD_SPRITE,  					// type
-		true,                			// destroyed
+		false,                			// active
 		WEAPON_REG_L,            		// reg_l
 		WEAPON_REG_H             		// reg_h
 		};
@@ -133,7 +133,7 @@ characters octorok1 = {
 		0,								// y
 		DIR_LEFT,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// destroyed
+		false,                			// active
 		ENEMY_2_REG_L,            		// reg_l
 		ENEMY_2_REG_H             		// reg_h
 		};
@@ -144,7 +144,7 @@ characters octorok2 = {
 		0,								// y
 		DIR_UP,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// destroyed
+		false,                			// active
 		ENEMY_3_REG_L,            		// reg_l
 		ENEMY_3_REG_H             		// reg_h
 		};
@@ -154,7 +154,7 @@ characters octorok3 = {
 		0,								// y
 		DIR_DOWN,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// destroyed
+		false,                			// active
 		ENEMY_4_REG_L,            		// reg_l
 		ENEMY_4_REG_H             		// reg_h
 		};
@@ -164,7 +164,7 @@ characters octorok4 = {
 		0,								// y
 		DIR_LEFT,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// destroyed
+		false,                			// active
 		ENEMY_5_REG_L,            		// reg_l
 		ENEMY_5_REG_H             		// reg_h
 		};
@@ -174,7 +174,7 @@ characters octorok5 = {
 		0,								// y
 		DIR_LEFT,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// destroyed
+		false,                			// active
 		ENEMY_6_REG_L,            		// reg_l
 		ENEMY_6_REG_H             		// reg_h
 		};
@@ -238,11 +238,12 @@ void write_line(char* text, int len, long int addr) {
     for (i = 0; i < len; i++) {
     	c = char_to_addr(text[i]);
 		Xil_Out32(addr+4*i, c);
-        for (j = 0; j<1000000; j++);               //      delay
+        for (j = 0; j<800000; j++);               //      delay
     }
+    return;
 }
 
-void write_introduction() {
+static void write_introduction() {
     char text[] = "it's dangerous";
     short len = 14;
     long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*2 + 1 );
@@ -252,13 +253,14 @@ void write_introduction() {
     len = 12;
     addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*3 + 1 );
     write_line(text , len, addr);
-    int d = 3000000;
+    int d = 2000000;
     while(d) {d--;}
 
     strcpy(text, "take this.");
     len = 10;
     addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*4 + 1 );
     write_line(text , len, addr);
+    return;
 }
 
 void load_frame( direction_t dir ) {
@@ -289,6 +291,9 @@ void load_frame( direction_t dir ) {
 		if ( dir == DIR_DOWN ) {
 			frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
 			inCave = false;
+			if ( overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y ) {
+				delete_sword(&sword);
+			}
 		} else {
 			frame = CAVE;
 		}
@@ -296,14 +301,16 @@ void load_frame( direction_t dir ) {
 
     /*      checking if there should be enemies on the current frame     */
     int i;
-    int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
-    for ( i = 0; i < ENEMY_FRAMES_NUM; i++ ){
-    	if( frame_index == ENEMY_FRAMES[i] ){
-    		initialize_enemy(frame_index);
-    		enemy_exists = 1;
-    	} else {
-    		enemy_exists = 0;
-    	}
+    if (!inCave) {
+		int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
+		for ( i = 0; i < ENEMY_FRAMES_NUM; i++ ){
+			if( frame_index == ENEMY_FRAMES[i] ){
+				initialize_enemy(frame_index);
+				enemy_exists = 1;
+			} else {
+				enemy_exists = 0;
+			}
+		}
     }
 
     /*      loading next frame into memory      */
@@ -357,16 +364,16 @@ void set_frame_palette() {
 void set_sword() {
 	int sword_rotation = 2;			//
 
-	sword.x = (SIDE_PADDING + FRAME_WIDTH / 2) * SPRITE_SIZE + SPRITE_SIZE / 2;
-	sword.y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT / 2) * SPRITE_SIZE;
+	sword.x = (SIDE_PADDING + FRAME_WIDTH / 2 - 1) * SPRITE_SIZE + SPRITE_SIZE / 2;
+	sword.y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT / 2 + 1) * SPRITE_SIZE + SPRITE_SIZE / 2;
 
 	chhar_spawn( &sword, sword_rotation );
 }
 
 void pick_up_sword() {
-	sword.destroyed = false;
-	sword.x = link.x + 13;
-	sword.y = link.y;
+	sword.active = true;
+	//sword.x = link.x + 13;
+	//sword.y = link.y;
 	delete_sword(&sword);
 }
 
@@ -409,16 +416,9 @@ void set_header() {
 	set_minimap();
 
 	/*			print "LIFE"		*/		//		use write line
-	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 5;
+	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
 	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
     write_line("life", 4, addr);
-	/*Xil_Out32(addr,	CHAR_L);
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
-	Xil_Out32(addr,	CHAR_I);
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
-	Xil_Out32(addr,	CHAR_F);
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	Xil_Out32(addr,	CHAR_E);*/
 
 	/*			put hearts under life		*/
 	int i;
@@ -571,7 +571,6 @@ void chhar_spawn( characters * chhar, int rotation ) {
 
 void delete_sword( characters* chhar ){
 	int i;
-	for ( i = 0; i < 100000; i++ );         //  delay
 
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
@@ -617,7 +616,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		blocked_sword = 1;
 	}
 
-	if(sword->destroyed && inCave && link->x == sword->x && link->y == sword->y ) {
+	if(!sword->active && inCave && (link->x == sword->x) && (link->y == sword->y) ) {
 		pick_up_sword();
 	}
 
@@ -685,7 +684,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		lasting_attack = 0;
 		link->sprite = LINK_SPRITES_OFFSET + 64 * last;
 		counter++;
-	} else if ( dir == DIR_ATTACK && !sword->destroyed){
+	} else if ( dir == DIR_ATTACK && sword->active){
 		switch( last ){
 			case 0:                     //down
 				sword->x = link->x;
@@ -770,10 +769,17 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 	}
 
     if( !inCave && isDoor(x, y) ) {
-        link->x = ( SIDE_PADDING + (int) FRAME_WIDTH/2 ) * SPRITE_SIZE;                         // set to the middle of the frame
+        link->x = ( SIDE_PADDING + (int) FRAME_WIDTH/2 - 1 ) * SPRITE_SIZE + SPRITE_SIZE / 2;                         // set to the middle of the frame
         link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
+        chhar_spawn(link, 0);
         inCave = true;
         load_frame( DIR_UP );
+        if(overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y) {
+			write_introduction();
+			if(!sword->active){
+				set_sword();
+			}
+		}
 	    /*		skip collision detection if on the bottom of the frame 			*/
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
@@ -785,21 +791,25 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		}
 	}
 
-	if ( lasting_attack != 1){
+	if ( lasting_attack != 1 ){
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
 				(unsigned int) 0x8F000000 | (unsigned int) link->sprite );
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
 				(link->y << 16) | link->x );      //  the higher 2 bytes represent the row (y)
-		delete_sword( sword );
+		for ( i = 0; i < 100000; i++ );         //  delay
+		if (sword->active) {
+			for ( i = 0; i < 100000; i++ );         //  delay
+			delete_sword( sword );
+		}
 	}
 
 	for (i = 0; i < 1000; i++);          //     delay = 1000 <- good speed
 
 	if(inCave) {
 		set_fire();
-        write_introduction();
+		for ( i = 0; i < 10000; i++ );         //  delay
 	}
 
 	return false;
@@ -874,7 +884,7 @@ void set_fire() {
 
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
 	Xil_Out32(addr,	fire1);
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (pos + 6);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (pos + 7);
 	Xil_Out32(addr,	fire2);
 }
 
@@ -891,15 +901,9 @@ void battle_city() {
 	link.x = INITIAL_LINK_POSITION_X;
 	link.y = INITIAL_LINK_POSITION_Y;
 	link.sprite = LINK_SPRITES_OFFSET;
-	sword.destroyed = true;
-	//sword.x = INITIAL_LINK_POSITION_X + 13;
-	//sword.y = INITIAL_LINK_POSITION_Y;
+	sword.active = false;
 
 	chhar_spawn(&link, 0);
-
-	//if(sword.destroyed){
-			set_sword();
-	//	}
 
 	while (1) {
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
