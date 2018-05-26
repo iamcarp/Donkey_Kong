@@ -616,7 +616,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		blocked_sword = 1;
 	}
 
-	if(!sword->active && inCave && (link->x == sword->x) && (link->y == sword->y) ) {
+	if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8)) && ((sword->y-8 < link->y)&& (link->y < sword->y+8)) ) {
 		pick_up_sword();
 	}
 

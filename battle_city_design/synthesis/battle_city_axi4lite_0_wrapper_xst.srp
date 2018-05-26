@@ -1,10 +1,10 @@
 Release 14.6 - xst P.68d (nt64)
 Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
---> Parameter TMPDIR set to D:\Ra162-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
+--> Parameter TMPDIR set to D:\ra162-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.08 secs
+Total CPU time to Xst completion: 0.09 secs
  
 --> 
 TABLE OF CONTENTS
@@ -35,7 +35,7 @@ TABLE OF CONTENTS
 ---- Source Parameters
 Input Format                       : MIXED
 Input File Name                    : "battle_city_axi4lite_0_wrapper_xst.prj"
-Verilog Include Directory          : {"D:\Ra162-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
+Verilog Include Directory          : {"D:\ra162-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
 
 ---- Target Parameters
 Target Device                      : xc6slx45fgg676-2
@@ -183,7 +183,7 @@ Analyzing Verilog file "C:/Xilinx/14.6/ISE_DS/EDK/hw/XilinxProcessorIPLib/pcores
 Parsing module <ict106_w_upsizer>.
 Analyzing Verilog file "C:/Xilinx/14.6/ISE_DS/EDK/hw/XilinxProcessorIPLib/pcores/axi_interconnect_v1_06_a/hdl/verilog/axi_interconnect.v" into library axi_interconnect_v1_06_a
 Parsing module <axi_interconnect>.
-Analyzing Verilog file "D:\Ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_axi4lite_0_wrapper.v" into library work
+Analyzing Verilog file "D:\ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_axi4lite_0_wrapper.v" into library work
 Parsing module <battle_city_axi4lite_0_wrapper>.
 
 =========================================================================
@@ -373,7 +373,7 @@ WARNING:HDLCompiler:413 - "C:/Xilinx/14.6/ISE_DS/EDK/hw/XilinxProcessorIPLib/pco
 =========================================================================
 
 Synthesizing Unit <battle_city_axi4lite_0_wrapper>.
-    Related source file is "D:\Ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_axi4lite_0_wrapper.v".
+    Related source file is "D:\ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_axi4lite_0_wrapper.v".
     Summary:
 	no macro.
 Unit <battle_city_axi4lite_0_wrapper> synthesized.
@@ -2102,11 +2102,11 @@ axi4lite_0/si_converter_bank/gen_conv_slot[0].clock_conv_inst/S_AXI_ACLK|    1.6
 
 
 Total REAL time to Xst completion: 8.00 secs
-Total CPU time to Xst completion: 8.03 secs
+Total CPU time to Xst completion: 7.94 secs
  
 --> 
 
-Total memory usage is 287956 kilobytes
+Total memory usage is 286804 kilobytes
 
 Number of errors   :    0 (   0 filtered)
 Number of warnings :  238 (   0 filtered)

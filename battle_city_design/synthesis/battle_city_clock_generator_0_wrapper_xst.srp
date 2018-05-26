@@ -1,9 +1,9 @@
 Release 14.6 - xst P.68d (nt64)
 Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
---> Parameter TMPDIR set to D:\Ra162-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
+--> Parameter TMPDIR set to D:\ra162-2015\LPRS2-Zelda\battle_city_design\synthesis\xst_temp_dir\
 
 
-Total REAL time to Xst completion: 0.00 secs
+Total REAL time to Xst completion: 1.00 secs
 Total CPU time to Xst completion: 0.08 secs
  
 --> 
@@ -35,7 +35,7 @@ TABLE OF CONTENTS
 ---- Source Parameters
 Input Format                       : MIXED
 Input File Name                    : "battle_city_clock_generator_0_wrapper_xst.prj"
-Verilog Include Directory          : {"D:\Ra162-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
+Verilog Include Directory          : {"D:\ra162-2015\LPRS2-Zelda\battle_city_design\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxBFMinterface\pcores\" "C:\Xilinx\14.6\ISE_DS\EDK\hw\XilinxProcessorIPLib\pcores\" }
 
 ---- Target Parameters
 Target Device                      : xc6slx45fgg676-2
@@ -74,10 +74,10 @@ Parsing architecture <STRUCT> of entity <mmcm_module>.
 Parsing VHDL file "C:/Xilinx/14.6/ISE_DS/EDK/hw/XilinxProcessorIPLib/pcores/clock_generator_v4_03_a/hdl/vhdl/plle2_module.vhd" into library clock_generator_v4_03_a
 Parsing entity <plle2_module>.
 Parsing architecture <STRUCT> of entity <plle2_module>.
-Parsing VHDL file "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" into library clock_generator_0_v4_03_a
+Parsing VHDL file "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" into library clock_generator_0_v4_03_a
 Parsing entity <clock_generator>.
 Parsing architecture <STRUCTURE> of entity <clock_generator>.
-Parsing VHDL file "D:\Ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_clock_generator_0_wrapper.vhd" into library work
+Parsing VHDL file "D:\ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_clock_generator_0_wrapper.vhd" into library work
 Parsing entity <battle_city_clock_generator_0_wrapper>.
 Parsing architecture <STRUCTURE> of entity <battle_city_clock_generator_0_wrapper>.
 
@@ -88,28 +88,28 @@ Parsing architecture <STRUCTURE> of entity <battle_city_clock_generator_0_wrappe
 Elaborating entity <battle_city_clock_generator_0_wrapper> (architecture <STRUCTURE>) from library <work>.
 
 Elaborating entity <clock_generator> (architecture <STRUCTURE>) with generics from library <clock_generator_0_v4_03_a>.
-WARNING:HDLCompiler:1127 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 260: Assignment to net_gnd0 ignored, since the identifier is never used
-WARNING:HDLCompiler:1127 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 264: Assignment to net_vdd0 ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 260: Assignment to net_gnd0 ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 264: Assignment to net_vdd0 ignored, since the identifier is never used
 
 Elaborating entity <pll_module> (architecture <STRUCT>) with generics from library <clock_generator_v4_03_a>.
-WARNING:HDLCompiler:1127 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 371: Assignment to sig_pll0_clkout1_buf ignored, since the identifier is never used
-WARNING:HDLCompiler:1127 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 377: Assignment to sig_pll0_clkout2_buf ignored, since the identifier is never used
-WARNING:HDLCompiler:1127 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 383: Assignment to sig_pll0_clkout3_buf ignored, since the identifier is never used
-WARNING:HDLCompiler:1127 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 389: Assignment to sig_pll0_clkout4_buf ignored, since the identifier is never used
-WARNING:HDLCompiler:1127 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 395: Assignment to sig_pll0_clkout5_buf ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 371: Assignment to sig_pll0_clkout1_buf ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 377: Assignment to sig_pll0_clkout2_buf ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 383: Assignment to sig_pll0_clkout3_buf ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 389: Assignment to sig_pll0_clkout4_buf ignored, since the identifier is never used
+WARNING:HDLCompiler:1127 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" Line 395: Assignment to sig_pll0_clkout5_buf ignored, since the identifier is never used
 
 =========================================================================
 *                           HDL Synthesis                               *
 =========================================================================
 
 Synthesizing Unit <battle_city_clock_generator_0_wrapper>.
-    Related source file is "D:\Ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_clock_generator_0_wrapper.vhd".
+    Related source file is "D:\ra162-2015\LPRS2-Zelda\battle_city_design\hdl\battle_city_clock_generator_0_wrapper.vhd".
     Summary:
 	no macro.
 Unit <battle_city_clock_generator_0_wrapper> synthesized.
 
 Synthesizing Unit <clock_generator>.
-    Related source file is "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd".
+    Related source file is "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd".
         C_FAMILY = "spartan6"
         C_DEVICE = "6slx45"
         C_PACKAGE = "fgg676"
@@ -119,18 +119,18 @@ WARNING:Xst:647 - Input <CLKFBIN> is never used. This port will be preserved and
 WARNING:Xst:647 - Input <PSCLK> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:647 - Input <PSEN> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
 WARNING:Xst:647 - Input <PSINCDEC> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKFBDCM> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT1> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT2> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT3> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT4> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT5> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM0> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM1> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM2> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM3> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM4> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
-INFO:Xst:3210 - "D:/Ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM5> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKFBDCM> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT1> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT2> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT3> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT4> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUT5> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM0> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM1> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM2> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM3> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM4> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
+INFO:Xst:3210 - "D:/ra162-2015/LPRS2-Zelda/battle_city_design/hdl/elaborate/clock_generator_0_v4_03_a/hdl/vhdl/clock_generator.vhd" line 279: Output port <CLKOUTDCM5> of the instance <PLL0_INST> is unconnected or connected to loadless signal.
     Summary:
 	no macro.
 Unit <clock_generator> synthesized.
@@ -319,7 +319,7 @@ Cross Clock Domains Report:
 
 
 Total REAL time to Xst completion: 4.00 secs
-Total CPU time to Xst completion: 3.73 secs
+Total CPU time to Xst completion: 3.79 secs
  
 --> 
 
