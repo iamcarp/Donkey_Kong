@@ -616,7 +616,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		blocked_sword = 1;
 	}
 
-	if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8)) && ((sword->y-8 < link->y)&& (link->y < sword->y+8)) ) {
+	if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8)) && ((sword->y-8 < link->y)&& (link->y < sword->y)) ) {
 		pick_up_sword();
 	}
 
@@ -800,7 +800,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 				(link->y << 16) | link->x );      //  the higher 2 bytes represent the row (y)
 		for ( i = 0; i < 100000; i++ );         //  delay
 		if (sword->active) {
-			for ( i = 0; i < 100000; i++ );         //  delay
+			//for ( i = 0; i < 100000; i++ );         //  delay
 			delete_sword( sword );
 		}
 	}
