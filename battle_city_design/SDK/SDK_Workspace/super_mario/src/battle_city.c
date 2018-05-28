@@ -13,17 +13,17 @@
 #define ENEMY_COLORS_OFFSET         35
 
 /*		SCREEN PARAMETERS		 - in this case, "screen" stands for one full-screen picture	 */
-#define SCREEN_BASE_ADDRESS			6900	//	old: 6900	,	new: 6992
+#define SCREEN_BASE_ADDRESS			6992	//	old: 6900	,	new: 6992
 #define SCR_HEIGHT					30
 #define SCR_WIDTH					40
 #define SPRITE_SIZE					16
 
 /*		FRAME HEADER		*/
-#define HEADER_BASE_ADDRESS			7192	//	old: 7192	,	new: 7124
+#define HEADER_BASE_ADDRESS			7124	//	old: 7192	,	new: 7124
 #define HEADER_HEIGHT				5
 
 /*      FRAME       */
-#define FRAME_BASE_ADDRESS			7392 // 	old: 7392	,	new: 7284		FRAME_OFFSET in battle_city.vhd
+#define FRAME_BASE_ADDRESS			7284 // 	old: 7392	,	new: 7284		FRAME_OFFSET in battle_city.vhd
 #define SIDE_PADDING				12
 #define VERTICAL_PADDING			7
 #define INITIAL_FRAME_X				7
