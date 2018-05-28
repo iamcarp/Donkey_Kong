@@ -202,7 +202,16 @@ int door_x, door_y;
 int rupees = 0, bombs = 0;
 
 int random_number() {
-	return (link.x%100)*(link.y%100);
+	static short a[29] = {12,6,331,58,876,532,18,97,577,97,827,643,163,509,313,937,157, 853,752,16,85,11,54,977,61,45,46,314,88};
+	static short p[17] = {7,179,5,13,59,29,37,31, 61,191 ,17,11, 113,19, 127,47, 71};
+	static short i,j,rnd;
+
+	i = (i+=5) < 29 ? i : 0;
+	j = (j+=3) < 17 ? j : 0;
+
+	rnd = a[i]*p[j];
+
+	return rnd;
 }
 
 unsigned short char_to_addr(char c) {
@@ -526,15 +535,16 @@ bool initialize_enemy( int frame_index) {
 }
 
 direction_t random_direction(direction_t dir, int divider){
+	divider = random_number();
 	 int rnd = random_number() % divider; //returns 0-100 000
 
-	 if (rnd < divider/4){
+	 if (rnd % 31 < 5){
 		 dir = DIR_LEFT;
-	 } else if (rnd >= divider/4 && rnd < divider/2 ){
+	 } else if (rnd % 31 < 11){
 		 dir = DIR_UP;
-	 } else if (rnd >= divider/2 && rnd < 3*divider/4){
+	 } else if (rnd % 31 < 17){
 		 dir = DIR_DOWN;
-	 } else if (rnd >= 3*divider/4){
+	 } else if (rnd % 31 < 23){
 		 dir = DIR_RIGHT;
 	 }
 	 return dir;
