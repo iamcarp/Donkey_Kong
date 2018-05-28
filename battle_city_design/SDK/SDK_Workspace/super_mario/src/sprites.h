@@ -11,6 +11,11 @@ unsigned short SPRITES[51] = {0x00FF, 0x013F, 0x017F, 0x01BF, 0x01FF, 0x023F, 0x
 #define HEART_HALF 				 HEART_FULL + 64
 #define HEART_EMPTY				 HEART_HALF + 64
 
+/*      pickups     */
+#define RUPEE_SPRITE        64
+#define BOMB_SPRITE         128
+
+#define GRANDPA_SPRITE      4991
 #define FIRE_0				5072 + 64			//5072 is the enemy_sprites_offset
 #define FIRE_1				5072 + 4*64
 #define MINIMAP_BLANK		4863
