@@ -39,6 +39,7 @@
 /*      ENEMIE SPRITES START ADDRESS - to move to next add 64    */
 #define ENEMIE_SPRITES_OFFSET          5072			//	old: 4596	,	new: 5072
 #define ENEMY_STEP						10
+#define GHOST_SPRITES_OFFSET			5072 + 64*5
 
 #define REGS_BASE_ADDRESS               ( SCREEN_BASE_ADDRESS + SCR_WIDTH * SCR_HEIGHT )
 
@@ -179,15 +180,16 @@ characters octorok4 = {
 		ENEMY_5_REG_H             		// reg_h
 		};
 
-characters octorok5 = {
+characters ghost = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
-		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// active
+		GHOST_SPRITES_OFFSET + 64,  	// type 64*5 base
+		true,                			// active
 		ENEMY_6_REG_L,            		// reg_l
 		ENEMY_6_REG_H             		// reg_h
 		};
+
 
 /*      indexes of the active frame in overworld        */
 int overw_x;
@@ -499,40 +501,75 @@ bool initialize_enemy( int frame_index) {
 	 * the enemy's position should depend on the frame
 	 * in other words, it will use overw_x and overw_y
 */
-	//random_enemy_position();
-	switch(frame_index)
-	{
-		case 120:
-				octorok1.x = 240;
-				octorok1.y = 220;
-				octorok1.dir = DIR_LEFT;
-				chhar_spawn(&octorok1, 0);
+	octorok1.active = true;
+	octorok2.active = true;
+	octorok3.active = true;
+	octorok4.active = true;
+	if(frame_index == 120 || frame_index == 102 || frame_index == 100){
+		ghost.active = false;
+		octorok1.x = 240;
+		octorok1.y = 220;
+		octorok1.dir = DIR_LEFT;
+		chhar_spawn(&octorok1, 0);
 
-				octorok2.x = 320;
-				octorok2.y = 240;
-				octorok2.dir = DIR_UP;
-				chhar_spawn(&octorok2, 3);
+		octorok2.x = 320;
+		octorok2.y = 240;
+		octorok2.dir = DIR_UP;
+		chhar_spawn(&octorok2, 3);
 
-				octorok3.x = 320;
-				octorok3.y = 290;
-				octorok3.dir = DIR_DOWN;
-				chhar_spawn(&octorok3, 0);
+		octorok3.x = 320;
+		octorok3.y = 290;
+		octorok3.dir = DIR_DOWN;
+		chhar_spawn(&octorok3, 0);
 
-				octorok4.x = 355;
-				octorok4.y = 250;
-				octorok4.dir = DIR_RIGHT;
-				chhar_spawn(&octorok4, 0);
-				return 1;
-			case 125:
-				return 0;
+		octorok4.x = 355;
+		octorok4.y = 250;
+		octorok4.dir = DIR_RIGHT;
+		chhar_spawn(&octorok4, 0);
+		return 1;
+	} else if ( frame_index == 104 || frame_index == 103) {
+		ghost.active = false;
+		octorok1.x = 250;
+		octorok1.y = 220;
+		octorok1.dir = DIR_DOWN;
+		chhar_spawn(&octorok1, 0);
 
-			default:
-				enemy_exists = 0;
-				return 0;
+		octorok2.x = 320;
+		octorok2.y = 240;
+		octorok2.dir = DIR_LEFT;
+		chhar_spawn(&octorok2, 3);
 
+		octorok3.x = 320;
+		octorok3.y = 290;
+		octorok3.dir = DIR_DOWN;
+		chhar_spawn(&octorok3, 0);
 
+		octorok4.x = 350;
+		octorok4.y = 250;
+		octorok4.dir = DIR_UP;
+		chhar_spawn(&octorok4, 0);
+		return 1;
+	} else if (frame_index == 64 || frame_index == 65 || frame_index == 48 ||
+			frame_index == 49 || frame_index == 32 || frame_index == 33) {
+		octorok1.active = false;
+		octorok2.active = false;
+		octorok3.active = false;
+		octorok4.active = false;
+		ghost.active = true;
+
+		ghost.x = 220;
+		ghost.y = 220;
+		ghost.dir = DIR_LEFT;
+		chhar_spawn(&ghost,0);
+		return 1;
+	}else {
+		enemy_exists = 0;
+		return 0;
 	}
+
+
 }
+
 
 direction_t random_direction(direction_t dir, int divider){
 	 divider = random_number();
@@ -572,6 +609,56 @@ direction_t reverse_direction(direction_t dir){
 			dir = DIR_LEFT;
 		}
 		return dir;
+}
+
+
+void ghost_move(characters* chhar, int divider){
+	int x,y;
+	static int delay;
+	x = chhar->x;
+	y = chhar->y;
+
+	if (delay == 3) {
+		delay = 0;
+		if( chhar->y < (HEADER_HEIGHT + VERTICAL_PADDING + 2) * SPRITE_SIZE){
+			chhar->dir = DIR_DOWN;
+		} else if (chhar->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 - 2) * SPRITE_SIZE) {
+			chhar->dir = DIR_UP;
+		} else if (chhar->x > (( SIDE_PADDING + FRAME_WIDTH - 3) * SPRITE_SIZE  - SPRITE_SIZE - 10)){
+			chhar->dir = DIR_LEFT;
+		} else if ( chhar->x < (SIDE_PADDING + 2) * SPRITE_SIZE ){
+			chhar->dir = DIR_RIGHT;
+		}
+
+		if(chhar->dir == DIR_DOWN) {
+					y++;
+		} else if (chhar->dir == DIR_UP){
+					y--;
+		} else if (chhar->dir == DIR_LEFT){
+					x--;
+		} else if (chhar->dir == DIR_RIGHT){
+					x++;
+		}
+
+		chhar->y = y;
+		chhar->x = x;
+
+		if (chhar->dir == DIR_RIGHT)
+			chhar->sprite = GHOST_SPRITES_OFFSET + 64;
+		else
+			chhar->sprite = GHOST_SPRITES_OFFSET;
+
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite);
+
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
+				( chhar->y << 16) | chhar->x);
+		return;
+	} else {
+		delay++;
+	}
 }
 
 void enemy_move(characters* chhar, int divider){
@@ -643,7 +730,7 @@ void chhar_delete(){
 	delete_sword(&octorok2);
 	delete_sword(&octorok3);
 	delete_sword(&octorok4);
-	delete_sword(&octorok5);
+	delete_sword(&ghost);
 }
 
 void chhar_spawn( characters * chhar, int rotation ) {
@@ -1046,8 +1133,8 @@ void battle_city() {
     
     /*      initialization      */
 	reset_memory();
-	overw_x = INITIAL_FRAME_X;
-	overw_y = INITIAL_FRAME_Y;
+	overw_x = 0;
+	overw_y = 5;
     load_frame( DIR_STILL );
     set_header();
 
@@ -1087,6 +1174,8 @@ void battle_city() {
 				enemy_move(&octorok3, rnd2);
 			if (octorok4.active)
 				enemy_move(&octorok4, rnd3);
+			if (ghost.active)
+				ghost_move(&ghost, rnd);
 		}
 
 		link_move(&link, &sword, d);
