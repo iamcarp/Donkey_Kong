@@ -70,6 +70,7 @@
 #define GRANDPA_REG_L					16
 #define GRANDPA_REG_H	                17
 
+#define MAX_HEALTH						8
 
 #define ENEMY_FRAMES_NUM 			34
 /*			contains the indexes of frames in overworld which have enemies  	*/
@@ -79,7 +80,7 @@ bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
 
 unsigned short fire1 = FIRE_0;
 unsigned short fire2 = FIRE_1;
-int lives = 6;		//		number of hearts is lives/2
+int HEALTH;
 int counter = 0;
 int last = 0; //last state link was in before current iteration (if he is walking it keeps walking)
 /*For testing purposes - values for last - Link sprites
@@ -190,6 +191,8 @@ characters ghost = {
 		ENEMY_6_REG_H             		// reg_h
 		};
 
+
+int walkables[21] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49};
 
 /*      indexes of the active frame in overworld        */
 int overw_x;
@@ -453,7 +456,7 @@ void set_pickups() {
 	int i, pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 5;
 	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
 
-	if ( rupees < 6 ) {
+	if ( rupees < 5 ) {
 		for (i = 0; i < rupees; i++) {
 			pos++;
 			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
@@ -463,7 +466,7 @@ void set_pickups() {
 
 	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + 5;
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	if ( bombs < 6 ) {
+	if ( bombs < 5 ) {
 		for (i = 0; i < bombs; i++) {
 			pos++;
 			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
@@ -471,6 +474,26 @@ void set_pickups() {
 		}
 	}
 
+}
+
+void set_health(int health) {
+	int i;
+	int pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + FRAME_WIDTH - 6;
+	unsigned long addr;
+	for(i = 0; i < MAX_HEALTH/2; i++, pos++) {
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+		if (i < health/2) {
+			Xil_Out32(addr,	HEART_FULL);
+		} else {
+			Xil_Out32(addr,	HEART_EMPTY);
+		}
+	}
+
+	if (health % 2) {
+		pos -= ((MAX_HEALTH - health) / 2);
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+		Xil_Out32(addr,	HEART_HALF);
+	}
 }
 
 void set_header() {
@@ -483,12 +506,8 @@ void set_header() {
     write_line("life", 4, addr);
 
 	/*			put hearts under life		*/
-	int i;
-	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + FRAME_WIDTH - 6;
-	for(i = 0; i < lives/2; i++) {
-		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos++;
-		Xil_Out32(addr,	HEART_FULL);
-	}
+    set_health(HEALTH);
+
 }
 
 bool initialize_enemy( int frame_index) {
@@ -585,32 +604,7 @@ direction_t random_direction(direction_t dir, int divider){
 		 dir = dir == DIR_RIGHT ? DIR_DOWN : DIR_RIGHT;
 	 }
 	 return dir;
-	/*
-	if (dir == DIR_DOWN){
-		dir = DIR_LEFT;
-	} else if(dir == DIR_LEFT){
-		dir = DIR_RIGHT;
-	} else if (dir == DIR_UP){
-		dir = DIR_DOWN;
-	} else if (dir == DIR_RIGHT){
-		dir = DIR_UP;
-	}
-	return dir;*/
 }
-
-direction_t reverse_direction(direction_t dir){
-		if (dir == DIR_DOWN){
-			dir = DIR_UP;
-		} else if(dir == DIR_LEFT){
-			dir = DIR_RIGHT;
-		} else if (dir == DIR_UP){
-			dir = DIR_DOWN;
-		} else if (dir == DIR_RIGHT){
-			dir = DIR_LEFT;
-		}
-		return dir;
-}
-
 
 void ghost_move(characters* chhar, int divider){
 	int x,y;
@@ -666,6 +660,16 @@ void enemy_move(characters* chhar, int divider){
 	x = chhar->x;
 	y = chhar->y;
 
+	static int stay_alive = 0;
+
+	/*		collision with Link		*/
+	if (stay_alive == 0 && (chhar->x < link.x + 10 && chhar->x > link.x - 10) && (chhar->y < link.y + 10 && chhar->y > link.y - 10)) {
+		stay_alive = 30;
+		set_health(--HEALTH);
+	} else {
+		stay_alive--;
+	}
+
 	/* detection of edges of frame */
 	if( chhar->y < SIDE_PADDING * SPRITE_SIZE){
 		chhar->dir = DIR_DOWN;
@@ -690,7 +694,7 @@ void enemy_move(characters* chhar, int divider){
 
 	divider%=20;
 	if (obstackles_detection(x, y, frame, chhar->dir, false)){
-		chhar->dir = random_direction(chhar->dir, divider); // reverse_direction(chhar->dir);
+		chhar->dir = random_direction(chhar->dir, divider);
 	} else {
 		if(enemy_step == 5*divider){
 			chhar->dir = random_direction(chhar->dir, divider);
@@ -766,7 +770,7 @@ void delete_sword( characters* chhar ){
 }
 
 /*  cleaning the registers used for moving characters sprites; two registers are used for each sprite   */
-static void reset_memory() {
+void reset_memory() {
 	unsigned int i;
 	long int addr;
 
@@ -780,7 +784,7 @@ static void reset_memory() {
 	}
 }
 
-static bool link_move(characters * link, characters* sword, direction_t dir) {
+bool link_move(characters * link, characters* sword, direction_t dir) {
 	unsigned int x;
 	unsigned int y;
 	int sword_rotation = 0;
@@ -1063,7 +1067,6 @@ bool isDoor(int x, int y) {
 }
 
 bool tile_walkable(int index, unsigned short* map_frame) {
-	int walkables[21] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49};
 	int i;
 
 	for ( i = 0; i < 20; i++) {
@@ -1133,9 +1136,10 @@ void battle_city() {
     
     /*      initialization      */
 	reset_memory();
-	overw_x = 0;
-	overw_y = 5;
+	overw_x = INITIAL_FRAME_X;
+	overw_y = INITIAL_FRAME_Y;
     load_frame( DIR_STILL );
+    HEALTH = MAX_HEALTH;
     set_header();
 
 	link.x = INITIAL_LINK_POSITION_X;
