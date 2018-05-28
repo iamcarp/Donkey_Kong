@@ -49,7 +49,7 @@ static void reset_memory();
 static bool link_move(characters * link, characters* sword, direction_t dir);
 bool isDoor(int x, int y);
 bool tile_walkable(int index, unsigned short* map_frame);
-bool obstackles_detection(int x, int y, unsigned short* f, int dir);
+bool obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink);
 void set_fire();
 
 

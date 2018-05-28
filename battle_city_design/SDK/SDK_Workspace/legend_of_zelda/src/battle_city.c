@@ -206,10 +206,10 @@ int random_number() {
 	static short p[17] = {7,179,5,13,59,29,37,31, 61,191 ,17,11, 113,19, 127,47, 71};
 	static short i,j,rnd;
 
-	i = (i+=5) < 29 ? i : 0;
-	j = (j+=3) < 17 ? j : 0;
+	i = (i+=5) < 231 ? i : 0;
+	j = (j+=3) < 587 ? j : 0;
 
-	rnd = a[i]*p[j];
+	rnd = a[i%29]*p[j%17];
 
 	return rnd;
 }
@@ -505,7 +505,7 @@ bool initialize_enemy( int frame_index) {
 		case 120:
 				octorok1.x = 240;
 				octorok1.y = 220;
-				octorok1.dir = DIR_DOWN;
+				octorok1.dir = DIR_LEFT;
 				chhar_spawn(&octorok1, 0);
 
 				octorok2.x = 320;
@@ -520,7 +520,7 @@ bool initialize_enemy( int frame_index) {
 
 				octorok4.x = 355;
 				octorok4.y = 250;
-				octorok4.dir = DIR_LEFT;
+				octorok4.dir = DIR_RIGHT;
 				chhar_spawn(&octorok4, 0);
 				return 1;
 			case 125:
@@ -535,17 +535,17 @@ bool initialize_enemy( int frame_index) {
 }
 
 direction_t random_direction(direction_t dir, int divider){
-	divider = random_number();
+	 divider = random_number();
 	 int rnd = random_number() % divider; //returns 0-100 000
 
-	 if (rnd % 31 < 5){
-		 dir = DIR_LEFT;
-	 } else if (rnd % 31 < 11){
-		 dir = DIR_UP;
-	 } else if (rnd % 31 < 17){
-		 dir = DIR_DOWN;
-	 } else if (rnd % 31 < 23){
-		 dir = DIR_RIGHT;
+	 if (rnd % 4 == 0){
+		 dir = dir == DIR_LEFT ? DIR_UP : DIR_LEFT;
+	 } else if (rnd % 4 == 1){
+		 dir = dir == DIR_UP ? DIR_RIGHT : DIR_UP;
+	 } else if (rnd % 4 == 2){
+		 dir = dir == DIR_DOWN ? DIR_UP : DIR_DOWN;
+	 } else {
+		 dir = dir == DIR_RIGHT ? DIR_DOWN : DIR_RIGHT;
 	 }
 	 return dir;
 	/*
@@ -601,10 +601,11 @@ void enemy_move(characters* chhar, int divider){
 	}
 	enemy_step++;
 
-	if (obstackles_detection(x, y, frame, chhar->dir)){
-		chhar->dir = reverse_direction(chhar->dir);//random_direction(chhar->dir, divider);
+	divider%=20;
+	if (obstackles_detection(x, y, frame, chhar->dir, false)){
+		chhar->dir = random_direction(chhar->dir, divider); // reverse_direction(chhar->dir);
 	} else {
-		if(enemy_step == 200){
+		if(enemy_step == 5*divider){
 			chhar->dir = random_direction(chhar->dir, divider);
 			enemy_step = 0;
 		} else {
@@ -922,7 +923,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		link->x = x;
 		link->y = y;
 	} else {
-		if ( !obstackles_detection(x, y, frame, dir ) ) {
+		if ( !obstackles_detection(x, y, frame, dir, true ) ) {
 			link->x = x;
 			link->y = y;
 		}
@@ -988,11 +989,21 @@ bool tile_walkable(int index, unsigned short* map_frame) {
 	return false;
 }
 
-bool obstackles_detection(int x, int y, unsigned short* f, int dir) {
-	int x_left = x + 3 - SIDE_PADDING * SPRITE_SIZE;
-	int x_right = x + 12 - SIDE_PADDING * SPRITE_SIZE;
-	int y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
-	int y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+bool obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink) {
+	int x_left , x_right , y_top , y_bot;
+
+	if (isLink) {
+		x_left = x + 3 - SIDE_PADDING * SPRITE_SIZE;
+		x_right = x + 12 - SIDE_PADDING * SPRITE_SIZE;
+		y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+		y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+	} else {
+		x_left = x + 1 - SIDE_PADDING * SPRITE_SIZE;
+		x_right = x + 15 - SIDE_PADDING * SPRITE_SIZE;
+		y_top = y + 1 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+		y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
+
+	}
 
 	x_left /= SPRITE_SIZE;
 	x_right /= SPRITE_SIZE;
@@ -1048,7 +1059,7 @@ void battle_city() {
 	chhar_spawn(&link, 0);
 
 	while (1) {
-		int rnd = random_number() % 100;
+		int rnd =  random_number() % 100;
 		int rnd1 = (random_number() % 1000) / 10;
 		int rnd2 = (random_number() % 10000) / 100;
 		int rnd3 = (random_number() % 100000) / 1000;
