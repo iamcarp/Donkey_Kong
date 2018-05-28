@@ -594,7 +594,7 @@ void enemy_move(characters* chhar, int divider){
 	if (obstackles_detection(x, y, frame, chhar->dir)){
 		chhar->dir = reverse_direction(chhar->dir);//random_direction(chhar->dir, divider);
 	} else {
-		if(enemy_step == 50){
+		if(enemy_step == 200){
 			chhar->dir = random_direction(chhar->dir, divider);
 			enemy_step = 0;
 		} else {
