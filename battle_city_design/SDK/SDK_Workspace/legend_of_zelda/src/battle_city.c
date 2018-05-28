@@ -199,6 +199,7 @@ int enemy_step = 0;
 bool inCave = false;
 /*      the position of the door so link could have the correct position when coming out of the cave    */
 int door_x, door_y;
+int rupees = 0, bombs = 0;
 
 int random_number() {
 	return (link.x%100)*(link.y%100);
@@ -437,15 +438,28 @@ void set_minimap() {
 }
 
 void set_pickups() {
-	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 6;
+
+	int i, pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 5;
 	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
 
-	Xil_Out32(addr,	RUPEE_SPRITE);
+	if ( rupees < 6 ) {
+		for (i = 0; i < rupees; i++) {
+			pos++;
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+			Xil_Out32(addr,	RUPEE_SPRITE);
+		}
+	}
 
-	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + 6;
+	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + 5;
 	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+	if ( bombs < 6 ) {
+		for (i = 0; i < bombs; i++) {
+			pos++;
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+			Xil_Out32(addr,	BOMB_SPRITE);
+		}
+	}
 
-	Xil_Out32(addr,	BOMB_SPRITE);
 }
 
 void set_header() {
@@ -467,6 +481,7 @@ void set_header() {
 }
 
 bool initialize_enemy( int frame_index) {
+
 	//TODO:	define function
 	/* set enemy on a random position 
 	 * check if there is an obstacle on that position
@@ -500,14 +515,16 @@ bool initialize_enemy( int frame_index) {
 				chhar_spawn(&octorok4, 0);
 				return 1;
 			case 125:
-				break;
+				return 0;
 
 			default:
 				enemy_exists = 0;
+				return 0;
 
 
 	}
 }
+
 direction_t random_direction(direction_t dir, int divider){
 	 int rnd = random_number() % divider; //returns 0-100 000
 
@@ -548,7 +565,7 @@ direction_t reverse_direction(direction_t dir){
 }
 
 void enemy_move(characters* chhar, int divider){
-	int x,y, rotation;
+	int x,y;
 	x = chhar->x;
 	y = chhar->y;
 
@@ -642,8 +659,6 @@ void chhar_spawn( characters * chhar, int rotation ) {
 }
 
 void delete_sword( characters* chhar ){
-	int i;
-
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
 			(unsigned int) 0x80000000 | (unsigned int) chhar->sprite );
@@ -814,25 +829,33 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 
 		//kill enemy
 		if(((octorok1.x-8 < sword->x) && (sword->x < octorok1.x+8))
-			&& ((octorok1.y-8 < sword->y)&& (sword->y < octorok1.y)))
+			&& ((octorok1.y-8 < sword->y)&& (sword->y < octorok1.y+8)) && octorok1.active)
 		{
 				octorok1.active = false;
 				delete_sword(&octorok1);
+				rupees++;
+				set_pickups();
 		} else if(((octorok2.x-8 < sword->x) && (sword->x < octorok2.x+8))
-				&& ((octorok2.y-8 < sword->y)&& (sword->y < octorok2.y)))
+				&& ((octorok2.y-8 < sword->y)&& (sword->y < octorok2.y+8)) && octorok2.active)
 		{
 				octorok2.active = false;
 				delete_sword(&octorok2);
+				rupees++;
+				set_pickups();
 		} else if(((octorok3.x-8 < sword->x) && (sword->x < octorok3.x+8))
-				&& ((octorok3.y-8 < sword->y)&& (sword->y < octorok3.y)))
+				&& ((octorok3.y-8 < sword->y)&& (sword->y < octorok3.y+8)) && octorok3.active)
 		{
 				octorok3.active = false;
 				delete_sword(&octorok3);
+				bombs++;
+				set_pickups();
 		} else if(((octorok4.x-8 < sword->x) && (sword->x < octorok4.x+8))
-				&& ((octorok4.y-8 < sword->y)&& (sword->y < octorok4.y)))
+				&& ((octorok4.y-8 < sword->y)&& (sword->y < octorok4.y+8)) && octorok4.active)
 		{
 				octorok4.active = false;
 				delete_sword(&octorok4);
+				bombs++;
+				set_pickups();
 		}
 
 
@@ -876,11 +899,11 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
         chhar_spawn(link, 0);
         inCave = true;
         load_frame( DIR_UP );
-        set_grandpa();
         if(overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y) {
         	set_fire();
         	if(!sword->active){
 				set_sword();
+		        set_grandpa();
 				write_introduction();
 			}
 		}

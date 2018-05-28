@@ -27,14 +27,17 @@ typedef struct {
 	unsigned int reg_h;
 } characters;
 
+int random_number();
 unsigned short char_to_addr(char c);
 void write_line(char* text, int len, long int addr);
 static void write_introduction();
 void load_frame( direction_t dir );
 void set_frame_palette();
+void set_grandpa();
 void set_sword();
 void pick_up_sword();
 void set_minimap();
+void set_pickups();
 void set_header();
 bool initialize_enemy( int frame_index);
 direction_t random_direction(direction_t dir, int );
