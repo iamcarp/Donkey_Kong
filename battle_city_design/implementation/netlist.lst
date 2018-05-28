@@ -1,14 +1,14 @@
-D:\ra162-2015\LPRS2-Zelda\battle_city_design\implementation\battle_city.ngc 1527324184
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_io_periph_wrapper.ngc 1527324156
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_proc_sys_reset_0_wrapper.ngc 1527324061
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_clock_generator_0_wrapper.ngc 1527324169
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_battle_city_periph_0_wrapper.ngc 1527324149
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_ilmb_wrapper.ngc 1527324161
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_dlmb_wrapper.ngc 1527324164
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_axi4lite_0_wrapper.ngc 1527324171
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_wrapper.ngc 1527324166
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_i_bram_ctrl_wrapper.ngc 1527324070
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_d_bram_ctrl_wrapper.ngc 1527324081
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_debug_module_wrapper.ngc 1527324124
-D:/ra162-2015/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_bram_block_wrapper.ngc 1527324087
+D:\ra41-2015\cube_fix\LPRS2-Zelda\battle_city_design\implementation\battle_city.ngc 1527509204
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_io_periph_wrapper.ngc 1527509177
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_proc_sys_reset_0_wrapper.ngc 1527509093
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_clock_generator_0_wrapper.ngc 1527509188
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_battle_city_periph_0_wrapper.ngc 1527509170
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_ilmb_wrapper.ngc 1527509180
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_dlmb_wrapper.ngc 1527509183
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_axi4lite_0_wrapper.ngc 1527509191
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_wrapper.ngc 1527509186
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_i_bram_ctrl_wrapper.ngc 1527509102
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_d_bram_ctrl_wrapper.ngc 1527509111
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_debug_module_wrapper.ngc 1527509147
+D:/ra41-2015/cube_fix/LPRS2-Zelda/battle_city_design/implementation/battle_city_microblaze_0_bram_block_wrapper.ngc 1527509117
 OK

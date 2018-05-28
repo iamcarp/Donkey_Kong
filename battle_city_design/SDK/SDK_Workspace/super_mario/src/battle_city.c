@@ -13,17 +13,17 @@
 #define ENEMY_COLORS_OFFSET         35
 
 /*		SCREEN PARAMETERS		 - in this case, "screen" stands for one full-screen picture	 */
-#define SCREEN_BASE_ADDRESS			6992	//	old: 6900	,	new: 6992
+#define SCREEN_BASE_ADDRESS			6900	//	old: 6900	,	new: 6992
 #define SCR_HEIGHT					30
 #define SCR_WIDTH					40
 #define SPRITE_SIZE					16
 
 /*		FRAME HEADER		*/
-#define HEADER_BASE_ADDRESS			7124	//	old: 7192	,	new: 7124
+#define HEADER_BASE_ADDRESS			7192	//	old: 7192	,	new: 7124
 #define HEADER_HEIGHT				5
 
 /*      FRAME       */
-#define FRAME_BASE_ADDRESS			7284 // 	old: 7392	,	new: 7284		FRAME_OFFSET in battle_city.vhd
+#define FRAME_BASE_ADDRESS			7392 // 	old: 7392	,	new: 7284		FRAME_OFFSET in battle_city.vhd
 #define SIDE_PADDING				12
 #define VERTICAL_PADDING			7
 #define INITIAL_FRAME_X				7
@@ -66,8 +66,8 @@
 #define ENEMY_6_REG_H                  15
 #define ENEMY_7_REG_L                  16
 #define ENEMY_7_REG_H                  17
-#define BASE_REG_L						8
-#define BASE_REG_H	                    9
+#define GRANDPA_REG_L					8
+#define GRANDPA_REG_H	                9
 
 
 #define ENEMY_FRAMES_NUM 			34
@@ -126,6 +126,16 @@ characters sword = {
 		false,                			// active
 		WEAPON_REG_L,            		// reg_l
 		WEAPON_REG_H             		// reg_h
+		};
+
+characters grandpa = {
+		0,								// x
+		0,								// y
+		DIR_LEFT,              			// dir
+		GRANDPA_SPRITE,  					// type
+		true,                			// active
+		GRANDPA_REG_L,            		// reg_l
+		GRANDPA_REG_H             		// reg_h
 		};
 
 characters octorok1 = {
@@ -188,6 +198,10 @@ int enemy_exists = 0;
 bool inCave = false;
 /*      the position of the door so link could have the correct position when coming out of the cave    */
 int door_x, door_y;
+
+int random_number() {
+	return (link.x%100)*(link.y%100);
+}
 
 unsigned short char_to_addr(char c) {
     switch(c) {
@@ -291,6 +305,7 @@ void load_frame( direction_t dir ) {
 		if ( dir == DIR_DOWN ) {
 			frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
 			inCave = false;
+			delete_sword(&grandpa);
 			if ( overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y ) {
 				delete_sword(&sword);
 			}
@@ -360,6 +375,12 @@ void set_frame_palette() {
 
 }
 
+void set_grandpa() {
+	grandpa.x = (SIDE_PADDING + FRAME_WIDTH / 2 - 1) * SPRITE_SIZE + SPRITE_SIZE / 2;
+	grandpa.y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT / 2) * SPRITE_SIZE;
+	chhar_spawn(&grandpa, 0);
+}
+
 /*		set sword in cave		*/
 void set_sword() {
 	int sword_rotation = 2;			//
@@ -412,8 +433,21 @@ void set_minimap() {
 	Xil_Out32(addr,	MINIMAP_BLANK + 64);
 }
 
+void set_pickups() {
+	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 6;
+	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+
+	Xil_Out32(addr,	RUPEE_SPRITE);
+
+	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + 6;
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
+
+	Xil_Out32(addr,	BOMB_SPRITE);
+}
+
 void set_header() {
 	set_minimap();
+	set_pickups();
 
 	/*			print "LIFE"		*/		//		use write line
 	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
@@ -616,7 +650,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		blocked_sword = 1;
 	}
 
-	if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8)) && ((sword->y-8 < link->y)&& (link->y < sword->y)) ) {
+	if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8)) && ((sword->y-8 < link->y)&& (link->y < sword->y)) &&  overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y ) {
 		pick_up_sword();
 	}
 
@@ -774,11 +808,13 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
         chhar_spawn(link, 0);
         inCave = true;
         load_frame( DIR_UP );
+        set_grandpa();
         if(overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y) {
-			write_introduction();
-			if(!sword->active){
+        	set_fire();
+        	if(!sword->active){
 				set_sword();
 			}
+			write_introduction();
 		}
 	    /*		skip collision detection if on the bottom of the frame 			*/
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
