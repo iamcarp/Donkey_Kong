@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>super_mario</name>
-	<comment>battle_city_soft_bsp - microblaze_0</comment>
+	<comment></comment>
 	<projects>
+		<project>standalone_bsp_0</project>
 		<project>battle_city_soft_bsp</project>
 	</projects>
 	<buildSpec>
