@@ -50,10 +50,10 @@
 
 
 /*			these are the high and low registers that store moving sprites - two registers for each sprite		 */
-#define LINK_REG_L                     4
-#define LINK_REG_H                     5
-#define WEAPON_REG_L                   0
-#define WEAPON_REG_H                   1
+#define LINK_REG_L                     8
+#define LINK_REG_H                     9
+#define WEAPON_REG_L                   4
+#define WEAPON_REG_H                   5
 #define ENEMY_2_REG_L                  6
 #define ENEMY_2_REG_H                  7
 #define ENEMY_3_REG_L                  2
@@ -64,10 +64,10 @@
 #define ENEMY_5_REG_H                  13
 #define ENEMY_6_REG_L                  14
 #define ENEMY_6_REG_H                  15
-#define ENEMY_7_REG_L                  16
-#define ENEMY_7_REG_H                  17
-#define GRANDPA_REG_L					8
-#define GRANDPA_REG_H	                9
+#define ENEMY_7_REG_L                  0
+#define ENEMY_7_REG_H                  1
+#define GRANDPA_REG_L					16
+#define GRANDPA_REG_H	                17
 
 
 #define ENEMY_FRAMES_NUM 			34
@@ -143,7 +143,7 @@ characters octorok1 = {
 		0,								// y
 		DIR_LEFT,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// active
+		true,                			// active
 		ENEMY_2_REG_L,            		// reg_l
 		ENEMY_2_REG_H             		// reg_h
 		};
@@ -154,7 +154,7 @@ characters octorok2 = {
 		0,								// y
 		DIR_UP,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// active
+		true,                			// active
 		ENEMY_3_REG_L,            		// reg_l
 		ENEMY_3_REG_H             		// reg_h
 		};
@@ -164,7 +164,7 @@ characters octorok3 = {
 		0,								// y
 		DIR_DOWN,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// active
+		true,                			// active
 		ENEMY_4_REG_L,            		// reg_l
 		ENEMY_4_REG_H             		// reg_h
 		};
@@ -174,7 +174,7 @@ characters octorok4 = {
 		0,								// y
 		DIR_LEFT,              			// dir
 		ENEMIE_SPRITES_OFFSET,  					// type
-		false,                			// active
+		true,                			// active
 		ENEMY_5_REG_L,            		// reg_l
 		ENEMY_5_REG_H             		// reg_h
 		};
@@ -194,6 +194,7 @@ int overw_x;
 int overw_y;
 
 int enemy_exists = 0;
+int enemy_step = 0;
 
 bool inCave = false;
 /*      the position of the door so link could have the correct position when coming out of the cave    */
@@ -314,14 +315,15 @@ void load_frame( direction_t dir ) {
 		}
 	}
 
-    /*      checking if there should be enemies on the current frame     */
+    /*    checking if there should be enemies on the current frame     */
     int i;
     if (!inCave) {
-		int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
+    	int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
 		for ( i = 0; i < ENEMY_FRAMES_NUM; i++ ){
 			if( frame_index == ENEMY_FRAMES[i] ){
-				initialize_enemy(frame_index);
 				enemy_exists = 1;
+				initialize_enemy(frame_index);
+				break;
 			} else {
 				enemy_exists = 0;
 			}
@@ -338,6 +340,7 @@ void load_frame( direction_t dir ) {
 			Xil_Out32( addr, frame[ y * FRAME_WIDTH + x ] );
 		}
 	}
+
 
 }
 
@@ -472,53 +475,53 @@ bool initialize_enemy( int frame_index) {
 	 * the enemy's position should depend on the frame
 	 * in other words, it will use overw_x and overw_y
 */
-	random_enemy_position();
+	//random_enemy_position();
+	switch(frame_index)
+	{
+		case 120:
+				octorok1.x = 240;
+				octorok1.y = 220;
+				octorok1.dir = DIR_DOWN;
+				chhar_spawn(&octorok1, 0);
+
+				octorok2.x = 320;
+				octorok2.y = 240;
+				octorok2.dir = DIR_UP;
+				chhar_spawn(&octorok2, 3);
+
+				octorok3.x = 320;
+				octorok3.y = 290;
+				octorok3.dir = DIR_DOWN;
+				chhar_spawn(&octorok3, 0);
+
+				octorok4.x = 355;
+				octorok4.y = 250;
+				octorok4.dir = DIR_LEFT;
+				chhar_spawn(&octorok4, 0);
+				return 1;
+			case 125:
+				break;
+
+			default:
+				enemy_exists = 0;
+
+
+	}
 }
+direction_t random_direction(direction_t dir, int divider){
+	 int rnd = random_number() % divider; //returns 0-100 000
 
-void random_enemy_position(){
-	octorok1.x = (SIDE_PADDING + SCREEN_WIDTH % 7) * SPRITE_SIZE;
-	octorok1.y = (VERTICAL_PADDING + HEADER_HEIGHT + SCREEN_WIDTH % 5) * SPRITE_SIZE;
-
-	octorok2.x = (SIDE_PADDING + SCREEN_WIDTH % 3)*SPRITE_SIZE;
-	octorok2.y = (VERTICAL_PADDING + HEADER_HEIGHT +  SCREEN_WIDTH % 3)*SPRITE_SIZE;
-
-	octorok3.x = (SIDE_PADDING + SCREEN_WIDTH % 11)*SPRITE_SIZE;
-	octorok3.y = (VERTICAL_PADDING +  HEADER_HEIGHT + SCREEN_WIDTH % 13)*SPRITE_SIZE;
-
-	octorok4.x = (SIDE_PADDING + SCREEN_WIDTH % 19)*SPRITE_SIZE;
-	octorok4.y = (VERTICAL_PADDING +  HEADER_HEIGHT + SCREEN_WIDTH % 3)*SPRITE_SIZE;
-
-	octorok5.x = (SIDE_PADDING + SCREEN_WIDTH % 17)*SPRITE_SIZE;
-	octorok5.y = (VERTICAL_PADDING +  HEADER_HEIGHT + SCREEN_WIDTH % 9)*SPRITE_SIZE;
-
-	while(obstackles_detection(octorok1.x, octorok1.y, frame, octorok1.dir)) {
-		octorok1.x++;
-		octorok1.y++;
-	}
-	while(obstackles_detection(octorok2.x, octorok2.y, frame, octorok2.dir)) {
-		octorok2.x++;
-		octorok2.y++;
-	}
-	while(obstackles_detection(octorok3.x, octorok3.y, frame, octorok3.dir)) {
-		octorok3.x++;
-		octorok3.y++;
-	}
-	while(obstackles_detection(octorok4.x, octorok4.y, frame, octorok4.dir)) {
-		octorok4.x++;
-		octorok4.y++;
-	}
-	while(obstackles_detection(octorok5.x, octorok5.y, frame, octorok5.dir)) {
-		octorok5.x++;
-		octorok5.y++;
-	}
-	chhar_spawn(&octorok1, octorok1.dir);
-	chhar_spawn(&octorok2, octorok2.dir);
-	chhar_spawn(&octorok3, octorok3.dir);
-	chhar_spawn(&octorok4, octorok4.dir);
-	chhar_spawn(&octorok5, octorok5.dir);
-}
-
-direction_t random_direction(direction_t dir){
+	 if (rnd < divider/4){
+		 dir = DIR_LEFT;
+	 } else if (rnd >= divider/4 && rnd < divider/2 ){
+		 dir = DIR_UP;
+	 } else if (rnd >= divider/2 && rnd < 3*divider/4){
+		 dir = DIR_DOWN;
+	 } else if (rnd >= 3*divider/4){
+		 dir = DIR_RIGHT;
+	 }
+	 return dir;
+	/*
 	if (dir == DIR_DOWN){
 		dir = DIR_LEFT;
 	} else if(dir == DIR_LEFT){
@@ -528,11 +531,24 @@ direction_t random_direction(direction_t dir){
 	} else if (dir == DIR_RIGHT){
 		dir = DIR_UP;
 	}
-	return dir;
+	return dir;*/
 }
 
-void enemy_move(characters* chhar){
-	int x,y;
+direction_t reverse_direction(direction_t dir){
+		if (dir == DIR_DOWN){
+			dir = DIR_UP;
+		} else if(dir == DIR_LEFT){
+			dir = DIR_RIGHT;
+		} else if (dir == DIR_UP){
+			dir = DIR_DOWN;
+		} else if (dir == DIR_RIGHT){
+			dir = DIR_LEFT;
+		}
+		return dir;
+}
+
+void enemy_move(characters* chhar, int divider){
+	int x,y, rotation;
 	x = chhar->x;
 	y = chhar->y;
 
@@ -556,20 +572,42 @@ void enemy_move(characters* chhar){
 	} else if (chhar->dir == DIR_RIGHT){
 				x++;
 	}
+	enemy_step++;
 
 	if (obstackles_detection(x, y, frame, chhar->dir)){
-		chhar->dir = random_direction(chhar->dir);
+		chhar->dir = reverse_direction(chhar->dir);//random_direction(chhar->dir, divider);
 	} else {
-		chhar->y = y;
-		chhar->x = x;
+		if(enemy_step == 50){
+			chhar->dir = random_direction(chhar->dir, divider);
+			enemy_step = 0;
+		} else {
+			chhar->y = y;
+			chhar->x = x;
+		}
+	}
+
+	if(chhar->dir == DIR_DOWN){
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite);
+	} else if (chhar->dir == DIR_RIGHT){
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int) 0x8F010000 | (unsigned int) chhar->sprite);
+	} else if (chhar->dir == DIR_UP){
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int) 0x8F020000 | (unsigned int) chhar->sprite);
+	} else {
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
+				(unsigned int) 0x8F100000 | (unsigned int) chhar->sprite);
 	}
 
 	Xil_Out32(
-			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-			(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite);
-	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
 			( chhar->y << 16) | chhar->x);
+
 }
 
 void chhar_delete(){
@@ -650,7 +688,10 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		blocked_sword = 1;
 	}
 
-	if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8)) && ((sword->y-8 < link->y)&& (link->y < sword->y)) &&  overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y ) {
+	if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8))
+			&& ((sword->y-8 < link->y)&& (link->y < sword->y))
+			&&  overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y )
+	{
 		pick_up_sword();
 	}
 
@@ -768,7 +809,34 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 				sword_rotation = 3;
 				sword->y = link->y;
 				break;
+
 		}
+
+		//kill enemy
+		if(((octorok1.x-8 < sword->x) && (sword->x < octorok1.x+8))
+			&& ((octorok1.y-8 < sword->y)&& (sword->y < octorok1.y)))
+		{
+				octorok1.active = false;
+				delete_sword(&octorok1);
+		} else if(((octorok2.x-8 < sword->x) && (sword->x < octorok2.x+8))
+				&& ((octorok2.y-8 < sword->y)&& (sword->y < octorok2.y)))
+		{
+				octorok2.active = false;
+				delete_sword(&octorok2);
+		} else if(((octorok3.x-8 < sword->x) && (sword->x < octorok3.x+8))
+				&& ((octorok3.y-8 < sword->y)&& (sword->y < octorok3.y)))
+		{
+				octorok3.active = false;
+				delete_sword(&octorok3);
+		} else if(((octorok4.x-8 < sword->x) && (sword->x < octorok4.x+8))
+				&& ((octorok4.y-8 < sword->y)&& (sword->y < octorok4.y)))
+		{
+				octorok4.active = false;
+				delete_sword(&octorok4);
+		}
+
+
+
 		if ( lasting_attack != 1 ){
 			Xil_Out32(
 					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
@@ -779,7 +847,7 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 		}
 
 		if (blocked_sword == 0) {
-			for ( i =0; i <900000; i++ );             //      delay
+			for ( i =0; i <90000; i++ );             //      delay
 
 			if ( lasting_attack != 1 ){
 				chhar_spawn( sword, sword_rotation );
@@ -788,9 +856,9 @@ static bool link_move(characters * link, characters* sword, direction_t dir) {
 				lasting_attack = 1;
 			}
 
-			for ( i =0; i <3000000; i++);             //      delay
+			for ( i =0; i <15000; i++);             //      delay
 		}
-		/*   After a short break (representing the attack animation), go back to standing sprite facing the same direciton    */
+		/*   After a short break (representing the attack animation), go back to standing sprite facing the same direction    */
 		if ( last ==16 || last == 17 ) { 						//left
 			link->sprite = LINK_SPRITES_OFFSET + 64 * 17;
 		} else if ( last == 3 || last == 4 ) { 				//right
@@ -942,6 +1010,10 @@ void battle_city() {
 	chhar_spawn(&link, 0);
 
 	while (1) {
+		int rnd = random_number() % 100;
+		int rnd1 = (random_number() % 1000) / 10;
+		int rnd2 = (random_number() % 10000) / 100;
+		int rnd3 = (random_number() % 100000) / 1000;
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
 		direction_t d = DIR_STILL;
@@ -956,14 +1028,19 @@ void battle_city() {
 		} else if ( BTN_SHOOT(buttons) ) {
 			d = DIR_ATTACK;
 		}
+
+		if(enemy_exists == 1) {
+			if(octorok1.active)
+				enemy_move(&octorok1, rnd);
+			if (octorok2.active)
+				enemy_move(&octorok2, rnd1);
+			if (octorok3.active)
+				enemy_move(&octorok3, rnd2);
+			if (octorok4.active)
+				enemy_move(&octorok4, rnd3);
+		}
+
 		link_move(&link, &sword, d);
 
-		if(enemy_exists) {
-			enemy_move(&octorok1);
-			enemy_move(&octorok2);
-			enemy_move(&octorok3);
-			enemy_move(&octorok4);
-			enemy_move(&octorok5);
-		}
 	}
 }
