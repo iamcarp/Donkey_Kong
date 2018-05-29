@@ -322,6 +322,7 @@ void load_frame( direction_t dir ) {
 			frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
 			inCave = false;
 			delete_sword(&grandpa);
+			chhar_delete();
 			if ( overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y ) {
 				delete_sword(&sword);
 			}
@@ -480,6 +481,10 @@ void set_health(int health) {
 	int i;
 	int pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + FRAME_WIDTH - 6;
 	unsigned long addr;
+	if (health < 0) {
+		health = 0;
+		HEALTH = 0;
+	}
 	for(i = 0; i < MAX_HEALTH/2; i++, pos++) {
 		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
 		if (i < health/2) {
@@ -961,7 +966,6 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 		}
 
 
-
 		if ( lasting_attack != 1 ){
 			Xil_Out32(
 					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
@@ -1169,7 +1173,7 @@ void battle_city() {
 			d = DIR_ATTACK;
 		}
 
-		if(enemy_exists == 1) {
+		if(enemy_exists == 1 && !inCave) {
 			if(octorok1.active)
 				enemy_move(&octorok1, rnd);
 			if (octorok2.active)

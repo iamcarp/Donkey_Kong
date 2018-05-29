@@ -30,7 +30,7 @@ entity battle_city is
 end entity battle_city;
 
 architecture Behavioral of battle_city is
-    constant MAP_OFFSET : natural := 6992; -- Pointer to start of map in memory (header + map)
+    constant MAP_OFFSET : natural := 6900; -- Pointer to start of map in memory (header + map)
     constant REGISTER_OFFSET : natural := (MAP_OFFSET + 30*40); -- MAP_OFFSET + MAP_WIDTH*(MAP_HEIGHT+HEADER_HEIGHT) -- Pointer to registers in memory map
 
    component ram 	
