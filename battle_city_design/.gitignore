@@ -30,10 +30,9 @@ XpsGuiSessionLock
 *.a
 Debug/
 Release/
-#.metadata/
-#/SDK/SDK_Workspace/*_hw_platform/
-#/SDK/SDK_Workspace/*_bsp/
-#/SDK/SDK_Export/
+/SDK/SDK_Workspace/.metadata/
+/SDK/SDK_Workspace/*_hw_platform/
+/SDK/SDK_Workspace/*bsp*/
 
 # ISE
 *.log
@@ -104,3 +103,4 @@ _ngo/
 *_par.xrpt
 *_xst.xrpt
 xlnx_auto_0_xdb/
+!Legend_Of_Zelda.bit
