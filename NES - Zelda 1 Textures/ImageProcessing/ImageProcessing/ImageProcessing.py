@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 import cv2
 import pprint
@@ -55,7 +57,7 @@ def TestTiles():
     print("MapColors are (BGR format): ")
     pprint.pprint( Mapcolors)
     IP.drawColors("Mapcolors", Mapcolors)
-    
+
     #print("Listing Tiles...")
     #print("Press ESC to skip")
     #IP.drawDict()
@@ -107,7 +109,7 @@ def TestTiles():
     i = 0
     cantFind = []
     while(i < 144):
-        sprite = IP.copyImg(dict[i])   
+        sprite = IP.copyImg(dict[i])
         sprite, cantFind = IP.fixColors(sprite, cantFind, Tilecolors, Mapcolors)
         dict[i] = IP.copyImg(sprite)
         i +=1
@@ -124,7 +126,7 @@ def TestTiles():
 
     #IP.FillMatrix(dict, newMap)
     print("PRINTING COLORS OF FINAL TILES IN FORM OF MATRIX:")
-    
+
 
     Ftiles = cv2.imread("FinalTilesUpdated0.png")
     FTcolors = IP.getColors(Ftiles)
@@ -145,13 +147,13 @@ def TestTiles():
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
             Smatrix[j//16 + 18*(i//16)].append(matrix[i][j])
-    
+
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print(Smatrix[i])
 
     genSprite = np.zeros((16,16,3), np.uint8)
-    for x in range(len(Smatrix)):  
+    for x in range(len(Smatrix)):
        for i in range(16):
             for j in range(16):
                 genSprite[i][j] = FTcolors[Smatrix[x][i*16 + j]]
@@ -193,13 +195,13 @@ def TestLinkSprites():
     for i in range(16*2):
         for j in range(len(matrix[0])):
             Smatrix[j//16 + 18*(i//16)].append(matrix[i][j])
-    
+
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print(Smatrix[i])
 
     genSprite = np.zeros((16,16,3), np.uint8)
-    for x in range(len(Smatrix)):  
+    for x in range(len(Smatrix)):
        for i in range(16):
             for j in range(16):
                 genSprite[i][j] = Tilecolors[Smatrix[x][i*16 + j]]
@@ -211,9 +213,9 @@ def TestItemSprites():
     IP.draw("Items and Icons", IP.enlarge(items, 5))
     odict = {0:8, 1:8,  2:10, 3:16, 4:8}
     dict = {0:8, 1:8, 2:8, 3:16, 4:8, 5:10, 6:14, 7:8, 8:8, 9:8, 10:8, 11:8, 12:8, 13:9, 14:7, 15:8, 16:10, 17:6, 18:9, 19:7, 20:11, 21:6, 22:15, 23:16, 24:8,25:8, 26:8, 27:8, 28:16}
-    
+
     spritesDict = {}
-    
+
     p = countDict(dict, len(dict))
     sprite = items[0:16, 0+p:16+p]
     #IP.draw("sprite", IP.enlarge(sprite, 10))
@@ -235,16 +237,16 @@ def TestItemSprites():
         IP.draw("img", IP.enlarge(extraSprites[i], 10))
 
 
-    
-#removing sprites we don't have space for 
+
+#removing sprites we don't have space for
     newdict = {}
     newdict[0] = IP.fillImage(spritesDict[0][:8,:], np.array([192, 192, 192]))
     newdict[1] = spritesDict[1]
     newdict[2] = spritesDict[2]
-    
+
 
     Items = np.zeros((16, 16*3,3), np.uint8)
-    
+
 
     for i in range(Items.shape[0]):
         for j in range(Items.shape[1]):
@@ -252,7 +254,7 @@ def TestItemSprites():
     IP.draw("Items", IP.enlarge(Items, 5))
     cv2.imwrite("Hearts.png", Items)
 
-    
+
 
     ItemColors = []
     ItemColors = IP.getColors(Items)
@@ -269,13 +271,13 @@ def TestItemSprites():
     for i in range(16):
         for j in range(len(matrix[0])):
             Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
-    
+
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print("{}, \n".format(Smatrix[i]))
-    
+
     #genSprite = np.zeros((16,16,3), np.uint8)
-    #for x in range(len(Smatrix)):  
+    #for x in range(len(Smatrix)):
     #   for i in range(16):
     #        for j in range(16):
     #            genSprite[i][j] = ItemColors[Smatrix[x][i*16 + j]]
@@ -289,7 +291,7 @@ def TestItemSprites():
             Pickups[i,j]=extraSprites[(i//16)*3 + j//16][(i%16),j%16]
     IP.draw("Pickups", IP.enlarge(Pickups, 5))
     cv2.imwrite("Pickups.png", Pickups)
-    
+
     print("\nPICKUPS\n")
 
     PickupColors = []
@@ -307,11 +309,11 @@ def TestItemSprites():
     for i in range(16):
         for j in range(len(matrix[0])):
             Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
-    
+
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print("{}, \n".format(Smatrix[i]))
-    
+
 
 
     return
@@ -319,7 +321,7 @@ def TestItemSprites():
 def TestTextSprites():
     LetterImage = cv2.imread("C:\\Users\\Milorad Markovic\\Downloads\\NES - Zelda 1 Textures\\NES - The Legend of Zelda - Game Text.png");
     IP.draw("LetterImage", LetterImage);
-    
+
 
     NotBold = 0
     if NotBold == 0:
@@ -353,9 +355,9 @@ def TestTextSprites():
             for j in range(16):
                 ExampleImage[x//16+j][x+i] = letters[sentence[x]][j*16 + i]
     IP.draw("ExampleImage", ExampleImage)
-    
+
     matrix = IP.FillMatrixColor(LetterColors, CroppepedLetterImage)
-    
+
 
 #fixing matrix to be as needed, each row is one sprite
     Smatrix = []
@@ -365,13 +367,13 @@ def TestTextSprites():
     for i in range(16*3):
         for j in range(len(matrix[0])):
             Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
-    
+
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print(Smatrix[i])
 
     genSprite = np.zeros((16,16,3), np.uint8)
-    for x in range(len(Smatrix)):  
+    for x in range(len(Smatrix)):
        for i in range(16):
             for j in range(16):
                 genSprite[i][j] = LetterColors[Smatrix[x][i*16 + j]]
@@ -421,7 +423,7 @@ def TestEnemieSprites():
     print("\nCORRECTED MATRIX\n")
     print(Matrix)
 
-    for i in range(len(EnemyColors)):        
+    for i in range(len(EnemyColors)):
         print(rgb2hex(EnemyColors[i][2], EnemyColors[i][1], EnemyColors[i][0]))
     return
 
@@ -432,7 +434,7 @@ def TestNPCSprites():
 
     npcs = npcs[0+4:16+4, 13:13+16]
     IP.draw("NPCS Grandpa", IP.enlarge(npcs, 10))
-    
+
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
     for i in range(len(NPCSColors)):
@@ -448,11 +450,11 @@ def TestNPCSprites():
     for i in range(16):
         for j in range(len(matrix[0])):
             Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
-    
+
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print("{}, \n".format(Smatrix[i]))
-    
+
 
 
 

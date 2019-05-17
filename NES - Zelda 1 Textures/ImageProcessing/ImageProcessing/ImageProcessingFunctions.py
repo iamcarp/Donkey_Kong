@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 import cv2
 import pprint
@@ -53,8 +55,8 @@ def defEnemieSprites(dict, tiles):
     y = 0
     br = 0
     step = 14
-    while(y <8): 
-        while(x < 14): 
+    while(y <8):
+        while(x < 14):
             dict[br] = np.zeros((sprite_height,sprite_width,3), np.uint8)
             for i in range(16):
                 for j in range(16):
@@ -73,8 +75,8 @@ def defLinkSprites(dict, img, Tilecolors):
     #dict - dictionary to which to write
     tiles = img
     Tilecolors = []
-    height = sprite_height 
-    width = sprite_width 
+    height = sprite_height
+    width = sprite_width
     x = 0
     y = 0
     s = 0
@@ -151,7 +153,7 @@ def filterDict(dict):
     ndict[br+1]= np.zeros((16, 16, 3), np.uint8)
     ndict[br+2]= np.zeros((16, 16, 3), np.uint8)
     ndict[br+3]= np.zeros((16, 16, 3), np.uint8)
-    
+
     #print(len(ndict))
     for i in range(16):
         for j in range(16):
@@ -160,7 +162,7 @@ def filterDict(dict):
             ndict[br][i,j] = ndict[4][i,15-j]
             ndict[br+1][i,j] = ndict[7][i,15-j]
             ndict[br+2][i,j] = ndict[8][i,15-j]
-            ndict[br+3][i,j] = ndict[11][i,15-j]            
+            ndict[br+3][i,j] = ndict[11][i,15-j]
     #print("Drawing filtered dict")
     #drawDict(ndict)
     #print("Drawing done for filtered dictionary")
@@ -177,7 +179,7 @@ def rememberColor(c, colors):
 #returns an array of all the colors in the image
 def getColors(img):
     colors = []
-    height = img.shape[0] 
+    height = img.shape[0]
     width = img.shape[1]
     for i in range(height):
         for j in range(width):
@@ -231,7 +233,7 @@ def fillImage(img, fillcolor):
     for i in range(tmp.shape[0]):
         for j in range(tmp.shape[1]):
             tmp[i,j] = fillcolor
-    
+
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             tmp[i,j] = img[i,j]
@@ -272,7 +274,7 @@ def fixColors(sprite, cantFind, Tilecolors, Mapcolors):
                     sprite[i,j][k] = Mapcolors[6][k]
             elif sprite[i,j][0] == 192 and sprite[i,j][1] == 192 and sprite[i,j][2] == 192:
                 #this is the gray outline of the tiles in the image
-                x = 5 #this was added just so there is no empty if 
+                x = 5 #this was added just so there is no empty if
             else:
                 print("Can't find color:", sprite[i,j])
                 if (str(sprite[i,j][0]) + " " + str(sprite[i,j][1]) + " " + str(sprite[i,j][2])) not in cantFind:
@@ -319,9 +321,9 @@ def FillMatrix(dict, mapImage):
                     #draw("comparing", enlarge(extractSprite(mapImage, i, j), 10))
                     found = 1
                 elif k == len(dict)-1 and found == 0:
-                    #draw("Couldn't find", enlarge(extractSprite(mapImage, i, j),10))  
-                    #drawDict()     
-                    newOnes +=1   
+                    #draw("Couldn't find", enlarge(extractSprite(mapImage, i, j),10))
+                    #drawDict()
+                    newOnes +=1
                     dict[143 + newOnes] = copyImg(extractSprite(mapImage, i, j))
                     matrix[i][j]=143+newOnes
         #print row
@@ -363,4 +365,3 @@ def extractSprite(map, startHight, startWidth):
     #draw(str(startHight) + ", " + str(startWidth), enlarge(tsprite,10))
 
     return tsprite
-
