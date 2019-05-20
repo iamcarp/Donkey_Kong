@@ -429,7 +429,7 @@ def TestEnemieSprites():
 
 def TestNPCSprites():
 
-    npcs = cv2.imread("mario_ledja.png")
+    npcs = cv2.imread("mario_zivoti.png")
     IP.draw("NPCS Original", IP.enlarge(npcs, 5))
 
     npcs = npcs[0:16,0:16]
