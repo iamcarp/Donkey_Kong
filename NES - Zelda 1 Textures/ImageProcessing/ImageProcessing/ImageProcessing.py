@@ -429,12 +429,12 @@ def TestEnemieSprites():
 
 def TestNPCSprites():
 
-    npcs = cv2.imread("mario_ledja.png")
+    npcs = cv2.imread("NES - The Legend of Zelda - NPCs.png")
     IP.draw("NPCS Original", IP.enlarge(npcs, 5))
 
-    npcs = npcs[0:16,0:16]
-    IP.draw("mario_ledja", IP.enlarge(npcs, 10))
-
+    npcs = npcs[0+4:16+4, 13:13+16]
+    IP.draw("NPCS Grandpa", IP.enlarge(npcs, 10))
+    
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
     for i in range(len(NPCSColors)):
@@ -450,11 +450,11 @@ def TestNPCSprites():
     for i in range(16):
         for j in range(len(matrix[0])):
             Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
-
+    
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print("{}, \n".format(Smatrix[i]))
-
+    
 
 
 
