@@ -98,11 +98,11 @@ architecture arch of ram is
         58 => 	x"000000ff",
         59 =>	x"0055aaff",
             -- orange and red for grandpa and rupees
-<<<<<<< HEAD
-        60 =>   x"0055d5ff", -- orange 
-=======
+
+      
+
         60 =>   x"0055d5ff", -- orange
->>>>>>> 0b5736f4b60f6576eecdc162c8a48fa426956ecf
+
 		61 =>	x"00aa0000", -- red
 
 		62 =>	x"003C9AFC", -- Unused
