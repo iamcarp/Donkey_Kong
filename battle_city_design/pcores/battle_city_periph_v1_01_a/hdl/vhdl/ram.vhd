@@ -43,11 +43,11 @@ architecture arch of ram is
 		6 =>	x"00747474",
 		7 =>	x"00C0C0C0",
 --      Link colors
-        8 =>    x"00303030",
-        9 =>    x"000CCB83",
-        10 =>   x"002C98D8",
-        11 =>   x"00004B7B",
-        12 =>   x"00FFD9D9",
+        8 => 	x"00000000",
+        9 => 	x"000000ff",
+        10 =>	x"0055aaff",
+        11 =>   x"0055d5ff",
+		  12 =>	x"00aa0000",
         13 =>   x"00003299",
         14 =>   x"00B1DFF8",
         15 =>   x"00FFFFFF",
@@ -99,7 +99,7 @@ architecture arch of ram is
         59 =>	x"0055aaff",
             -- orange and red for grandpa and rupees
 
-      
+        
 
         60 =>   x"0055d5ff", -- orange
 

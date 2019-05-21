@@ -798,7 +798,7 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 	int blocked_sword = 0; //0 false - not blocked, 1 true - blocked
 
 	//+/-28 instead of 32 because of sprite graphic
-	if ((link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 3) || //if right edge and link is right faced
+	/*if ((link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 3) || //if right edge and link is right faced
 		(link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 4) ||
 		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 16) || //if left edge and link is left faced
 		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 17) ||
@@ -815,10 +815,10 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 			&&  overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y )
 	{
 		pick_up_sword();
-	}
+	}*/
 
 	/*      change frame if on the edge     */
-    if (link->x > ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
+    /*if (link->x > ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
     	link->x = overw_x == OVERWORLD_HORIZONTAL - 1? link->x-1 : SIDE_PADDING * SPRITE_SIZE;
     	load_frame( DIR_RIGHT );
     	return false;
@@ -842,14 +842,14 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
     	link->x = overw_x == 0 ? link->x + 1 : ( SIDE_PADDING + FRAME_WIDTH - 1 ) * SPRITE_SIZE;
     	load_frame( DIR_LEFT );
 		return false;
-	}
+	}*/
 
     /*      get the current position of link    */
 	x = link->x;
 	y = link->y;
 
 	/*      movement animation      */
-	if ( dir == DIR_LEFT ) {
+	/*if ( dir == DIR_LEFT ) {
 		x--;
 		if ( counter % LINK_STEP == 0 ) {
 			last = ( last == 16 ) ? 17 : 16;
@@ -963,7 +963,7 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 				delete_sword(&octorok4);
 				bombs++;
 				set_pickups();
-		}
+		}*/
 
 
 		if ( lasting_attack != 1 ){
@@ -974,7 +974,7 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
 					 ( link->y << 16) | link->x);      //  the higher 2 bytes represent the row (y)
 		}
-
+		/*
 		if (blocked_sword == 0) {
 			for ( i =0; i <90000; i++ );             //      delay
 
@@ -987,7 +987,7 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 
 			for ( i =0; i <15000; i++);             //      delay
 		}
-		/*   After a short break (representing the attack animation), go back to standing sprite facing the same direction    */
+
 		if ( last ==16 || last == 17 ) { 						//left
 			link->sprite = LINK_SPRITES_OFFSET + 64 * 17;
 		} else if ( last == 3 || last == 4 ) { 				//right
@@ -1013,7 +1013,7 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 				write_introduction();
 			}
 		}
-	    /*		skip collision detection if on the bottom of the frame 			*/
+
     } else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
 		link->x = x;
 		link->y = y;
@@ -1050,7 +1050,7 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 		for ( i = 0; i < 10000; i++ );         //  delay
 	}
 
-	return false;
+	return false;*/
 }
 
 bool isDoor(int x, int y) {
@@ -1142,9 +1142,10 @@ void battle_city() {
 	reset_memory();
 	overw_x = INITIAL_FRAME_X;
 	overw_y = INITIAL_FRAME_Y;
-    load_frame( DIR_STILL );
+    /*load_frame( DIR_STILL );
+	set_frame_palette();
     HEALTH = MAX_HEALTH;
-    set_header();
+    set_header();*/
 
 	link.x = INITIAL_LINK_POSITION_X;
 	link.y = INITIAL_LINK_POSITION_Y;
