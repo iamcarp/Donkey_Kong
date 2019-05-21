@@ -429,7 +429,7 @@ def TestEnemieSprites():
 
 def TestNPCSprites():
 
-    npcs = cv2.imread("NES - The Legend of Zelda - NPCs.png")
+    npcs = cv2.imread("Hearts.png")
     IP.draw("NPCS Original", IP.enlarge(npcs, 5))
 
     npcs = npcs[0+4:16+4, 13:13+16]
@@ -459,7 +459,6 @@ def TestNPCSprites():
 
 
     return
-
 #TestTiles()
 #TestLinkSprites()
 #TestItemSprites()
