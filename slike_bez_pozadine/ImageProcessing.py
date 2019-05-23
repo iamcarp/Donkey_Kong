@@ -429,12 +429,14 @@ def TestEnemieSprites():
 
 def TestNPCSprites():
 
-    npcs = cv2.imread("mario_zivoti.png")
+    npcs = cv2.imread("mapa_level_1.png")
     IP.draw("NPCS Original", IP.enlarge(npcs, 5))
 
-    npcs = npcs[0:16,0:16]
-    IP.draw("mario_ledja", IP.enlarge(npcs, 10))
+    npcs = npcs[0:256,0:256]
+    IP.draw("NPCS Grandpa", IP.enlarge(npcs, 10))
 
+		
+    
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
     for i in range(len(NPCSColors)):
@@ -446,20 +448,20 @@ def TestNPCSprites():
     Smatrix = []
     for i in range(3):
         Smatrix.append([])
+    print("\nPROBA\n")
 
-    for i in range(16):
+    for i in range(256):
         for j in range(len(matrix[0])):
-            Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
-
+            Smatrix[j//256 + 256*(i//256)].append(matrix[i][j])
+    
     print("\nCORRECTED MATRIX\n")
     for i in range(len(Smatrix)):
         print("{}, \n".format(Smatrix[i]))
-
+    
 
 
 
     return
-
 #TestTiles()
 #TestLinkSprites()
 #TestItemSprites()
