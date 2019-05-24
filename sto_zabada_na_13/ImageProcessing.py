@@ -424,54 +424,47 @@ def TestEnemieSprites():
 
     for i in range(len(EnemyColors)):
         print(rgb2hex(EnemyColors[i][2], EnemyColors[i][1], EnemyColors[i][0]))
+	
     return
 
 def TestNPCSprites():
 
     npcs = cv2.imread("konacno.png")
 
-    mapa=open("mapa_bez_koordinata.txt","w")
+    mapa=open("boje_za_mapu.txt","w")
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
     sa_nulama = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    for k in range (15):
-        for t in range (20):
-            npcs = cv2.imread("konacno.png")
-            npcs=npcs[16*k:16*k+16, 16*t:16*t+16]
+ 
+    for i in range(len(NPCSColors)):
+        mapa.write(rgb2hex(NPCSColors[i][0], NPCSColors[i][1], NPCSColors[i][2]))
+	mapa.write("\n")
+	
+    matrix = IP.FillMatrixColor(NPCSColors, npcs)
 
 
+    Smatrix = []
+    for i in range(3):
+        Smatrix.append([])
 
 
+    for i in range(16):
+        for j in range(len(matrix[0])):
+            Smatrix[j//16 + 16*(i//16)].append(matrix[i][j/16])
+
+    print("\nCORRECTED MATRIX\n")
+    #for i in range(len(Smatrix)):
+    print("{}, \n".format(Smatrix[0]))
 
 
-            for i in range(len(NPCSColors)):
-                print(rgb2hex(NPCSColors[i][0], NPCSColors[i][1], NPCSColors[i][2]))
-
-            matrix = IP.FillMatrixColor(NPCSColors, npcs)
-
-
-            Smatrix = []
-            for i in range(3):
-                Smatrix.append([])
+    q = str(k)
+    p = str(t)
+    mapa_matrix="["+q+","+p+"] \n"
 
 
-            for i in range(16):
-                for j in range(len(matrix[0])):
-                    Smatrix[j//16 + 16*(i//16)].append(matrix[i][j/16])
+    if(sa_nulama != Smatrix[0]):
 
-            print("\nCORRECTED MATRIX\n")
-            #for i in range(len(Smatrix)):
-            print("{}, \n".format(Smatrix[0]))
-
-
-            q = str(k)
-            p = str(t)
-            mapa_matrix="["+q+","+p+"] \n"
-
-
-            if(sa_nulama != Smatrix[0]):
-
-                mapa.write("\n {}, \n".format(Smatrix[0]))
+        mapa.write("\n {}, \n".format(Smatrix[0]))
 
     npcs = cv2.imread("konacno.png")
 
