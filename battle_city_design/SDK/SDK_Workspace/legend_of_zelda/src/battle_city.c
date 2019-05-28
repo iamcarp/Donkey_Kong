@@ -24,7 +24,7 @@
 
 /*      FRAME       */
 #define FRAME_BASE_ADDRESS			7392 // 	old: 7392	,	new: 7284		FRAME_OFFSET in battle_city.vhd
-#define SIDE_PADDING				12
+#define SIDE_PADDING				10
 #define VERTICAL_PADDING			7
 #define INITIAL_FRAME_X				7
 #define INITIAL_FRAME_Y				7
@@ -352,7 +352,7 @@ void load_frame( direction_t dir ) {
 	long int addr;
 	for ( y = 0; y < FRAME_HEIGHT; y++ ) {
 		for ( x = 0; x < FRAME_WIDTH; x++ ) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + y * ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + x );
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (6992 + (y+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + x + SIDE_PADDING);
 			Xil_Out32( addr, frame[ y * FRAME_WIDTH + x ] );
 		}
 	}
@@ -781,12 +781,12 @@ void reset_memory() {
 
 	for( i = 0; i < SCR_WIDTH*SCR_HEIGHT; i++ ) {
 		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( SCREEN_BASE_ADDRESS + i );
-		Xil_Out32( addr, SPRITES[10] );             // SPRITES[10] is a black square
+		Xil_Out32( addr, SPRITES[6] );             // SPRITES[6] is a black square
 	}
 
-	for ( i = 0; i <= 20; i += 2 ) {
+	/*for ( i = 0; i <= 20; i += 2 ) {
 		Xil_Out32( XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + i ), (unsigned int) 0x0F000000);
-	}
+	}*/
 }
 
 bool link_move(characters * link, characters* sword, direction_t dir) {
