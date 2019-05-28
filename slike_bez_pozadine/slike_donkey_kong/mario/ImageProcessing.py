@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import numpy as np
 import cv2
 import pprint
@@ -424,62 +425,43 @@ def TestEnemieSprites():
 
     for i in range(len(EnemyColors)):
         print(rgb2hex(EnemyColors[i][2], EnemyColors[i][1], EnemyColors[i][0]))
-	
     return
+
 def TestNPCSprites():
 
-    npcs = cv2.imread("mapa_nova.png")
+    npcs = cv2.imread("mario_trci_desno1.png")
+    IP.draw("NPCS Original", IP.enlarge(npcs, 5))
 
-    mapa=open("boje_za_novu_mapu.txt","w")
+    npcs = npcs[0:256,0:256]
+    IP.draw("NPCS Grandpa", IP.enlarge(npcs, 10))
+
+		
+    
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
-   # sa_nulama = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-   # for k in range (15):
-    #    for t in range (20):
-     #       npcs = cv2.imread("mapa_nova.png")
-      #      npcs=npcs[16*k:16*k+16, 16*t:16*t+16]
-
-
-
-
-
-
     for i in range(len(NPCSColors)):
-	print(rgb2hex(NPCSColors[i][0], NPCSColors[i][1], NPCSColors[i][2]))
+        print(rgb2hex(NPCSColors[i][0], NPCSColors[i][1], NPCSColors[i][2]))
 
-    #matrix = IP.FillMatrixColor(NPCSColors, npcs)
-
-
-   # Smatrix = []
-    #for i in range(3):
-	#Smatrix.append([])
+    matrix = IP.FillMatrixColor(NPCSColors, npcs)
 
 
-#    for i in range(16):
-#	for j in range(len(matrix[0])):
-#	    Smatrix[j//16 + 16*(i//16)].append(matrix[i][j/16])
-#
- #   print("\nCORRECTED MATRIX\n")
-    #for i in range(len(Smatrix)):
-  #  print("{}, \n".format(Smatrix[0]))
+    Smatrix = []
+    for i in range(3):
+        Smatrix.append([])
+    print("\nPROBA\n")
+
+    for i in range(256):
+        for j in range(len(matrix[0])):
+            Smatrix[j//256 + 256*(i//256)].append(matrix[i][j])
+    
+    print("\nCORRECTED MATRIX\n")
+    for i in range(len(Smatrix)):
+        print("{}, \n".format(Smatrix[i]))
+    
 
 
-   # q = str(k)
-    #p = str(t)
-   # mapa_matrix="["+q+","+p+"] \n"
 
-
-    #if(sa_nulama != Smatrix[0]):
-
-	#mapa.write("\n {}, \n".format(Smatrix[0]))
-
-#    npcs = cv2.imread("mapa_nova.png")
-
-    mapa.close()
-    #npcs=npcs[16*14:16*14+16, 16*9:16*9+16]
-    #IP.draw("RawEnemies", IP.enlarge(npcs, 5))
     return
-
 #TestTiles()
 #TestLinkSprites()
 #TestItemSprites()
