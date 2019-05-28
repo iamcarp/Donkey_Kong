@@ -81,8 +81,7 @@ def character_sprites_to_VHDL(sprites, file_name, offset, palette_offset, max_le
     VHDL = open(file_name, "w")
     for i in range(i_range):
         #   only for loading Link sprites - skip boomerang
-        if i in range(15,21) :
-            continue
+
         VHDL.write("\n                --  sprite " + str(i) + "\n")
         temp = "        " + str(offset) + " => x\""
         s = sprites[i]
@@ -90,7 +89,7 @@ def character_sprites_to_VHDL(sprites, file_name, offset, palette_offset, max_le
             if s[j]:
                 temp += "%0.2X" % (palette_offset + s[j])
             else:
-                temp += "%0.2X" % s[j]      #   in case the index is 0, it should be transparent, so we leave it at 0
+                temp += "%0.2X"  % (palette_offset)       #   in case the index is 0, it should be transparent, so we leave it at 0
             if not (j+1)%4:
                 temp += "\",\t\t-- colors: "+str(palette_offset+s[j-3])+", "+str(palette_offset+s[j-2])+", "+str(palette_offset+s[j-1])+", "+str(palette_offset+s[j]) + "\n"
                 VHDL.write(temp)
