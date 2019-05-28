@@ -426,32 +426,33 @@ def TestEnemieSprites():
     return
 
 def TestNPCSprites():
-
-    npcs = cv2.imread("merdevine_pune_gore.png")
-    IP.draw("NPCS Original", IP.enlarge(npcs, 5))
-
-    npcs = npcs[0:16, 0:16]
-    IP.draw("NPCS Grandpa", IP.enlarge(npcs, 10))
-
+    npcs = cv2.imread("mapa_sve.png")
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
-    for i in range(len(NPCSColors)):
-        print(rgb2hex(NPCSColors[i][0], NPCSColors[i][1], NPCSColors[i][2]))
+    
+    for k in range(9):
+	    npcs = cv2.imread("mapa_sve.png")
+	    npcs = npcs[ 0:16,k*16:(k+1)*16]
+	    
+	    
+	    
+	    for i in range(len(NPCSColors)):
+		print(rgb2hex(NPCSColors[i][0], NPCSColors[i][1], NPCSColors[i][2]))
 
-    matrix = IP.FillMatrixColor(NPCSColors, npcs)
+	    matrix = IP.FillMatrixColor(NPCSColors, npcs)
 
 
-    Smatrix = []
-    for i in range(3):
-        Smatrix.append([])
+	    Smatrix = []
+	    for i in range(3):
+		Smatrix.append([])
 
-    for i in range(16):
-        for j in range(len(matrix[0])):
-            Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
+	    for i in range(16):
+		for j in range(len(matrix[0])):
+		    Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
 
-    print("\nCORRECTED MATRIX\n")
-    for i in range(len(Smatrix)):
-        print("{}, \n".format(Smatrix[i]))
+	    print("\nCORRECTED MATRIX\n")
+	    
+	    print("{}, \n".format(Smatrix[0]))
 
 
 
