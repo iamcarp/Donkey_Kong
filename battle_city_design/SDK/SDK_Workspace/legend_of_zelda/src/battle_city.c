@@ -294,9 +294,18 @@ static void write_introduction() {
 }
 
 void load_frame( direction_t dir ) {
-	chhar_delete();
+	frame = overworld;
+	int x,y;
+	long int addr;
+	for ( y = 0; y < FRAME_HEIGHT; y++ ) {
+		for ( x = 0; x < FRAME_WIDTH; x++ ) {
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (y+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + x + SIDE_PADDING);
+			Xil_Out32( addr, frame[ y * FRAME_WIDTH + x ] );
+		}
+	}
+	//chhar_delete();
 	//initialize_enemy(overw_y * overw_x);
-	if( !inCave ) {
+	/*if( !inCave ) {
 		switch( dir ) {
 			case DIR_LEFT:
 				overw_x = ( --overw_x < 0 ) ? 0 : overw_x;
@@ -329,10 +338,10 @@ void load_frame( direction_t dir ) {
 		} else {
 			frame = CAVE;
 		}
-	}
+	}*/
 
     /*    checking if there should be enemies on the current frame     */
-    int i;
+    /*int i;
     if (!inCave) {
     	int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
 		for ( i = 0; i < ENEMY_FRAMES_NUM; i++ ){
@@ -344,18 +353,11 @@ void load_frame( direction_t dir ) {
 				enemy_exists = 0;
 			}
 		}
-    }
+    }*/
 
     /*      loading next frame into memory      */
-	set_frame_palette();
-	int x,y;
-	long int addr;
-	for ( y = 0; y < FRAME_HEIGHT; y++ ) {
-		for ( x = 0; x < FRAME_WIDTH; x++ ) {
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (6992 + (y+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + x + SIDE_PADDING);
-			Xil_Out32( addr, frame[ y * FRAME_WIDTH + x ] );
-		}
-	}
+	//set_frame_palette();
+
 
 
 }
@@ -1144,14 +1146,15 @@ void battle_city() {
 	overw_y = INITIAL_FRAME_Y;
     load_frame( DIR_STILL );
     HEALTH = MAX_HEALTH;
-    set_header();
+    //set_header();
 
 	link.x = INITIAL_LINK_POSITION_X;
 	link.y = INITIAL_LINK_POSITION_Y;
 	link.sprite = LINK_SPRITES_OFFSET;
 	sword.active = false;
 
-	chhar_spawn(&link, 0);
+
+	//chhar_spawn(&link, 0);
 
 	while (1) {
 		int rnd =  random_number() % 100;
@@ -1173,7 +1176,7 @@ void battle_city() {
 			d = DIR_ATTACK;
 		}
 
-		if(enemy_exists == 1 && !inCave) {
+		/*if(enemy_exists == 1 && !inCave) {
 			if(octorok1.active)
 				enemy_move(&octorok1, rnd);
 			if (octorok2.active)
@@ -1184,7 +1187,7 @@ void battle_city() {
 				enemy_move(&octorok4, rnd3);
 			if (ghost.active)
 				ghost_move(&ghost, rnd);
-		}
+		}*/
 
 		link_move(&link, &sword, d);
 
