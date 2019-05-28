@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import numpy as np
 import cv2
 import pprint
@@ -63,6 +61,7 @@ def defEnemieSprites(dict, tiles):
                     dict[br][i,j] = tiles[i+y*step+y*16,j+step*x+x*16]
                     rememberColor(dict[br][i,j], Tilecolors);
             br = br + 1
+
             x = x+1
         x = 0
         y = y+1
@@ -174,6 +173,9 @@ def rememberColor(c, colors):
         if colors[i][0] == c[0] and colors[i][1] == c[1] and colors[i][2] == c[2]:
              return colors
     colors.append(c)
+    temp = str(c[0]) + " "+ str(c[1]) + " " + str(c[2])
+    print(temp)
+
     return colors
 
 #returns an array of all the colors in the image
@@ -181,9 +183,13 @@ def getColors(img):
     colors = []
     height = img.shape[0]
     width = img.shape[1]
+
+
     for i in range(height):
         for j in range(width):
             rememberColor(img[i,j], colors)
+
+    print(str(img[0,1]))
     return colors
 
 #draws the list of colors in image format and returns the image

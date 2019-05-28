@@ -426,13 +426,13 @@ def TestEnemieSprites():
     return
 
 def TestNPCSprites():
-    npcs = cv2.imread("mapa_sve.png")
+    npcs = cv2.imread("mario_svi.png")
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
     for i in range(len(NPCSColors)):
         print(str(NPCSColors[i][2]), str(NPCSColors[i][1]), str(NPCSColors[i][0]))
-    for k in range(9):
-	    npcs = cv2.imread("mapa_sve.png")
+    for k in range(11):
+	    npcs = cv2.imread("mario_svi.png")
 	    npcs = npcs[ 0:16,k*16:(k+1)*16]
 
 

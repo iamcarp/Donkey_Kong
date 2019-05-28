@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import numpy as np
 import cv2
 import pprint
@@ -428,40 +426,40 @@ def TestEnemieSprites():
     return
 
 def TestNPCSprites():
-
-    npcs = cv2.imread("mapa_level_1.png")
-    IP.draw("NPCS Original", IP.enlarge(npcs, 5))
-
-    npcs = npcs[0:256,0:256]
-    IP.draw("NPCS Grandpa", IP.enlarge(npcs, 10))
-
-		
-    
+    npcs = cv2.imread("mario.png")
     NPCSColors= []
     NPCSColors= IP.getColors(npcs)
     for i in range(len(NPCSColors)):
-        print(rgb2hex(NPCSColors[i][0], NPCSColors[i][1], NPCSColors[i][2]))
+        print(str(NPCSColors[i][2]), str(NPCSColors[i][1]), str(NPCSColors[i][0]))
+    for k in range(9):
+	    npcs = cv2.imread("mario.png")
+	    npcs = npcs[ 0:16,k*16:(k+1)*16]
 
-    matrix = IP.FillMatrixColor(NPCSColors, npcs)
 
 
-    Smatrix = []
-    for i in range(3):
-        Smatrix.append([])
-    print("\nPROBA\n")
+	    for i in range(len(NPCSColors)):
+		          print(rgb2hex(NPCSColors[i][2], NPCSColors[i][1], NPCSColors[i][0]))
 
-    for i in range(256):
-        for j in range(len(matrix[0])):
-            Smatrix[j//256 + 256*(i//256)].append(matrix[i][j])
-    
-    print("\nCORRECTED MATRIX\n")
-    for i in range(len(Smatrix)):
-        print("{}, \n".format(Smatrix[i]))
-    
+	    matrix = IP.FillMatrixColor(NPCSColors, npcs)
+
+
+	    Smatrix = []
+	    for i in range(3):
+		Smatrix.append([])
+
+	    for i in range(16):
+		for j in range(len(matrix[0])):
+		    Smatrix[j//16 + 16*(i//16)].append(matrix[i][j])
+
+	    print("\nCORRECTED MATRIX\n")
+
+	    print("{}, \n".format(Smatrix[0]))
+
 
 
 
     return
+
 #TestTiles()
 #TestLinkSprites()
 #TestItemSprites()
