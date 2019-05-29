@@ -1,0 +1,39 @@
+mario trci1 desno
+mario stoji desno
+mario trci2 desno
+mario skace desno
+
+mario trci2 levo
+mario stoji levo
+mario trci1 levo
+mario skace levo
+
+mario se penje
+mario stoji
+
+majmun ruka
+majmun glava
+majmun ne
+majmun noga
+majmun sredina
+majmun podignuta noga
+
+majmun ne
+majmun glava
+majmun ruka
+majmun podignuta onga
+majmun sredina
+majmun noga
+
+princeza trci1
+princeza stoji
+princeza trci 2
+
+vatra krece desno
+vatra krece levo
+
+help
+srce celo
+srce slomljeno
+
+
