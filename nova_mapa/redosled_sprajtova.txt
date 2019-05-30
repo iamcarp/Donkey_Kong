@@ -1,9 +1,0 @@
-1  pune gore
-2 pune dole
-3 gore desno
-4 gore levo
-5 leve mer
-6 desne mer
-7 crni skroz
-8 merdevine dole desno
-9 dole levo
