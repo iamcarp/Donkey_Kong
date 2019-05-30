@@ -89,13 +89,15 @@ architecture arch of ram is
   46=>    x"00f0d0b0",
   47=>    x"00ffffff",
 -- majmun2 colors
-  48=>    x"00000000",
+  --48=>    x"00000000",
+  48=>    x"00ffffff",
   49=>    x"00ab1300",
   50=>    x"00f0d0b0",
   51=>    x"00ffffff",
 
 --mario colors
-  52=>    x"00000000",
+  --52=>    x"00000000",
+  52=>    x"00ffffff",
   53=>    x"00ff0000",
   54=>    x"00ead09c",
   55=>    x"000000db",

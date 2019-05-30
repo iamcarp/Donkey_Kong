@@ -1,0 +1,27 @@
+ImageProcessing.py
+-idi na TestNPCSprites
+-gde god se pojavljuje imread("svi_karakteri.png")
+-moj predlog je da uzmes vise slicica koje su dimenzije 16x16px  i da ih ubacis u jednu koja ce biti dimenzija (broj_slicica*16)x16
+-for k in range(BROJ TVOJIH SLICICA NA TOM SPRAJTU)
+-u terminalu pozoves python ImageProcessing.py
+-kopiraj sve u neki matrica.txt fajl i izbrisi sve sem boja i SVAKE CORRECTED MATRIX
+-boje sve promeni preko replecea,tj zameni 0x sa => x"    i na kraju rucno ispisi broj koji ce zauzimati boja u ram.h(0-63)
+-sacuvaj to
+
+sprites.py
+-dodaj npr na kraj ili brisi ove matrice
+-npr lupam imas majmuna stavis majmun=[] i u ovim zagradama pastujes iz matrica.txt sve matrice BEZ BOJA
+-to uradi za sve sprajtove
+
+ram.vhdl
+-boje pocinju od 0 i ubacuju se do 63
+-sprajtovi za karaktere pocinju od 64 i mogu se stavljati do 6991
+-sprajtovi za mapu pocinju od 6992 i msm da je ograniceno na 8992 tako nekako
+-pokusjte da ih uklopite sve u ovo
+
+getVHDLReadable.py
+-idi skroz do kraja
+-character_sprites_to_VHDL(NAZIV SPRAJTA IZ sprites.py, "IME_sprites.txt", MESTO U ram.vhdl ODAKLE POCINJE SPRITE, BROJ ODAKLE POCINJU BOJE ZA TAJ SPRAJT)
+-python getVHDLReadable.py
+-otvori taj IME_sprites.txt i kopiraj sve to u ram.vhdl
+
