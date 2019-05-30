@@ -1,0 +1,6 @@
+-sto se tice sprajtova,radi u linuxu da se ne bi patio za podesavanje visual studia
+-postoji folder skripte i tu se nalazi uputstvo kako se koriste,pomalo sturo ali lako za razumeti (bez strucnih termina)
+-instaliraj gimp za sredjivanje slika sudo apt-get install gimp
+-ako postoji prblem sa kodom,kompajliranjem ili sredjivanjem slika posalji mejl na lukakaran5@gmail.com 
+
+-za hardver ako postoji problem mozes se javiti na mihajlo.milotic@gmail.com ili na nikolinabodiroga1@gmail.com
