@@ -27,7 +27,7 @@ typedef struct {
 	unsigned int reg_h;
 } characters;
 
-int random_number();
+unsigned int random_number();
 unsigned short char_to_addr(char c);
 void write_line(char* text, int len, long int addr);
 static void write_introduction();

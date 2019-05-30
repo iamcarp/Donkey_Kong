@@ -1,4 +1,4 @@
-// File: D:\Donkey_kong\Donkey_Kong\battle_city_design\implementation\battle_city_stub.bmm
+// File: D:\kong\Donkey_Kong\battle_city_design\implementation\battle_city_stub.bmm
 
 ADDRESS_MAP microblaze_0 MICROBLAZE-LE 100
 	ADDRESS_SPACE microblaze_0_bram_block_combined COMBINED [0x00000000:0x0000ffff]
