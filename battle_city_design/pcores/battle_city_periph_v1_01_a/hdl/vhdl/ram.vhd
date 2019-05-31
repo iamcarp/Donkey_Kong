@@ -70,11 +70,11 @@ architecture arch of ram is
         32 =>  =>    x"00656565",
         33 =>  =>    x"00B9B9B9",
         34 =>  =>    x"00AFAFAF",
--- 		vartice colors
+-- 		vatrie colors
 
-  35 =>    x"00000000",
-  36=>    x"00f83800",
-  37=>    x"00ffe3ab",
+  35=>    x"00000000",
+  36=>    x"000038f8",
+  37=>    x"00abe3ff",
   38=>    x"00ffffff",
 		-- map colors
 
@@ -85,27 +85,27 @@ architecture arch of ram is
 
 -- majmun1 colors
   44=>    x"00000000",
-  45=>    x"00ab1300",
-  46=>    x"00f0d0b0",
+  45=>    x"0000ab13",
+  46=>    x"00b0d0F0",
   47=>    x"00ffffff",
 -- majmun2 colors
   --48=>    x"00000000",
   48=>    x"00ffffff",
-  49=>    x"00ab1300",
-  50=>    x"00f0d0b0",
+  49=>    x"000013ab",
+  50=>    x"00b0d0f0",
   51=>    x"00ffffff",
 
 --mario colors
   --52=>    x"00000000",
   52=>    x"00ffffff",
-  53=>    x"00ff0000",
-  54=>    x"00ead09c",
-  55=>    x"000000db",
+  53=>    x"0000ff00",
+  54=>    x"009cd0ea",
+  55=>    x"00db0000",
 
 --princeza colors
 
 56=>    x"00000000",
-57=>    x"0000b6ff",
+57=>    x"00ff00b6",
 58=>    x"00ffffff",
 59=>    x"00ff00ff",
 
