@@ -280,16 +280,15 @@ def generate_minimap_VHDL(file_name, offset, color):
 #  heart sprites
 #character_sprites_to_VHDL(hearts, "VHDL_mapa_sprites.txt", 255, 40)
 
+
 #vatrice sprites
-#character_sprites_to_VHDL(vatrice, "vatrice_sprites.txt", 831, 35)
+character_sprites_to_VHDL(hearts, "vatrice_sprites.txt", 831, 35)
 #majmun1 sprites
-#character_sprites_to_VHDL(majmun1, "majmun1_sprites.txt", 959, 44)
+character_sprites_to_VHDL(hearts, "majmun1_sprites.txt", 895, 44)
 #majmun2 sprites
-#character_sprites_to_VHDL(majmun2, "majmun2_sprites.txt", 1343, 48)
+character_sprites_to_VHDL(hearts, "majmun2_sprites.txt", 959, 48)
 #mario sprites
-#character_sprites_to_VHDL(mario, "mario_sprites.txt", 1727, 52)
-#princeza sprites
-character_sprites_to_VHDL(princeza, "princeza_sprites.txt", 2367, 56)
+character_sprites_to_VHDL(hearts, "mario_sprites.txt", 1023, 52)
 
 
 #   Numbers and letters     -   the functions read only certain letters becaouse there is not enough memory in ram.vhd

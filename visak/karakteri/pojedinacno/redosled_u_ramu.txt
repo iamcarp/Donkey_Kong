@@ -1,0 +1,58 @@
+vartice 
+35  38
+831    958
+
+levo    831
+desno   895
+
+
+-- map 
+40  43
+
+-- majmun1 
+  44  47
+959  1342
+
+leva noga    959
+medjunozje   1023
+desna noga   1087
+leva ruka    1151
+glava        1215
+desna ruka   1279
+
+
+-- majmun2 
+  48  51
+1343  1726
+
+leva ruka      1343
+glava          1407
+desna ruka     1471
+leva noga      1535
+medjunozje     1599
+desna ruka     1663
+
+
+--mario 
+  52  55
+1727  2366
+
+trci desno    1727
+stoji desno   1791
+trci2 desno   1855
+skace desno   1919
+trci2 levo    1983
+stoji levo    2047
+trci levo     2111
+skace levo    2175
+penje se      2239
+ledja         2303
+
+--princeza 
+
+56  59
+2367  
+
+stoji  2367  
+trci   2431
+trci2  2495
