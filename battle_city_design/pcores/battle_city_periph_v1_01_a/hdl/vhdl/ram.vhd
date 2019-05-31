@@ -96,8 +96,8 @@ architecture arch of ram is
   51=>    x"00ffffff",
 
 --mario colors
-  --52=>    x"00000000",
-  52=>    x"00ffffff",
+  52=>    x"00000000",
+  --52=>    x"00ffffff",
   53=>    x"0000ff00",
   54=>    x"009cd0ea",
   55=>    x"00db0000",
