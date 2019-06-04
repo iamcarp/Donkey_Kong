@@ -71,10 +71,22 @@
 #define ENEMY_5_REG_H                  13
 #define ENEMY_6_REG_L                  14
 #define ENEMY_6_REG_H                  15
-#define ENEMY_7_REG_L                  0
-#define ENEMY_7_REG_H                  1
-#define GRANDPA_REG_L					16
-#define GRANDPA_REG_H	                17
+
+#define MONKEY1_TOP_LEFT_L             0
+#define MONKEY1_TOP_LEFT_H                 1
+#define MONKEY1_BOT_LEFT_L					16
+#define MONKEY1_BOT_LEFT_H	                17
+#define MONKEY1_TOP_CENTRE_L             18
+#define MONKEY1_TOP_CENTRE_H                 19
+#define MONKEY1_BOT_CENTRE_L					20
+#define MONKEY1_BOT_CENTRE_H	                21
+#define MONKEY1_TOP_RIGHT_L             22
+#define MONKEY1_TOP_RIGHT_H                 23
+#define MONKEY1_BOT_RIGHT_L					24
+#define MONKEY1_BOT_RIGHT_H	                25
+
+
+
 
 #define MAX_HEALTH						8
 
@@ -93,15 +105,18 @@ int end_of_block[24][2] = {{159,328},{175,288},{255,288},{399,288},{191,248},{25
 int edges[16][2] = {{166,288},{182,248},{198,208},{214, 168},{246,128},{244, 288},{244, 248},{244, 208},{386, 288},{386, 248},{386, 208},{466, 288},{448, 248},{432, 208},{416, 168},{376, 128}};
 bool on_ladder = false;
 int ladder_count = 0;
-<<<<<<< HEAD
+
 int enemy_obstackles1[5][2] = {{175, 288},{231,288},{192, 288}, {192, 248}, {231,248}};
-int enemy_obstackles2[2][2] = {{256, 248},{384, 248}};
-int enemy_obstackles3[2][2] = {{256, 288},{384, 288}};
-int enemy_obstackles4[6][2] = {{400, 288},{464, 288},{432, 288}, {400, 248},{464,248}, {432, 248}};
-=======
+int enemy_obstackles2[2][2] = {{256, 248},{375, 248}};
+int enemy_obstackles3[2][2] = {{256, 288},{374, 288}};
+int enemy_obstackles4[6][2] = {{400, 288},{454, 288},{432, 288}, {400, 248},{440,248}, {432, 248}};
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+int tramboline[2] = {320, 176};
 
+unsigned short MONKEY_RIGHT_LEG_SPRITES[6] = {1151, 1215, 1279, 959, 1023, 1087};
+unsigned short MONKEY_LEFT_LEG_SPRITES[6]  = {1343, 1407, 1471, 1535, 1599, 1663};
+
+int mario_lives = 3;
 unsigned short fire1 = FIRE_0;
 unsigned short fire2 = FIRE_1;
 int HEALTH;
@@ -135,6 +150,16 @@ int last = 0; //last state link was in before current iteration (if he is walkin
 /*		 ACTIVE FRAME		*/
 unsigned short* frame;
 
+
+monkey main_enemy = {
+		{296, 309, 322, 296, 309, 322},
+		{152, 152, 152, 168, 168, 168},
+		DIR_RIGHT,
+		{1151, 1215, 1279, 959, 1023, 1087},
+		true,
+		{MONKEY1_TOP_LEFT_L, MONKEY1_TOP_CENTRE_L, MONKEY1_TOP_RIGHT_L, MONKEY1_BOT_LEFT_L, MONKEY1_BOT_CENTRE_L, MONKEY1_BOT_RIGHT_L},
+		{MONKEY1_TOP_LEFT_H, MONKEY1_TOP_CENTRE_H, MONKEY1_TOP_RIGHT_H, MONKEY1_BOT_LEFT_H, MONKEY1_BOT_CENTRE_H, MONKEY1_BOT_RIGHT_H}
+};
 characters mario = {
 		INITIAL_MARIO_POSITION_X,		// x
 		INITIAL_MARIO_POSITION_Y,		// y
@@ -155,7 +180,7 @@ characters sword = {
 		WEAPON_REG_H             		// reg_h
 		};
 
-characters grandpa = {
+/*characters grandpa = {
 		256,								// x
 		288,								// y
 		DIR_LEFT,              			// dir
@@ -165,11 +190,11 @@ characters grandpa = {
 		GRANDPA_REG_H             		// reg_h
 		};
 
-<<<<<<< HEAD
+*/
+
+
 characters flame1 = {
-=======
-characters flame = {
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
 		176,								// x
 		288,								// y
 		DIR_RIGHT,              			// dir
@@ -210,7 +235,7 @@ characters flame4 = {
 		ENEMY_5_REG_H             		// reg_h
 		};
 
-characters ghost = {
+/*characters ghost = {
 		0,								// x
 		0,								// y
 		DIR_LEFT,              			// dir
@@ -220,7 +245,7 @@ characters ghost = {
 		ENEMY_6_REG_H             		// reg_h
 		};
 
-
+*/
 int walkables[21] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49};
 
 /*      indexes of the active frame in overworld        */
@@ -304,23 +329,13 @@ void write_line(char* text, int len, long int addr) {
     return;
 }
 
-static void write_introduction() {
-    char text[] = "it's dangerous";
-    short len = 14;
-    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*2 + 1 );
+static void game_over() {
+    char text[] = "loser";
+    short len = 5;
+    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*5 + 10 );
     write_line(text , len, addr);
 
-    strcpy(text, "to go alone.");
-    len = 12;
-    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*3 + 1 );
-    write_line(text , len, addr);
-    int d = 2000000;
-    while(d) {d--;}
 
-    strcpy(text, "take this.");
-    len = 10;
-    addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*4 + 1 );
-    write_line(text , len, addr);
     return;
 }
 
@@ -427,11 +442,7 @@ void set_frame_palette() {
 
 }
 
-void set_grandpa() {
-	grandpa.x = (SIDE_PADDING + FRAME_WIDTH / 2 - 1) * SPRITE_SIZE + SPRITE_SIZE / 2;
-	grandpa.y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT / 2) * SPRITE_SIZE;
-	chhar_spawn(&grandpa, 0);
-}
+
 
 /*		set sword in cave		*/
 void set_sword() {
@@ -535,16 +546,27 @@ void set_health(int health) {
 }
 
 void set_header() {
-	set_minimap();
-	set_pickups();
+	long int addr;
+	if(mario_lives==3){
+		overworld[ 0 * FRAME_WIDTH + 0] = 1791;
+		overworld[ 0 * FRAME_WIDTH + 1] = 1791;
+		overworld[ 0 * FRAME_WIDTH + 2] = 1791;
+	}else if(mario_lives==2){
+		overworld[ 0 * FRAME_WIDTH + 0] = 1791;
+		overworld[ 0 * FRAME_WIDTH + 1] = 1791;
+		overworld[ 0 * FRAME_WIDTH + 2] = SPRITES[6];
+	}else if(mario_lives==1){
+		overworld[ 0 * FRAME_WIDTH + 0] = 1791;
+		overworld[ 0 * FRAME_WIDTH + 1] = SPRITES[6];
+		overworld[ 0 * FRAME_WIDTH + 2] = SPRITES[6];
+	}
 
-	/*			print "LIFE"		*/		//		use write line
-	int pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + FRAME_WIDTH - 6;
-	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-    write_line("life", 4, addr);
-
-	/*			put hearts under life		*/
-    set_health(HEALTH);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 0 + SIDE_PADDING);
+	Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 0]);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 1 + SIDE_PADDING);
+	Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 1]);
+	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 2 + SIDE_PADDING);
+	Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 2]);
 
 }
 
@@ -558,11 +580,11 @@ bool initialize_enemy( int frame_index) {
 	 * the enemy's position should depend on the frame
 	 * in other words, it will use overw_x and overw_y
 */
-<<<<<<< HEAD
+
 	/*flame.active = true;
-=======
+
 	flame.active = true;
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
 	octorok2.active = true;
 	octorok3.active = true;
 	octorok4.active = true;
@@ -645,89 +667,20 @@ direction_t random_direction(direction_t dir, int divider){
 	 return dir;
 }
 
-void ghost_move(characters* chhar, int divider){
-	int x,y;
-	static int delay;
-	x = chhar->x;
-	y = chhar->y;
 
-	if (delay == 3) {
-		delay = 0;
-		if( chhar->y < (HEADER_HEIGHT + VERTICAL_PADDING + 2) * SPRITE_SIZE){
-			chhar->dir = DIR_DOWN;
-		} else if (chhar->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 - 2) * SPRITE_SIZE) {
-			chhar->dir = DIR_UP;
-		} else if (chhar->x > (( SIDE_PADDING + FRAME_WIDTH - 3) * SPRITE_SIZE  - SPRITE_SIZE - 10)){
-			chhar->dir = DIR_LEFT;
-		} else if ( chhar->x < (SIDE_PADDING + 2) * SPRITE_SIZE ){
-			chhar->dir = DIR_RIGHT;
-		}
 
-		if(chhar->dir == DIR_DOWN) {
-					y++;
-		} else if (chhar->dir == DIR_UP){
-					y--;
-		} else if (chhar->dir == DIR_LEFT){
-					x--;
-		} else if (chhar->dir == DIR_RIGHT){
-					x++;
-		}
 
-		chhar->y = y;
-		chhar->x = x;
 
-		if (chhar->dir == DIR_RIGHT)
-			chhar->sprite = GHOST_SPRITES_OFFSET + 64;
-		else
-			chhar->sprite = GHOST_SPRITES_OFFSET;
-
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite);
-
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
-				( chhar->y << 16) | chhar->x);
-		return;
-	} else {
-		delay++;
-	}
-}
 
 void enemy_move(characters* chhar, int divider){
 	int x,y;
 	int obstackle,rnd;
-<<<<<<< HEAD
+
 	static int a1=0,a2=0,b1=0, c2=0;
 	x = chhar->x;
 	y = chhar->y;
-=======
 
-	x = chhar->x;
-	y = chhar->y;
 
-	//static int stay_alive = 0;
-
-	/*		collision with Link		*/
-	/*if (stay_alive == 0 && (chhar->x < link.x + 10 && chhar->x > link.x - 10) && (chhar->y < link.y + 10 && chhar->y > link.y - 10)) {
-		stay_alive = 30;
-		set_health(--HEALTH);
-	} else {
-		stay_alive--;
-	}*/
-
-	/* detection of edges of frame */
-	/*if( chhar->y < SIDE_PADDING * SPRITE_SIZE){
-		chhar->dir = DIR_DOWN;
-	} else if (chhar->y > (VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE) {
-		chhar->dir = DIR_UP;
-	} else if (chhar->x > (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
-		chhar->dir = DIR_LEFT;
-	} else if ( chhar->x < SIDE_PADDING * SPRITE_SIZE){
-		chhar->dir = DIR_RIGHT;
-	}*/
-
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
 	if(chhar->dir == DIR_DOWN) {
 				y++;
 	} else if (chhar->dir == DIR_UP){
@@ -737,7 +690,7 @@ void enemy_move(characters* chhar, int divider){
 	} else if (chhar->dir == DIR_RIGHT){
 				x++;
 	}
-<<<<<<< HEAD
+
 
 	switch(divider){
 		case 1: //first enemy
@@ -839,50 +792,12 @@ void enemy_move(characters* chhar, int divider){
 	chhar->x = x;
 	chhar->y = y;
 	chhar_spawn(chhar, 0);
-=======
+
 	//enemy_step++;
 
 
-	obstackle = obstackles_detection(x, y, frame, chhar->dir, false);
-	if(x == 224 && y == 208){
-		xil_printf("asdf\n");
-	}
-	srand(time(NULL));
-	switch(obstackle){
-		case 0:
-			rnd = random_number() % 3;
-				if(rnd == 0){
-					chhar->dir = DIR_LEFT;
-				}else if(rnd == 1){
-					chhar->dir = DIR_RIGHT;
-				}else if(rnd == 2){
-					chhar->dir = DIR_UP;
-				}
-			break;
-		case 1:
-			rnd = random_number() % 3;
 
-			if(rnd == 0){
-				chhar->dir = DIR_LEFT;
-			}else if(rnd == 1){
-				chhar->dir = DIR_RIGHT;
-			}else if(rnd == 2){
-				chhar->dir = DIR_DOWN;
-			}
-			break;
-		case 2:
-			chhar->dir = DIR_RIGHT;
-			break;
-		case 3:
-			chhar->dir = DIR_LEFT;
-			break;
-		default:
-			chhar->dir = chhar->dir;
-	}
-	chhar->x = x;
-	chhar->y = y;
-	chhar_spawn(&flame, 0);
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
 	/*if(chhar->dir == DIR_DOWN){
 		Xil_Out32(
 				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
@@ -908,20 +823,36 @@ void enemy_move(characters* chhar, int divider){
 }
 
 void chhar_delete(){
-<<<<<<< HEAD
+
 	delete_sword(&flame1);
 	delete_sword(&flame2);
 	delete_sword(&flame3);
 	delete_sword(&flame4);
-=======
-	delete_sword(&flame);
-	delete_sword(&octorok2);
-	delete_sword(&octorok3);
-	delete_sword(&octorok4);
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
-	delete_sword(&ghost);
-}
 
+
+
+
+}
+void monkey_spawn(monkey chhar, int rotation){
+	int i;
+	for(i=0; i<6; i++){
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar.reg_l[i] ),
+				(unsigned int) 0x8F000000 | (unsigned int) chhar.sprites[i] );
+		Xil_Out32(
+				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar.reg_h[i]),
+				(chhar.y[i] << 16) | chhar.x[i] );
+	}
+}
+/*monkey main_enemy = {
+		{296, 312, 328, 296, 312, 328},
+		{112, 112, 112, 128, 128, 128},
+		DIR_RIGHT,
+		{0x047F, 0x04BF, 0x04FF, 0x03BF, 0x03FF, 0x043F},
+		true,
+		{MONKEY1_TOP_LEFT_L, MONKEY1_TOP_CENTRE_L, MONKEY1_TOP_RIGHT_L, MONKEY1_BOT_LEFT_L, MONKEY1_BOT_CENTRE_L, MONKEY1_BOT_RIGHT_L},
+		{MONKEY1_TOP_LEFT_H, MONKEY1_TOP_CENTRE_H, MONKEY1_TOP_RIGHT_H, MONKEY1_BOT_LEFT_H, MONKEY1_BOT_CENTRE_H, MONKEY1_BOT_RIGHT_H}
+};*/
 void chhar_spawn( characters * chhar, int rotation ) {
 	/*if ( rotation == 1 ) {																			 //rotate 90degrees clockwise
 		Xil_Out32(
@@ -984,7 +915,7 @@ bool acceptable_position_up(int x, int y){
 }
 
 bool acceptable_position_down(int x, int y){
-<<<<<<< HEAD
+
 
 	int i;
 	for(i=0; i<LADDERS_NUM; i++){
@@ -995,18 +926,9 @@ bool acceptable_position_down(int x, int y){
 	return false;
 }
 
-=======
 
-	int i;
-	for(i=0; i<LADDERS_NUM; i++){
-		if(x>=ladders_down[i][0]-4 && x<=ladders_down[i][0] + 4 && y==ladders_down[i][1]){
-			return true;
-		}
-	}
-	return false;
-}
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
 bool check_edges(int x, int y){
 	int i;
 		for(i=0; i<EDGE_NUM; i++){
@@ -1024,9 +946,10 @@ bool check_edges(int x, int y){
 bool link_move(characters * link, characters* sword, direction_t dir) {
 	unsigned int x;
 	unsigned int y;
+	static move = 0;
 	int sword_rotation = 0;
 	int lasting_attack = 0;
-	int i,j;
+	int i,j,k;
 	int blocked_sword = 0; //0 false - not blocked, 1 true - blocked
 	unsigned int buttons;
 
@@ -1089,14 +1012,15 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 					y++;
 					for(j = 0; j<100000; j++);
 					buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-<<<<<<< HEAD
+
 					enemy_move(&flame1, 1);
 					enemy_move(&flame2, 2);
 					enemy_move(&flame3, 3);
 					enemy_move(&flame4, 4);
-=======
+					monkey_move(&main_enemy);
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
+
 					direction_t d = DIR_STILL;
 					if ( BTN_LEFT(buttons) ) {
 						d = DIR_LEFT;
@@ -1168,14 +1092,15 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 						y++;
 						for(j = 0; j<100000; j++);
 						buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-<<<<<<< HEAD
+
 						enemy_move(&flame1, 1);
 						enemy_move(&flame2, 2);
 						enemy_move(&flame3, 3);
 						enemy_move(&flame4, 4);
-=======
+						monkey_move(&main_enemy);
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
+
 						direction_t d = DIR_STILL;
 						if ( BTN_LEFT(buttons) ) {
 							d = DIR_LEFT;
@@ -1225,16 +1150,17 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 	} else if ( dir == DIR_UP && !acceptable_position_up(x,y)) {
 			for(i =0; i<16; i++){
 				y--;
-<<<<<<< HEAD
+
 				for(j = 0; j<100000; j++);
 				enemy_move(&flame1, 1);
 				enemy_move(&flame2, 2);
 				enemy_move(&flame3, 3);
 				enemy_move(&flame4, 4);
-=======
-				for(j = 0; j<200000; j++);
+				monkey_move(&main_enemy);
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
+
+
 				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
 				direction_t d = DIR_STILL;
@@ -1280,12 +1206,13 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 								link->sprite =  1727;
 							counter++;
 				}
-<<<<<<< HEAD
+
 				for(j = 0; j<100000; j++);
 				enemy_move(&flame1, 1);
 				enemy_move(&flame2, 2);
 				enemy_move(&flame3, 3);
 				enemy_move(&flame4, 4);
+				monkey_move(&main_enemy);
 				link->x = x;
 				link->y = y;
 
@@ -1298,30 +1225,70 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 				}
 
 
-=======
+
 				link->x = x;
 				link->y = y;
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
 				chhar_spawn( link, 0 );
 			}
 
 			for(i =0; i<16; i++){
 				y++;
-<<<<<<< HEAD
+				if(tramboline_check(x,y)){
+					for(k=0; k<48; k++){
+						y--;
+						mario.x = x;
+						mario.y = y;
+						chhar_spawn( &mario, 0 );
+
+						for(j = 0; j<25000; j++);
+						move++;
+						if(move == 3){
+							move = 0;
+							enemy_move(&flame1, 1);
+							enemy_move(&flame2, 2);
+							enemy_move(&flame3, 3);
+							enemy_move(&flame4, 4);
+							monkey_move(&main_enemy);
+						}
+						if(collision(&link, flame1, flame2, flame3, flame4)){
+							mario.x = INITIAL_MARIO_POSITION_X;
+							mario.y = INITIAL_MARIO_POSITION_Y;
+							mario.dir = DIR_LEFT;
+							mario.sprite = 1791;
+							pos = 1;
+						}
+					}
+
+					for(k=0; k<16; k++){
+						y++;
+						mario.x = x;
+						mario.y = y;
+						chhar_spawn( &mario, 0 );
+						for(j = 0; j<100000; j++);
+						enemy_move(&flame1, 1);
+						enemy_move(&flame2, 2);
+						enemy_move(&flame3, 3);
+						enemy_move(&flame4, 4);
+						monkey_move(&main_enemy);
+					}
+
+					return;
+				}
 				for(j = 0; j<100000; j++);
 				enemy_move(&flame1, 1);
 				enemy_move(&flame2, 2);
 				enemy_move(&flame3, 3);
 				enemy_move(&flame4, 4);
+				monkey_move(&main_enemy);
 				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
 
-=======
-				for(j = 0; j<200000; j++);
-				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
+
+
 				direction_t d = DIR_STILL;
 				if ( BTN_LEFT(buttons) ) {
 					d = DIR_LEFT;
@@ -1365,14 +1332,15 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 								link->sprite =  1727;
 							counter++;
 				}
-<<<<<<< HEAD
+
 				for(j = 0; j<100000; j++);
 				enemy_move(&flame1, 1);
 				enemy_move(&flame2, 2);
 				enemy_move(&flame3, 3);
 				enemy_move(&flame4, 4);
-				link->x = x;
-				link->y = y;
+				monkey_move(&main_enemy);
+				mario.x = x;
+				mario.y = y;
 
 				if(collision(&link, flame1, flame2, flame3, flame4)){
 									mario.x = INITIAL_MARIO_POSITION_X;
@@ -1381,12 +1349,47 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 									mario.sprite = 1791;
 									pos = 1;
 				}
+				/*if(tramboline_check()){
+					mario.x = INITIAL_MARIO_POSITION_X;
+					mario.y = 134;
+					for(k=0; k<32; k++){
+						y--;
+						link->x = x;
+						link->y = y;
+						chhar_spawn( link, 0 );
+						for(j = 0; j<25000; j++);
+						move++;
+						if(move == 3){
+							move = 0;
+							enemy_move(&flame1, 1);
+							enemy_move(&flame2, 2);
+							enemy_move(&flame3, 3);
+							enemy_move(&flame4, 4);
+							monkey_move(&main_enemy);
+						}
+					}
 
-=======
+					for(k=0; k<16; k++){
+						y++;
+						link->x = x;
+						link->y = y;
+						chhar_spawn( link, 0 );
+						for(j = 0; j<100000; j++);
+						enemy_move(&flame1, 1);
+						enemy_move(&flame2, 2);
+						enemy_move(&flame3, 3);
+						enemy_move(&flame4, 4);
+						monkey_move(&main_enemy);
+					}
+					chhar_spawn( &mario, 0 );
+					return;
+				}*/
+
 				link->x = x;
 				link->y = y;
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
+
 				chhar_spawn( link, 0 );
 			}
 
@@ -1395,14 +1398,14 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 					y++;
 					for(j = 0; j<100000; j++);
 					buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-<<<<<<< HEAD
+
 					enemy_move(&flame1, 1);
 					enemy_move(&flame2, 2);
 					enemy_move(&flame3, 3);
 					enemy_move(&flame4, 4);
-=======
+					monkey_move(&main_enemy);
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
 					direction_t d = DIR_STILL;
 					if ( BTN_LEFT(buttons) ) {
 						d = DIR_LEFT;
@@ -1476,177 +1479,7 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 
 	for(i =0; i<100000; i++);
 
-	//+/-28 instead of 32 because of sprite graphic
-	/*if ((link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 3) || //if right edge and link is right faced
-		(link->x >= (( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE - 28) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 4) ||
-		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 16) || //if left edge and link is left faced
-		((link->x < SIDE_PADDING * SPRITE_SIZE + 20) && link->sprite == LINK_SPRITES_OFFSET + 64 * 17) ||
-		((link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE  - 16) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 0) || //if down edge and link is up faced
-		((link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1) * SPRITE_SIZE  - 16) && link->sprite ==  LINK_SPRITES_OFFSET + 64 * 1) ||
-		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 2) || //if up edge and link is up faced
-		((link->y < SIDE_PADDING * SPRITE_SIZE + 16) && link->sprite == LINK_SPRITES_OFFSET + 64 * 15) )
-	{
-		blocked_sword = 1;
-	}*/
 
-	/*if(!sword->active && inCave && ((sword->x-8 < link->x) && (link->x < sword->x+8))
-			&& ((sword->y-8 < link->y)&& (link->y < sword->y))
-			&&  overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y )
-	{
-		pick_up_sword();
-	}*/
-
-	/*      change frame if on the edge     */
-    /*if (link->x > ( ( SIDE_PADDING + FRAME_WIDTH ) * SPRITE_SIZE  - SPRITE_SIZE)){
-    	link->x = overw_x == OVERWORLD_HORIZONTAL - 1? link->x-1 : SIDE_PADDING * SPRITE_SIZE;
-    	load_frame( DIR_RIGHT );
-    	return false;
-	}
-    if ( link->y > ( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE ) {
-    	if( inCave ) {
-    		link->x = ( SIDE_PADDING + door_x ) * SPRITE_SIZE;
-    		link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + door_y ) * SPRITE_SIZE + 15;
-    	} else {
-    		link->y = overw_y == OVERWORLD_VERTICAL - 1 ? link->y - 1 : ( HEADER_HEIGHT + VERTICAL_PADDING ) * SPRITE_SIZE;
-    	}
-    	load_frame( DIR_DOWN );
-    	return false;
-    }
-    if ( link->y < SIDE_PADDING * SPRITE_SIZE ) {
-    	link->y = overw_y == 0 ? link->y+1 : ( HEADER_HEIGHT + VERTICAL_PADDING + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;
-    	load_frame( DIR_UP );
-		return false;
-    }
-    if ( link->x < SIDE_PADDING * SPRITE_SIZE ) {
-    	link->x = overw_x == 0 ? link->x + 1 : ( SIDE_PADDING + FRAME_WIDTH - 1 ) * SPRITE_SIZE;
-    	load_frame( DIR_LEFT );
-		return false;
-	}*/
-
-    /*      get the current position of link    */
-	/*x = mario->x;
-	y = mario->y;*/
-
-	/*      movement animation      */
-
-
-		//kill enemy
-		/*if(((flame.x-8 < sword->x) && (sword->x < flame.x+8))
-			&& ((flame.y-8 < sword->y)&& (sword->y < flame.y+8)) && flame.active)
-		{
-				flame.active = false;
-				delete_sword(&flame);
-				rupees++;
-				set_pickups();
-		} else if(((octorok2.x-8 < sword->x) && (sword->x < octorok2.x+8))
-				&& ((octorok2.y-8 < sword->y)&& (sword->y < octorok2.y+8)) && octorok2.active)
-		{
-				octorok2.active = false;
-				delete_sword(&octorok2);
-				rupees++;
-				set_pickups();
-		} else if(((octorok3.x-8 < sword->x) && (sword->x < octorok3.x+8))
-				&& ((octorok3.y-8 < sword->y)&& (sword->y < octorok3.y+8)) && octorok3.active)
-		{
-				octorok3.active = false;
-				delete_sword(&octorok3);
-				bombs++;
-				set_pickups();
-		} else if(((octorok4.x-8 < sword->x) && (sword->x < octorok4.x+8))
-				&& ((octorok4.y-8 < sword->y)&& (sword->y < octorok4.y+8)) && octorok4.active)
-		{
-				octorok4.active = false;
-				delete_sword(&octorok4);
-				bombs++;
-				set_pickups();
-		}*/
-
-
-		/*if ( lasting_attack != 1 ){
-			Xil_Out32(
-					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
-					(unsigned int) 0x8F000000 | (unsigned int) link->sprite);
-			Xil_Out32(
-					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
-					 ( link->y << 16) | link->x);      //  the higher 2 bytes represent the row (y)
-		}*/
-
-		/*if (blocked_sword == 0) {
-			for ( i =0; i <90000; i++ );             //      delay
-
-			if ( lasting_attack != 1 ){
-				chhar_spawn( sword, sword_rotation );
-			}
-			if ( dir == DIR_ATTACK) {
-				lasting_attack = 1;
-			}
-
-			for ( i =0; i <15000; i++);             //      delay
-		}*/
-		/*   After a short break (representing the attack animation), go back to standing sprite facing the same direction    */
-		/*if ( last ==16 || last == 17 ) { 						//left
-			link->sprite = LINK_SPRITES_OFFSET + 64 * 17;
-		} else if ( last == 3 || last == 4 ) { 				//right
-			link->sprite = LINK_SPRITES_OFFSET + 64 * 4;
-		} else if ( last == 2 || last == 15 ) {				//up
-			link->sprite = LINK_SPRITES_OFFSET + 64 * 15;
-		} else if ( last == 0 || last == 1 ) {				//down
-			link->sprite = LINK_SPRITES_OFFSET + 64 * 1;
-		}
-	}*/
-
-    /*if( !inCave && isDoor(x, y) ) {
-        link->x = ( SIDE_PADDING + (int) FRAME_WIDTH/2 - 1 ) * SPRITE_SIZE + SPRITE_SIZE / 2;                         // set to the middle of the frame
-        link->y = ( VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT - 1 ) * SPRITE_SIZE;        //set to the bottom of the cave
-        chhar_spawn(link, 0);
-        inCave = true;
-        load_frame( DIR_UP );
-        if(overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y) {
-        	set_fire();
-        	if(!sword->active){
-				set_sword();
-		        set_grandpa();
-				write_introduction();
-			}
-		}*/
-	    /*		skip collision detection if on the bottom of the frame 			*/
-    /*} else if( dir == DIR_DOWN && y == (( VERTICAL_PADDING + FRAME_HEIGHT + HEADER_HEIGHT - 1 ) * SPRITE_SIZE + 1)) {
-		link->x = x;
-		link->y = y;
-	} else {
-		if ( !obstackles_detection(x, y, frame, dir, true ) ) {
-			link->x = x;
-			link->y = y;
-		}
-		if (inCave) {
-			if (link->y < (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT / 2 + 1) * SPRITE_SIZE ) {
-				link->y++;
-			}
-		}
-	}
-
-	if ( lasting_attack != 1 ){
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_l ),
-				(unsigned int) 0x8F000000 | (unsigned int) link->sprite );
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + link->reg_h ),
-				(link->y << 16) | link->x );      //  the higher 2 bytes represent the row (y)
-		for ( i = 0; i < 100000; i++ );         //  delay
-		if (sword->active) {
-			//for ( i = 0; i < 100000; i++ );         //  delay
-			delete_sword( sword );
-		}
-	}
-
-	for (i = 0; i < 1000; i++);          //     delay = 1000 <- good speed
-
-	if(inCave) {
-		set_fire();
-		for ( i = 0; i < 10000; i++ );         //  delay
-	}
-
-	return false;*/
 }
 
 bool isDoor(int x, int y) {
@@ -1681,7 +1514,7 @@ bool tile_walkable(int index, unsigned short* map_frame) {
 
 int obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink) {
 	int i;
-<<<<<<< HEAD
+
 
 	for(i=0; i<LADDERS_NUM; i++){
 		if(x==ladders_up[i][0] && y == ladders_up[i][1]){
@@ -1704,7 +1537,7 @@ int obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink) 
 	return 4;
 
 
-=======
+
 
 	for(i=0; i<LADDERS_NUM; i++){
 		if(x==ladders_up[i][0] && y == ladders_up[i][1]){
@@ -1727,7 +1560,7 @@ int obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink) 
 	return 4;
 
 
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
 
 	/*if (isLink) {
 		x_left = x + 3 - SIDE_PADDING * SPRITE_SIZE;
@@ -1781,26 +1614,42 @@ bool collision(characters * mario, characters flame1, characters flame2, charact
 
 
 	if(mario->x+2 >= flame1.x+4 && mario->x+2 <= flame1.x+12 && mario->y+16 >= flame1.y + 6 && mario->y+16 <= flame1.y + 16){
+		mario_lives--;
 		return true;
 	}else if(mario->x+14 >= flame1.x+4 && mario->x+14 <= flame1.x+12 && mario->y+16 >= flame1.y + 6 && mario->y+16 <= flame1.y + 16){
+		mario_lives--;
 		return true;
 	}
 
 	if(mario->x+2 >= flame2.x+4 && mario->x+2 <= flame2.x+12 && mario->y+16 >= flame2.y + 6 && mario->y+16 <= flame2.y + 16){
+			mario_lives--;
 			return true;
 	}else if(mario->x+14 >= flame2.x+4 && mario->x+14 <= flame2.x+12 && mario->y+16 >= flame2.y + 6 && mario->y+16 <= flame2.y + 16){
+		mario_lives--;
 		return true;
 	}
 
 	if(mario->x+2 >= flame3.x+4 && mario->x+2 <= flame3.x+12 && mario->y+16 >= flame3.y + 6 && mario->y+16 <= flame3.y + 16){
-			return true;
+		mario_lives--;
+		return true;
 	}else if(mario->x+14 >= flame3.x+4 && mario->x+14 <= flame3.x+12 && mario->y+16 >= flame3.y + 6 && mario->y+16 <= flame3.y + 16){
+		mario_lives--;
 		return true;
 	}
 
 	if(mario->x+2 >= flame4.x+4 && mario->x+2 <= flame4.x+12 && mario->y+16 >= flame4.y + 6  && mario->y+16 <= flame4.y + 16){
+		mario_lives--;
 			return true;
 	}else if(mario->x+14 >= flame4.x+4 && mario->x+14 <= flame4.x+12 && mario->y+16 >= flame4.y + 6 && mario->y+16 <= flame4.y + 16){
+		mario_lives--;
+		return true;
+	}
+
+	if(mario->x+2 >= main_enemy.x[0]+4 && mario->x+2 <= main_enemy.x[2]+12 && mario->y+16 >= main_enemy.y[0]  && mario->y+16 <= main_enemy.y[3] + 16){
+		mario_lives--;
+		return true;
+	}else if(mario->x+14 >= main_enemy.x[0]+4 && mario->x+14 <= main_enemy.x[2]+12 && mario->y+16 >= main_enemy.y[0]  && mario->y+16 <= main_enemy.y[3] + 16){
+		mario_lives--;
 		return true;
 	}
 
@@ -1808,37 +1657,76 @@ bool collision(characters * mario, characters flame1, characters flame2, charact
 
 
 }
-void battle_city() {
-	unsigned int buttons;
 
+void monkey_move(monkey * main_enemy){
+	int x[6], y[6];
+	int i;
+	static int move = 0;
+
+	if(main_enemy->dir == DIR_RIGHT && main_enemy->x[5] < 400){
+		for(i=0; i<6; i++){
+			++main_enemy->x[i];
+		}
+	}else if(main_enemy->dir == DIR_LEFT && main_enemy->x[0] > 224){
+		for(i=0; i<6; i++){
+			--main_enemy->x[i];
+		}
+	}else if(main_enemy->dir == DIR_RIGHT && main_enemy->x[5] == 400){
+		main_enemy->dir = DIR_LEFT;
+	}else{
+		main_enemy->dir = DIR_RIGHT;
+	}
+
+
+
+
+	if(main_enemy->sprites[0] == MONKEY_RIGHT_LEG_SPRITES[0] && move == 14){
+		for(i=0; i<6; i++){
+			main_enemy->sprites[i] = MONKEY_LEFT_LEG_SPRITES[i];
+			move = 0;
+		}
+	}else if(move == 14){
+		for(i=0; i<6; i++){
+			main_enemy->sprites[i] = MONKEY_RIGHT_LEG_SPRITES[i];
+			move = 0;
+		}
+	}
+	move++;
+	monkey_spawn(*main_enemy, 0);
+
+
+
+}
+
+bool tramboline_check(int x, int y){
+	if(x+14 >= tramboline[0] && x+14 <= tramboline[0]+8 && y+16 == tramboline[1]){
+		return true;
+	}
+	if(x+2 >= tramboline[0] && x+2 <= tramboline[0]+8 && y+16 == tramboline[1]){
+		return true;
+	}
+	return false;
+}
+void battle_city() {
+	long int addr;
+	unsigned int buttons;
     /*      initialization      */
+
 	reset_memory();
-	overw_x = INITIAL_FRAME_X;
-	overw_y = INITIAL_FRAME_Y;
+	set_header();
     load_frame( DIR_STILL );
-    HEALTH = MAX_HEALTH;
-    //set_header();
 
 	mario.x = INITIAL_MARIO_POSITION_X;
 	mario.y = INITIAL_MARIO_POSITION_Y;
 	mario.sprite = 1791;
-<<<<<<< HEAD
-
 
 	chhar_spawn(&mario, 0);
 	chhar_spawn(&flame1, 0);
-=======
 
-
-
-	chhar_spawn(&flame, 0);
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+	monkey_spawn(main_enemy, 0);
 
 	while (1) {
-		int rnd =  random_number() % 100;
-		int rnd1 = (random_number() % 1000) / 10;
-		int rnd2 = (random_number() % 10000) / 100;
-		int rnd3 = (random_number() % 100000) / 1000;
+		set_header();
 		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
 
 		direction_t d = DIR_STILL;
@@ -1854,25 +1742,15 @@ void battle_city() {
 			d = DIR_ATTACK;
 		}
 
-		/*if(enemy_exists == 1 && !inCave) {
-			if(flame.active)
-				enemy_move(&flame, rnd);
-			if (octorok2.active)
-				enemy_move(&octorok2, rnd1);
-			if (octorok3.active)
-				enemy_move(&octorok3, rnd2);
-			if (octorok4.active)
-				enemy_move(&octorok4, rnd3);
-			if (ghost.active)
-				ghost_move(&ghost, rnd);
-		}*/
 
-		link_move(&mario, &sword, d);
-<<<<<<< HEAD
 		enemy_move(&flame1, 1);
 		enemy_move(&flame2, 2);
 		enemy_move(&flame3, 3);
 		enemy_move(&flame4, 4);
+
+
+		monkey_move(&main_enemy);
+		link_move(&mario, &sword, d);
 
 		if(collision(&mario, flame1, flame2, flame3, flame4)){
 			mario.x = INITIAL_MARIO_POSITION_X;
@@ -1883,9 +1761,52 @@ void battle_city() {
 			on_ladder = false;
 			ladder_count = 0;
 		}
-=======
-		enemy_move(&flame, 2);
->>>>>>> 4c7e8f0a53c61d0d8684c3d812c13c372389135a
+
+
+		if(mario_lives == 0){
+			while(1){
+				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
+				if ( BTN_SHOOT(buttons) ) {
+					break;
+				}
+			}
+			mario_lives = 3;
+
+		}
+
+		if(mario.y == 128 && mario.x <= 304){
+
+			overworld[ 0 * FRAME_WIDTH + 8] = 2559;
+
+
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 8 + SIDE_PADDING);
+			Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 8]);
+
+			while(1){
+				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
+				if ( BTN_SHOOT(buttons) ) {
+					break;
+				}
+
+			}
+			mario.x = INITIAL_MARIO_POSITION_X;
+			mario.y = INITIAL_MARIO_POSITION_Y;
+			mario.sprite = 1791;
+			mario.dir = DIR_LEFT;
+			pos = 1;
+			on_ladder = false;
+			ladder_count = 0;
+
+			overworld[ 0 * FRAME_WIDTH + 8] = SPRITES[6];
+
+
+			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 8 + SIDE_PADDING);
+			Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 8]);
+			mario_lives = 3;
+
+		}
+
+
 
 	}
 }

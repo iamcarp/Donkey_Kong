@@ -8,7 +8,7 @@ entity battle_city is
       COLOR_WIDTH          : natural := 24;
       ADDR_WIDTH           : natural := 13;
       C_BASEADDR           : natural := 0;               -- Pointer to local memory in memory map
-      REGISTER_NUMBER      : natural := 10;              -- Number of registers used for sprites
+      REGISTER_NUMBER      : natural := 16;              -- Number of registers used for sprites
       NUM_BITS_FOR_REG_NUM : natural := 4;               -- Number of bits required for number of registers
       OVERHEAD             : natural := 5;               -- Number of overhead bits
       SPRITE_Z             : natural := 1                -- Z coordinate of sprite
@@ -71,7 +71,13 @@ architecture Behavioral of battle_city is
     ( x"0130" & x"01d5" & x"7f" & x"00" & x"013F" ),
     ( x"0130" & x"01e4" & x"7f" & x"00" & x"013F" ),
     ( x"0130" & x"01f3" & x"7f" & x"00" & x"013F" ),
-    ( x"0000" & x"0090" & x"7f" & x"00" & x"00FF" )); --brick
+    ( x"0000" & x"0090" & x"7f" & x"00" & x"00FF" ),
+	 ( x"0130" & x"00e3" & x"7f" & x"00" & x"01FF" ),
+	 ( x"0130" & x"00e3" & x"7f" & x"00" & x"01FF" ),
+	 ( x"0130" & x"00e3" & x"7f" & x"00" & x"01FF" ),
+	 ( x"0130" & x"00e3" & x"7f" & x"00" & x"01FF" ),
+	 ( x"0130" & x"00e3" & x"7f" & x"00" & x"01FF" ),
+	 ( x"0130" & x"00e3" & x"7f" & x"00" & x"01FF" )); --brick
     
 	signal reg_word_addr : signed(ADDR_WIDTH-1 downto 0);
 	signal reg_idx       : signed(ADDR_WIDTH-1 downto 1);
@@ -354,7 +360,10 @@ architecture Behavioral of battle_city is
 
 
 		
-	reg_intersected_s0 <= "1001" when reg_intsect_s0(9) = '1' else
+	reg_intersected_s0 <="1100" when reg_intsect_s0(12) = '1' else
+								"1011" when reg_intsect_s0(11) = '1' else
+								"1010" when reg_intsect_s0(10) = '1' else
+								"1001" when reg_intsect_s0(9) = '1' else
                         "1000" when reg_intsect_s0(8) = '1' else
                         "0111" when reg_intsect_s0(7) = '1' else
                         "0110" when reg_intsect_s0(6) = '1' else

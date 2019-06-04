@@ -46,7 +46,7 @@ unsigned short overworld[15*20] = {
 			0x027F, // x = 4, y = 1
 			0x027F, // x = 5, y = 1
 			0x027F, // x = 6, y = 1
-			0x027F, // x = 7, y = 1
+			0x093F, // x = 7, y = 1
 			0x027F, // x = 8, y = 1
 			0x027F, // x = 9, y = 1
 			0x027F, // x = 10, y = 1
@@ -109,7 +109,7 @@ unsigned short overworld[15*20] = {
 			0x013F, // x = 7, y = 4
 			0x013F, // x = 8, y = 4
 			0x013F, // x = 9, y = 4
-			0x013F, // x = 10, y = 4
+			0x00C0, // x = 10, y = 4
 			0x013F, // x = 11, y = 4
 			0x013F, // x = 12, y = 4
 			0x013F, // x = 13, y = 4

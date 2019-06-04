@@ -19,7 +19,7 @@ desna noga   1087
 leva ruka    1151
 glava        1215
 desna ruka   1279
-
+47F, 4BF, 4FF, 3BF, 3FF, 43F
 
 -- majmun2 
   48  51

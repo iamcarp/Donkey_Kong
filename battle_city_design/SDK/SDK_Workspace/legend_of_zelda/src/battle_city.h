@@ -27,6 +27,16 @@ typedef struct {
 	unsigned int reg_h;
 } characters;
 
+typedef struct {
+	unsigned int x[6];
+	unsigned int y[6];
+	direction_t dir;
+	unsigned short sprites[6];
+	bool active;
+	unsigned int reg_l[6];
+	unsigned int reg_h[6];
+} monkey;
+
 unsigned int random_number();
 unsigned short char_to_addr(char c);
 void write_line(char* text, int len, long int addr);
