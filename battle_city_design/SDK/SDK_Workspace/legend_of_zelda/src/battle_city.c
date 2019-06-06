@@ -720,6 +720,7 @@ void tramboline_simulation(){
 			mario.dir = DIR_LEFT;
 			mario.sprite = INITIAL_MARIO_SPRITE;
 			pos = 1;
+			return;
 		}
 	}
 
@@ -813,6 +814,7 @@ void jump(){
 			mario.dir = DIR_LEFT;
 			mario.sprite = INITIAL_MARIO_SPRITE;
 			pos = 1;
+			return;
 		}
 
 
@@ -900,6 +902,7 @@ void jump(){
 							mario.dir = DIR_LEFT;
 							mario.sprite = INITIAL_MARIO_SPRITE;
 							pos = 1;
+							return;
 		}
 
 
