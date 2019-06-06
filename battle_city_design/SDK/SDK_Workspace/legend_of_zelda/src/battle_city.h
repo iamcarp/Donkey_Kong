@@ -57,7 +57,7 @@ void chhar_delete();
 void chhar_spawn( characters * chhar, int rotation );
 void delete_sword( characters* chhar );
 void reset_memory();
-bool link_move(characters * link, characters* sword, direction_t dir);
+bool link_move(characters * link, direction_t dir);
 bool isDoor(int x, int y);
 bool tile_walkable(int index, unsigned short* map_frame);
 bool obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink);

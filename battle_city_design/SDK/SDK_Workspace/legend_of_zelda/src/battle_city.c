@@ -34,6 +34,7 @@
 #define INITIAL_FRAME_Y				7
 #define INITIAL_MARIO_POSITION_X		160
 #define INITIAL_MARIO_POSITION_Y		328
+#define INITIAL_MARIO_SPRITE 			1791
 
 /*      LINK SPRITES START ADDRESS - to move to next add 64    */
 #define LINK_SPRITES_OFFSET             5648		//	old: 5172	,	new: 5648
@@ -43,9 +44,7 @@
 /*      ENEMIE SPRITES START ADDRESS - to move to next add 64    */
 #define FLAME_SPRITE_OFFSET_LEFT 	   831
 #define FLAME_SPRITE_OFFSET_RIGHT       895
-#define ENEMIE_SPRITES_OFFSET          5072			//	old: 4596	,	new: 5072
-#define ENEMY_STEP						10
-#define GHOST_SPRITES_OFFSET			5072 + 64*5
+
 
 #define REGS_BASE_ADDRESS               ( SCREEN_BASE_ADDRESS + SCR_WIDTH * SCR_HEIGHT )
 
@@ -87,23 +86,14 @@
 
 
 
-
-#define MAX_HEALTH						8
-
-#define ENEMY_FRAMES_NUM 			34
-/*			contains the indexes of frames in overworld which have enemies  	*/
-bool ENEMY_FRAMES[] = {32, 33, 45, 48, 49, 55, 56, 62, 64, 65, 68, 73, 76, 79,
-					   84, 85, 86, 87, 88, 90, 95, 99, 100, 101, 102, 103, 104,
-					   105, 106, 110, 111, 120, 125, 126};
-
-
-
 int ladders_up[13][2] = {{176, 328},{192, 288},{208, 248},{224, 208},{256, 208},{280, 328},{312, 248},{360, 288},{376, 208},{408, 208},{424, 248},{432, 288},{458, 328}};
 int ladders_down[13][2] = {{176, 288},{192, 248},{208, 208},{224, 168},{256, 168},{280, 288},{312, 208},{360, 248},{376, 168},{408, 168},{424, 208},{432, 248},{458, 288}};
 int end_of_block[24][2] = {{159,328},{175,288},{255,288},{399,288},{191,248},{255,248},{399,248},{207,208},{255,208},{399,208},{223,168},{256,128},{470,328},{232,288},{376,288},{458,288},{232,248},{376,248},{440,248},{232,208},{376,208},{424,208},{408,168},{376,128}};
 #define EDGE_NUM 16
 int edges[16][2] = {{166,288},{182,248},{198,208},{214, 168},{246,128},{244, 288},{244, 248},{244, 208},{386, 288},{386, 248},{386, 208},{466, 288},{448, 248},{432, 208},{416, 168},{376, 128}};
 bool on_ladder = false;
+
+//ladder_count is used to keep track of where mario is on a ladder
 int ladder_count = 0;
 
 int enemy_obstackles1[5][2] = {{175, 288},{231,288},{192, 288}, {192, 248}, {231,248}};
@@ -111,18 +101,19 @@ int enemy_obstackles2[2][2] = {{256, 248},{375, 248}};
 int enemy_obstackles3[2][2] = {{256, 288},{374, 288}};
 int enemy_obstackles4[6][2] = {{400, 288},{454, 288},{432, 288}, {400, 248},{440,248}, {432, 248}};
 
+//edges of the tramboline
 int tramboline[2] = {320, 176};
 
+//addresses of monkey sprites in ram.vhd
 unsigned short MONKEY_RIGHT_LEG_SPRITES[6] = {1151, 1215, 1279, 959, 1023, 1087};
 unsigned short MONKEY_LEFT_LEG_SPRITES[6]  = {1343, 1407, 1471, 1535, 1599, 1663};
 
 int mario_lives = 3;
-unsigned short fire1 = FIRE_0;
-unsigned short fire2 = FIRE_1;
-int HEALTH;
+
+
 int pos = 1;
 int counter = 0;
-int last = 0; //last state link was in before current iteration (if he is walking it keeps walking)
+ //last state link was in before current iteration (if he is walking it keeps walking)
 /*For testing purposes - values for last - Link sprites
 	0 - down stand
 	1 - down walk
@@ -152,10 +143,10 @@ unsigned short* frame;
 
 
 monkey main_enemy = {
-		{296, 309, 322, 296, 309, 322},
-		{152, 152, 152, 168, 168, 168},
+		{296, 309, 322, 296, 309, 322}, //x position for every monkey sprite
+		{152, 152, 152, 168, 168, 168}, //y position for every monkey sprite
 		DIR_RIGHT,
-		{1151, 1215, 1279, 959, 1023, 1087},
+		{1151, 1215, 1279, 959, 1023, 1087}, // address of every monkey sprite in ram.vhd
 		true,
 		{MONKEY1_TOP_LEFT_L, MONKEY1_TOP_CENTRE_L, MONKEY1_TOP_RIGHT_L, MONKEY1_BOT_LEFT_L, MONKEY1_BOT_CENTRE_L, MONKEY1_BOT_RIGHT_L},
 		{MONKEY1_TOP_LEFT_H, MONKEY1_TOP_CENTRE_H, MONKEY1_TOP_RIGHT_H, MONKEY1_BOT_LEFT_H, MONKEY1_BOT_CENTRE_H, MONKEY1_BOT_RIGHT_H}
@@ -169,28 +160,6 @@ characters mario = {
 		LINK_REG_L,            			// reg_l
 		LINK_REG_H             			// reg_h
 		};
-
-characters sword = {
-		INITIAL_MARIO_POSITION_X,		// x
-		INITIAL_MARIO_POSITION_Y,		// y
-		DIR_LEFT,              			// dir
-		SWORD_SPRITE,  					// type
-		false,                			// active
-		WEAPON_REG_L,            		// reg_l
-		WEAPON_REG_H             		// reg_h
-		};
-
-/*characters grandpa = {
-		256,								// x
-		288,								// y
-		DIR_LEFT,              			// dir
-		GRANDPA_SPRITE,  					// type
-		true,                			// active
-		GRANDPA_REG_L,            		// reg_l
-		GRANDPA_REG_H             		// reg_h
-		};
-
-*/
 
 
 characters flame1 = {
@@ -235,88 +204,9 @@ characters flame4 = {
 		ENEMY_5_REG_H             		// reg_h
 		};
 
-/*characters ghost = {
-		0,								// x
-		0,								// y
-		DIR_LEFT,              			// dir
-		GHOST_SPRITES_OFFSET + 64,  	// type 64*5 base
-		true,                			// active
-		ENEMY_6_REG_L,            		// reg_l
-		ENEMY_6_REG_H             		// reg_h
-		};
 
-*/
-int walkables[21] = {0, 2, 6, 10, 22, 27, 28, 29, 33, 34, 35, 39, 40, 41, 42, 43, 44, 45, 46, 47, 49};
 
-/*      indexes of the active frame in overworld        */
-int overw_x;
-int overw_y;
 
-int enemy_exists = 0;
-int enemy_step = 0;
-
-bool inCave = false;
-/*      the position of the door so link could have the correct position when coming out of the cave    */
-int door_x, door_y;
-int rupees = 0, bombs = 0;
-
-unsigned int random_number() {
-	static unsigned int i,j;
-	int p,q;
-	unsigned int rnd;
-	srand(time(NULL));
-	i +=5;
-	j +=3;
-
-	p = rand()%1000;
-	q = rand()%1000;
-	rnd = ((p+1)%36)*((q+j)%35);
-
-	return rnd;
-}
-
-unsigned short char_to_addr(char c) {
-    switch(c) {
-		case 'a':
-			return CHAR_A;
-		case 'd':
-			return CHAR_D;
-		case 'e':
-			return CHAR_E;
-		case 'f':
-			return CHAR_F;
-		case 'g':
-			return CHAR_G;
-		case 'h':
-			return CHAR_H;
-		case 'i':
-			return CHAR_I;
-		case 'k':
-			return CHAR_K;
-		case 'l':
-			return CHAR_L;
-		case 'n':
-			return CHAR_N;
-		case 'o':
-			return CHAR_O;
-		case 'r':
-			return CHAR_R;
-		case 's':
-			return CHAR_S;
-		case 't':
-			return CHAR_T;
-		case 'u':
-			return CHAR_U;
-		case ',':
-			return CHAR_COMA;
-		case '\'':
-			return CHAR_APOSTROPHE;
-		case '.':
-			return CHAR_DOT;
-		default:
-			return SPRITES[2];
-    }
-}
 
 void write_line(char* text, int len, long int addr) {
     int i, j;
@@ -329,16 +219,7 @@ void write_line(char* text, int len, long int addr) {
     return;
 }
 
-static void game_over() {
-    char text[] = "loser";
-    short len = 5;
-    long int addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_BASE_ADDRESS + SCR_WIDTH*5 + 10 );
-    write_line(text , len, addr);
-
-
-    return;
-}
-
+//draws the whole map, map is in map.h under overworld
 void load_frame( direction_t dir ) {
 	frame = overworld;
 	int x,y;
@@ -349,202 +230,11 @@ void load_frame( direction_t dir ) {
 			Xil_Out32( addr, frame[ y * FRAME_WIDTH + x ] );
 		}
 	}
-	//chhar_delete();
-	//initialize_enemy(overw_y * overw_x);
-	/*if( !inCave ) {
-		switch( dir ) {
-			case DIR_LEFT:
-				overw_x = ( --overw_x < 0 ) ? 0 : overw_x;
-				break;
-			case DIR_RIGHT:
-				overw_x = ( ++overw_x < OVERWORLD_HORIZONTAL ) ? overw_x : OVERWORLD_HORIZONTAL - 1;
-				break;
-			case DIR_UP:
-				overw_y = ( --overw_y < 0 ) ? 0 : overw_y;
-				break;
-			case DIR_DOWN:
-				overw_y = ( ++overw_y < OVERWORLD_VERTICAL )? overw_y : OVERWORLD_VERTICAL - 1;
-				break;
-			default:
-				overw_x = overw_x;
-				overw_y = overw_y;
-		}
-
-		frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
-		set_minimap();
-	} else {
-		if ( dir == DIR_DOWN ) {
-			frame = overworld[ overw_y * OVERWORLD_HORIZONTAL + overw_x ];
-			inCave = false;
-			delete_sword(&grandpa);
-			chhar_delete();
-			if ( overw_x == INITIAL_FRAME_X && overw_y == INITIAL_FRAME_Y ) {
-				delete_sword(&sword);
-			}
-		} else {
-			frame = CAVE;
-		}
-	}*/
-
-    /*    checking if there should be enemies on the current frame     */
-    /*int i;
-    if (!inCave) {
-    	int frame_index = overw_y * OVERWORLD_HORIZONTAL + overw_x;
-		for ( i = 0; i < ENEMY_FRAMES_NUM; i++ ){
-			if( frame_index == ENEMY_FRAMES[i] ){
-				enemy_exists = 1;
-				initialize_enemy(frame_index);
-				break;
-			} else {
-				enemy_exists = 0;
-			}
-		}
-    }*/
-
-    /*      loading next frame into memory      */
-	//set_frame_palette();
-
-
-
-}
-
-/*      setting the correct palette for the current frame     */
-void set_frame_palette() {
-	long int addr_fill, addr_floor;
-	addr_fill = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_COLORS_OFFSET );
-	addr_floor = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( FRAME_COLORS_OFFSET + 1 );
-
-    if( inCave ) {
-		/*    red/green/gray -> red    */
-		Xil_Out32( addr_fill,  0x0C4CC8 );       
-		/*    sand/gray -> black    */
-		Xil_Out32( addr_floor, 0x000000 );
-        
-        return;
-    }
-
-	if ((overw_y==2 && (overw_x<3 || overw_x==15)) || (overw_y == 3 && (overw_x<2 || overw_x==3)) || (overw_y==4 && overw_x<2) || (overw_y==5 && overw_x ==0) ) {
-		/*    red/green -> white    */
-		Xil_Out32( addr_fill, 0x00FCFCFC );
-		/*    sand -> gray    */
-		Xil_Out32( addr_floor, 0x747474 );
-	} else if ((overw_y==3 && (overw_x==12 || overw_x==13)) || (overw_y==4 && (overw_x>5 && overw_x<15)) || ((overw_y==4 || overw_y==5) && (overw_x>3 && overw_x<15)) || (overw_y==7 && (overw_x>3 && overw_x<9)) || (overw_y==6 && overw_x > 3 && overw_x <15) ) {
-		/*    red/white -> green    */
-		Xil_Out32( addr_fill, 0x00A800 );
-		/*    gray -> sand    */
-		Xil_Out32( addr_floor, 0xA8D8FC ); 
-	} else {
-		/*    green/white -> red    */
-		Xil_Out32( addr_fill, 0x0C4CC8 );
-		/*    gray -> sand    */
-		Xil_Out32( addr_floor, 0xA8D8FC ); 
-	}
 
 }
 
 
-
-/*		set sword in cave		*/
-void set_sword() {
-	int sword_rotation = 2;			//
-
-	sword.x = (SIDE_PADDING + FRAME_WIDTH / 2 - 1) * SPRITE_SIZE + SPRITE_SIZE / 2;
-	sword.y = (VERTICAL_PADDING + HEADER_HEIGHT + FRAME_HEIGHT / 2 + 1) * SPRITE_SIZE + SPRITE_SIZE / 2;
-
-	chhar_spawn( &sword, sword_rotation );
-}
-
-void pick_up_sword() {
-	sword.active = true;
-	//sword.x = link.x + 13;
-	//sword.y = link.y;
-	delete_sword(&sword);
-}
-
-void set_minimap() {
-	int i,j, pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 1;
-	int m_x, m_y;
-	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	for(j = 0 ; j < 2 ; j++ ) {
-		for(i = 0; i < 4; i++) {
-			Xil_Out32(addr+4*(j * SCR_WIDTH + i),	MINIMAP_BLANK);
-		}
-	}
-
-
-	/*		reset sprite	*/
-	for (i = 0; i < 64; i++) {
-		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MINIMAP_BLANK + 64 + i);
-		Xil_Out32(addr,	0x07070707);
-	}
-
-	/*		relative position inside ine sprite		*/
-	m_x = overw_x % 4;
-	m_y = overw_y % 4;
-
-	for (i = 0; i < 4; i++) {
-		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (MINIMAP_BLANK + 64 + m_y*16 + (i)*4 + m_x);
-		Xil_Out32(addr,	0x18181818);
-	}
-
-	/*		the position of the sprite in minimap		*/
-	m_x = overw_x / 4;
-	m_y = overw_y / 4;
-
-	pos = HEADER_BASE_ADDRESS + (2 + m_y)*SCR_WIDTH + 1 + m_x;
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	Xil_Out32(addr,	MINIMAP_BLANK + 64);
-}
-
-void set_pickups() {
-
-	int i, pos = HEADER_BASE_ADDRESS + 2*SCR_WIDTH + 5;
-	unsigned long addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-
-	if ( rupees < 5 ) {
-		for (i = 0; i < rupees; i++) {
-			pos++;
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-			Xil_Out32(addr,	RUPEE_SPRITE);
-		}
-	}
-
-	pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + 5;
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	if ( bombs < 5 ) {
-		for (i = 0; i < bombs; i++) {
-			pos++;
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-			Xil_Out32(addr,	BOMB_SPRITE);
-		}
-	}
-
-}
-
-void set_health(int health) {
-	int i;
-	int pos = HEADER_BASE_ADDRESS + 3*SCR_WIDTH + FRAME_WIDTH - 6;
-	unsigned long addr;
-	if (health < 0) {
-		health = 0;
-		HEALTH = 0;
-	}
-	for(i = 0; i < MAX_HEALTH/2; i++, pos++) {
-		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-		if (i < health/2) {
-			Xil_Out32(addr,	HEART_FULL);
-		} else {
-			Xil_Out32(addr,	HEART_EMPTY);
-		}
-	}
-
-	if (health % 2) {
-		pos -= ((MAX_HEALTH - health) / 2);
-		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-		Xil_Out32(addr,	HEART_HALF);
-	}
-}
-
+//drawing mario lives on the map
 void set_header() {
 	long int addr;
 	if(mario_lives==3){
@@ -570,111 +260,8 @@ void set_header() {
 
 }
 
-bool initialize_enemy( int frame_index) {
-
-	//TODO:	define function
-	/* set enemy on a random position 
-	 * check if there is an obstacle on that position
-	 * this function is only for initializing the enemy!
-	 * enemy movement logic will be defined in other function
-	 * the enemy's position should depend on the frame
-	 * in other words, it will use overw_x and overw_y
-*/
-
-	/*flame.active = true;
-
-	flame.active = true;
-
-	octorok2.active = true;
-	octorok3.active = true;
-	octorok4.active = true;
-	if(frame_index == 120 || frame_index == 102 || frame_index == 100){
-		ghost.active = false;
-		flame.x = 240;
-		flame.y = 220;
-		flame.dir = DIR_LEFT;
-		chhar_spawn(&flame, 0);
-
-		octorok2.x = 320;
-		octorok2.y = 240;
-		octorok2.dir = DIR_UP;
-		chhar_spawn(&octorok2, 3);
-
-		octorok3.x = 320;
-		octorok3.y = 290;
-		octorok3.dir = DIR_DOWN;
-		chhar_spawn(&octorok3, 0);
-
-		octorok4.x = 355;
-		octorok4.y = 250;
-		octorok4.dir = DIR_RIGHT;
-		chhar_spawn(&octorok4, 0);
-		return 1;
-	} else if ( frame_index == 104 || frame_index == 103) {
-		ghost.active = false;
-		flame.x = 250;
-		flame.y = 220;
-		flame.dir = DIR_DOWN;
-		chhar_spawn(&flame, 0);
-
-		octorok2.x = 320;
-		octorok2.y = 240;
-		octorok2.dir = DIR_LEFT;
-		chhar_spawn(&octorok2, 3);
-
-		octorok3.x = 320;
-		octorok3.y = 290;
-		octorok3.dir = DIR_DOWN;
-		chhar_spawn(&octorok3, 0);
-
-		octorok4.x = 350;
-		octorok4.y = 250;
-		octorok4.dir = DIR_UP;
-		chhar_spawn(&octorok4, 0);
-		return 1;
-	} else if (frame_index == 64 || frame_index == 65 || frame_index == 48 ||
-			frame_index == 49 || frame_index == 32 || frame_index == 33) {
-		flame.active = false;
-		octorok2.active = false;
-		octorok3.active = false;
-		octorok4.active = false;
-		ghost.active = true;
-
-		ghost.x = 220;
-		ghost.y = 220;
-		ghost.dir = DIR_LEFT;
-		chhar_spawn(&ghost,0);
-		return 1;
-	}else {
-		enemy_exists = 0;
-		return 0;
-	}
-*/
-
-}
-
-
-direction_t random_direction(direction_t dir, int divider){
-	 divider = random_number();
-	 int rnd = random_number() % 2; //returns 0-100 000
-
-	 if (rnd % 4 == 0){
-		 dir = dir == DIR_LEFT ? DIR_UP : DIR_LEFT;
-	 }else{
-
-	 }
-
-	 return dir;
-}
-
-
-
-
-
-
 void enemy_move(characters* chhar, int divider){
 	int x,y;
-	int obstackle,rnd;
 
 	static int a1=0,a2=0,b1=0, c2=0;
 	x = chhar->x;
@@ -776,49 +363,13 @@ void enemy_move(characters* chhar, int divider){
 					c2 = 0;
 					chhar->dir = DIR_DOWN;
 				}
-			}//int enemy_obstackles4[6][2] = {{400, 288},{464, 288},{432, 288}, {400, 248},{464,248}, {432, 248}};
+			}
 
 	}
-
-
-
-
-
-
-	//obstackle = obstackles_detection(x, y, frame, chhar->dir, false);
-
-
 
 	chhar->x = x;
 	chhar->y = y;
 	chhar_spawn(chhar, 0);
-
-	//enemy_step++;
-
-
-
-
-	/*if(chhar->dir == DIR_DOWN){
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite);
-	} else if (chhar->dir == DIR_RIGHT){
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F010000 | (unsigned int) chhar->sprite);
-	} else if (chhar->dir == DIR_UP){
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F020000 | (unsigned int) chhar->sprite);
-	} else {
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F100000 | (unsigned int) chhar->sprite);
-	}
-
-	Xil_Out32(
-			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
-			( chhar->y << 16) | chhar->x);*/
 
 }
 
@@ -828,9 +379,6 @@ void chhar_delete(){
 	delete_sword(&flame2);
 	delete_sword(&flame3);
 	delete_sword(&flame4);
-
-
-
 
 }
 void monkey_spawn(monkey chhar, int rotation){
@@ -844,46 +392,12 @@ void monkey_spawn(monkey chhar, int rotation){
 				(chhar.y[i] << 16) | chhar.x[i] );
 	}
 }
-/*monkey main_enemy = {
-		{296, 312, 328, 296, 312, 328},
-		{112, 112, 112, 128, 128, 128},
-		DIR_RIGHT,
-		{0x047F, 0x04BF, 0x04FF, 0x03BF, 0x03FF, 0x043F},
-		true,
-		{MONKEY1_TOP_LEFT_L, MONKEY1_TOP_CENTRE_L, MONKEY1_TOP_RIGHT_L, MONKEY1_BOT_LEFT_L, MONKEY1_BOT_CENTRE_L, MONKEY1_BOT_RIGHT_L},
-		{MONKEY1_TOP_LEFT_H, MONKEY1_TOP_CENTRE_H, MONKEY1_TOP_RIGHT_H, MONKEY1_BOT_LEFT_H, MONKEY1_BOT_CENTRE_H, MONKEY1_BOT_RIGHT_H}
-};*/
+
 void chhar_spawn( characters * chhar, int rotation ) {
-	/*if ( rotation == 1 ) {																			 //rotate 90degrees clockwise
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F100000 | (unsigned int) chhar->sprite );
-	} else if ( rotation == 2 ) { 																	//rotate 90degrees aniclockwise
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F010000 | (unsigned int) chhar->sprite );
-	} else if ( rotation == 3 ) { 																	//rotate 180degrees
-		Xil_Out32(
-				XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-				(unsigned int) 0x8F020000 | (unsigned int) chhar->sprite );
-	}else {					    																	//no rotation
-		Xil_Out32(
-						XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-						(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite );
-	}*/
 
 	Xil_Out32(
 					XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
 					(unsigned int) 0x8F000000 | (unsigned int) chhar->sprite );
-	Xil_Out32(
-			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
-			(chhar->y << 16) | chhar->x );      //  the higher 2 bytes represent the row (y)
-}
-
-void delete_sword( characters* chhar ){
-	Xil_Out32(
-			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_l ),
-			(unsigned int) 0x80000000 | (unsigned int) chhar->sprite );
 	Xil_Out32(
 			XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + chhar->reg_h ),
 			(chhar->y << 16) | chhar->x );      //  the higher 2 bytes represent the row (y)
@@ -894,15 +408,17 @@ void reset_memory() {
 	unsigned int i;
 	long int addr;
 
+
 	for( i = 0; i < SCR_WIDTH*SCR_HEIGHT; i++ ) {
 		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( SCREEN_BASE_ADDRESS + i );
-		Xil_Out32( addr, SPRITES[6] );             // SPRITES[6] is a black square
+		Xil_Out32( addr, SPRITES[6] );             // SPRITES[6] is a black sprite
 	}
 
-	/*for ( i = 0; i <= 20; i += 2 ) {
+	for ( i = 0; i <= 20; i += 2 ) {
 		Xil_Out32( XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * ( REGS_BASE_ADDRESS + i ), (unsigned int) 0x0F000000);
-	}*/
+	}
 }
+//mario is under a ladder
 bool acceptable_position_up(int x, int y){
 
 	int i;
@@ -914,6 +430,7 @@ bool acceptable_position_up(int x, int y){
 	return false;
 }
 
+//mario is above a ladder
 bool acceptable_position_down(int x, int y){
 
 
@@ -926,35 +443,36 @@ bool acceptable_position_down(int x, int y){
 	return false;
 }
 
-
-
-
 bool check_edges(int x, int y){
 	int i;
 		for(i=0; i<EDGE_NUM; i++){
 
-			if(x>=160 && x<=edges[i][0] && y==edges[i][1] && i<5){
+			//mario is between the left edge of the screen and a platform
+			if(x>=150 && x<=edges[i][0] && y==edges[i][1] && i<5){
 				return true;
+			//mario is between the right edge of the screen and a platform
 			}else if(x>=edges[i][0] && x<=470 && y==edges[i][1] && i>=11 ){
 				return true;
+			//mario is between two platforms
 			}else if(x>=edges[i][0]-2 && x<=edges[i][0]+2 && y==edges[i][1]){
 				return true;
 			}
 		}
 		return false;
 }
-bool link_move(characters * link, characters* sword, direction_t dir) {
+bool link_move(characters * link, direction_t dir) {
 	unsigned int x;
 	unsigned int y;
-	static move = 0;
-	int sword_rotation = 0;
-	int lasting_attack = 0;
-	int i,j,k;
-	int blocked_sword = 0; //0 false - not blocked, 1 true - blocked
+
+
+	int i,j;
+
 	unsigned int buttons;
 
-	x = link->x;
-	y = link->y;
+	x = mario.x;
+	y = mario.y;
+
+	//if mario is on a ladder he can move 40 pixels up or down
 	if(on_ladder){
 		if ( dir == DIR_UP ) {
 				y--;
@@ -962,15 +480,14 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 
 			    if(ladder_count == 40 || ladder_count == 0){
 			    	on_ladder = false;
-			    	link->sprite =  1791;
+			    	mario.sprite =  INITIAL_MARIO_SPRITE;
 			    	ladder_count = 0;
 			    	pos = 1;
 			    }else{
-			    	if(link->sprite ==  2239)
-						link->sprite =  2303;
-					else if(link->sprite ==  2303)
-						link->sprite =  2239;
-					counter++;
+			    	if(mario.sprite ==  2239)
+						mario.sprite =  2303;
+					else if(mario.sprite ==  2303)
+						mario.sprite =  2239;
 
 			    }
 
@@ -980,19 +497,19 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 				ladder_count--;
 				if(ladder_count == 0 || ladder_count == -40){
 					on_ladder = false;
-					link->sprite =  1791;
+					mario.sprite =  INITIAL_MARIO_SPRITE;
 					ladder_count = 0;
 					pos = 1;
 				}else{
-					if(link->sprite ==  2239)
-						link->sprite =  2303;
-					else if(link->sprite ==  2303)
-						link->sprite =  2239;
-					counter++;
+					if(mario.sprite ==  2239)
+						mario.sprite =  2303;
+					else if(mario.sprite ==  2303)
+						mario.sprite =  2239;
 				}
 
 		}
 	}else if ( dir == DIR_LEFT ) {
+			//the left edge of the screen
 			if(x==160){
 				x=160;
 			}else{
@@ -1000,13 +517,14 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 			}
 			if(pos == 1){
 				pos = 0;
-				link->sprite =  2047;
+				mario.sprite =  2047; //left mario sprite
 			}
-			if(link->sprite ==  2047)
-				link->sprite =  2111;
-			else if(link->sprite ==  2111)
-				link->sprite =  2047;
+			if(mario.sprite ==  2047)
+				mario.sprite =  2111; //mario right sprite
+			else if(mario.sprite ==  2111)
+				mario.sprite =  2047;
 
+			//checks if mario reaches the end of a platform and he falls until he falls on a platform
 			while(check_edges(x,y)){
 				for(i =0; i<40; i++){
 					y++;
@@ -1042,36 +560,34 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 								}
 								if(pos == 1){
 									pos = 0;
-									link->sprite =  2047;
+									mario.sprite =  2047;
 								}
-								if(link->sprite ==  2047)
-									link->sprite =  2111;
-								else if(link->sprite ==  2111)
-									link->sprite =  2047;
-								counter++;
+								if(mario.sprite ==  2047)
+									mario.sprite =  2111;
+								else if(mario.sprite ==  2111)
+									mario.sprite =  2047;
+
 					} else if ( d == DIR_RIGHT ) {
 								x++;
-								/*if ( counter % LINK_STEP == 0 ) {
-									last = (last == 3) ? 4 : 3;
-								}
-								lasting_attack = 0;*/
+
 								if(pos == 0){
 									pos = 1;
-									link->sprite =  1791;
+									mario.sprite =  INITIAL_MARIO_SPRITE;
 								}
-								if(link->sprite ==  1727)
-									link->sprite =  1791;
-								else if(link->sprite ==  1791)
-									link->sprite =  1727;
+								if(mario.sprite ==  1727)
+									mario.sprite =  INITIAL_MARIO_SPRITE;
+								else if(mario.sprite ==  INITIAL_MARIO_SPRITE)
+									mario.sprite =  1727;
 								counter++;
 					}
-					link->x = x;
-					link->y = y;
+					mario.x = x;
+					mario.y = y;
 
 					chhar_spawn( link, 0 );
 				}
 			}
 	} else if ( dir == DIR_RIGHT) {
+			//right edge of the screen in pixels
 			if(x==470){
 				x=470;
 			}else{
@@ -1080,13 +596,14 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 
 			if(pos == 0){
 				pos = 1;
-				link->sprite =  1791;
+				mario.sprite =  INITIAL_MARIO_SPRITE;
 			}
-			if(link->sprite ==  1727)
-				link->sprite =  1791;
-			else if(link->sprite ==  1791)
-				link->sprite =  1727;
+			if(mario.sprite ==  1727)//mario left sprite
+				mario.sprite =  INITIAL_MARIO_SPRITE; //mario right sprite
+			else if(mario.sprite ==  INITIAL_MARIO_SPRITE)
+				mario.sprite =  1727;
 
+			//checks if mario reaches the end of a platfrom, then he falls
 			while(check_edges(x,y)){
 					for(i =0; i<40; i++){
 						y++;
@@ -1118,12 +635,12 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 
 									if(pos == 1){
 										pos = 0;
-										link->sprite =  2047;
+										mario.sprite =  2047;
 									}
-									if(link->sprite ==  2047)
-										link->sprite =  2111;
-									else if(link->sprite ==  2111)
-										link->sprite =  2047;
+									if(mario.sprite ==  2047)
+										mario.sprite =  2111;
+									else if(mario.sprite ==  2111)
+										mario.sprite =  2047;
 									counter++;
 						} else if ( d == DIR_RIGHT ) {
 									if(x==470){
@@ -1133,383 +650,327 @@ bool link_move(characters * link, characters* sword, direction_t dir) {
 									}
 									if(pos == 0){
 										pos = 1;
-										link->sprite =  1791;
+										mario.sprite =  INITIAL_MARIO_SPRITE;
 									}
-									if(link->sprite ==  1727)
-										link->sprite =  1791;
-									else if(link->sprite ==  1791)
-										link->sprite =  1727;
+									if(mario.sprite ==  1727)
+										mario.sprite =  INITIAL_MARIO_SPRITE;
+									else if(mario.sprite ==  INITIAL_MARIO_SPRITE)
+										mario.sprite =  1727;
 									counter++;
 						}
-						link->x = x;
-						link->y = y;
+						mario.x = x;
+						mario.y = y;
 
 						chhar_spawn( link, 0 );
 					}
 				}
+	//checks if mario reaches a ladder
 	} else if ( dir == DIR_UP && !acceptable_position_up(x,y)) {
-			for(i =0; i<16; i++){
-				y--;
+			jump();
+			x = mario.x;
+			y = mario.y;
 
-				for(j = 0; j<100000; j++);
-				enemy_move(&flame1, 1);
-				enemy_move(&flame2, 2);
-				enemy_move(&flame3, 3);
-				enemy_move(&flame4, 4);
-				monkey_move(&main_enemy);
-
-
-
-
-				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-
-				direction_t d = DIR_STILL;
-				if ( BTN_LEFT(buttons) ) {
-					d = DIR_LEFT;
-				} else if ( BTN_RIGHT(buttons) ) {
-					d = DIR_RIGHT;
-				} else if ( BTN_UP(buttons) ) {
-					d = DIR_UP;
-				} else if ( BTN_DOWN(buttons) ) {
-					d = DIR_DOWN;
-				} else if ( BTN_SHOOT(buttons) ) {
-					d = DIR_ATTACK;
-				}
-				if ( d == DIR_LEFT ) {
-							x--;
-							/*if ( counter % LINK_STEP == 0 ) {
-								last = ( last == 16 ) ? 17 : 16;
-							}
-							lasting_attack = 0;*/
-							if(pos == 1){
-								pos = 0;
-								link->sprite =  2047;
-							}
-							if(link->sprite ==  2047)
-								link->sprite =  2111;
-							else if(link->sprite ==  2111)
-								link->sprite =  2047;
-							counter++;
-				} else if ( d == DIR_RIGHT ) {
-							x++;
-							/*if ( counter % LINK_STEP == 0 ) {
-								last = (last == 3) ? 4 : 3;
-							}
-							lasting_attack = 0;*/
-							if(pos == 0){
-								pos = 1;
-								link->sprite =  1791;
-							}
-							if(link->sprite ==  1727)
-								link->sprite =  1791;
-							else if(link->sprite ==  1791)
-								link->sprite =  1727;
-							counter++;
-				}
-
-				for(j = 0; j<100000; j++);
-				enemy_move(&flame1, 1);
-				enemy_move(&flame2, 2);
-				enemy_move(&flame3, 3);
-				enemy_move(&flame4, 4);
-				monkey_move(&main_enemy);
-				link->x = x;
-				link->y = y;
-
-				if(collision(&link, flame1, flame2, flame3, flame4)){
-					mario.x = INITIAL_MARIO_POSITION_X;
-					mario.y = INITIAL_MARIO_POSITION_Y;
-					mario.dir = DIR_LEFT;
-					mario.sprite = 1791;
-					pos = 1;
-				}
-
-
-
-				link->x = x;
-				link->y = y;
-
-
-				chhar_spawn( link, 0 );
-			}
-
-			for(i =0; i<16; i++){
-				y++;
-				if(tramboline_check(x,y)){
-					for(k=0; k<48; k++){
-						y--;
-						mario.x = x;
-						mario.y = y;
-						chhar_spawn( &mario, 0 );
-
-						for(j = 0; j<25000; j++);
-						move++;
-						if(move == 3){
-							move = 0;
-							enemy_move(&flame1, 1);
-							enemy_move(&flame2, 2);
-							enemy_move(&flame3, 3);
-							enemy_move(&flame4, 4);
-							monkey_move(&main_enemy);
-						}
-						if(collision(&link, flame1, flame2, flame3, flame4)){
-							mario.x = INITIAL_MARIO_POSITION_X;
-							mario.y = INITIAL_MARIO_POSITION_Y;
-							mario.dir = DIR_LEFT;
-							mario.sprite = 1791;
-							pos = 1;
-						}
-					}
-
-					for(k=0; k<16; k++){
-						y++;
-						mario.x = x;
-						mario.y = y;
-						chhar_spawn( &mario, 0 );
-						for(j = 0; j<100000; j++);
-						enemy_move(&flame1, 1);
-						enemy_move(&flame2, 2);
-						enemy_move(&flame3, 3);
-						enemy_move(&flame4, 4);
-						monkey_move(&main_enemy);
-					}
-
-					return;
-				}
-				for(j = 0; j<100000; j++);
-				enemy_move(&flame1, 1);
-				enemy_move(&flame2, 2);
-				enemy_move(&flame3, 3);
-				enemy_move(&flame4, 4);
-				monkey_move(&main_enemy);
-				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-
-
-
-
-
-
-				direction_t d = DIR_STILL;
-				if ( BTN_LEFT(buttons) ) {
-					d = DIR_LEFT;
-				} else if ( BTN_RIGHT(buttons) ) {
-					d = DIR_RIGHT;
-				} else if ( BTN_UP(buttons) ) {
-					d = DIR_UP;
-				} else if ( BTN_DOWN(buttons) ) {
-					d = DIR_DOWN;
-				} else if ( BTN_SHOOT(buttons) ) {
-					d = DIR_ATTACK;
-				}
-				if ( d == DIR_LEFT ) {
-							x--;
-							/*if ( counter % LINK_STEP == 0 ) {
-								last = ( last == 16 ) ? 17 : 16;
-							}
-							lasting_attack = 0;*/
-							if(pos == 1){
-								pos = 0;
-								link->sprite =  2047;
-							}
-							if(link->sprite ==  2047)
-								link->sprite =  2111;
-							else if(link->sprite ==  2111)
-								link->sprite =  2047;
-							counter++;
-				} else if ( d == DIR_RIGHT ) {
-							x++;
-							/*if ( counter % LINK_STEP == 0 ) {
-								last = (last == 3) ? 4 : 3;
-							}
-							lasting_attack = 0;*/
-							if(pos == 0){
-								pos = 1;
-								link->sprite =  1791;
-							}
-							if(link->sprite ==  1727)
-								link->sprite =  1791;
-							else if(link->sprite ==  1791)
-								link->sprite =  1727;
-							counter++;
-				}
-
-				for(j = 0; j<100000; j++);
-				enemy_move(&flame1, 1);
-				enemy_move(&flame2, 2);
-				enemy_move(&flame3, 3);
-				enemy_move(&flame4, 4);
-				monkey_move(&main_enemy);
-				mario.x = x;
-				mario.y = y;
-
-				if(collision(&link, flame1, flame2, flame3, flame4)){
-									mario.x = INITIAL_MARIO_POSITION_X;
-									mario.y = INITIAL_MARIO_POSITION_Y;
-									mario.dir = DIR_LEFT;
-									mario.sprite = 1791;
-									pos = 1;
-				}
-				/*if(tramboline_check()){
-					mario.x = INITIAL_MARIO_POSITION_X;
-					mario.y = 134;
-					for(k=0; k<32; k++){
-						y--;
-						link->x = x;
-						link->y = y;
-						chhar_spawn( link, 0 );
-						for(j = 0; j<25000; j++);
-						move++;
-						if(move == 3){
-							move = 0;
-							enemy_move(&flame1, 1);
-							enemy_move(&flame2, 2);
-							enemy_move(&flame3, 3);
-							enemy_move(&flame4, 4);
-							monkey_move(&main_enemy);
-						}
-					}
-
-					for(k=0; k<16; k++){
-						y++;
-						link->x = x;
-						link->y = y;
-						chhar_spawn( link, 0 );
-						for(j = 0; j<100000; j++);
-						enemy_move(&flame1, 1);
-						enemy_move(&flame2, 2);
-						enemy_move(&flame3, 3);
-						enemy_move(&flame4, 4);
-						monkey_move(&main_enemy);
-					}
-					chhar_spawn( &mario, 0 );
-					return;
-				}*/
-
-				link->x = x;
-				link->y = y;
-
-
-
-				chhar_spawn( link, 0 );
-			}
-
-			while(check_edges(x,y)){
-				for(i =0; i<40; i++){
-					y++;
-					for(j = 0; j<100000; j++);
-					buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-
-					enemy_move(&flame1, 1);
-					enemy_move(&flame2, 2);
-					enemy_move(&flame3, 3);
-					enemy_move(&flame4, 4);
-					monkey_move(&main_enemy);
-
-
-					direction_t d = DIR_STILL;
-					if ( BTN_LEFT(buttons) ) {
-						d = DIR_LEFT;
-					} else if ( BTN_RIGHT(buttons) ) {
-						d = DIR_RIGHT;
-					} else if ( BTN_UP(buttons) ) {
-						d = DIR_UP;
-					} else if ( BTN_DOWN(buttons) ) {
-						d = DIR_DOWN;
-					} else if ( BTN_SHOOT(buttons) ) {
-						d = DIR_ATTACK;
-					}
-					if ( d == DIR_LEFT ) {
-								x--;
-
-								if(pos == 1){
-									pos = 0;
-									link->sprite =  2047;
-								}
-								if(link->sprite ==  2047)
-									link->sprite =  2111;
-								else if(link->sprite ==  2111)
-									link->sprite =  2047;
-								counter++;
-					} else if ( d == DIR_RIGHT ) {
-								if(x==470){
-									x=470;
-								}else{
-									x++;
-								}
-								if(pos == 0){
-									pos = 1;
-									link->sprite =  1791;
-								}
-								if(link->sprite ==  1727)
-									link->sprite =  1791;
-								else if(link->sprite ==  1791)
-									link->sprite =  1727;
-								counter++;
-					}
-					link->x = x;
-					link->y = y;
-
-					chhar_spawn( link, 0 );
-				}
-			}
-
-			/*if ( counter % LINK_STEP == 0 ) {
-				last = (last == 2) ? 15 : 2;
-			}
-			lasting_attack = 0;*/
-
-			/*link->sprite = 1791;
-			link->sprite =  2047;*/
-			//counter++;
 	} else if (  dir == DIR_UP && acceptable_position_up(x,y) ) {
 			y--;
 			on_ladder = true;
 			ladder_count++;
-			link->sprite =  2239;
+			mario.sprite =  2239;
 	}else if(dir == DIR_DOWN && acceptable_position_down(x,y) ){
 		y++;
 		ladder_count--;
 		on_ladder = true;
-		link->sprite =  2239;
+		mario.sprite =  2239;
 	}
-	link->x = x;
-	link->y = y;
+	mario.x = x;
+	mario.y = y;
 
 	chhar_spawn( link, 0 );
 
 	for(i =0; i<100000; i++);
 
-
+	return true;
 }
 
-bool isDoor(int x, int y) {
-    /*      calculate the index of the position in the frame     */
-	x = x + 10 - SIDE_PADDING*SPRITE_SIZE;
-	y = y + 14 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
-    x /= SPRITE_SIZE;
-    y /= SPRITE_SIZE;
-    
-    /*      check if link reached the door      */
-    if (  frame[y * FRAME_WIDTH + x] == SPRITES[10] ) {
-        door_x = x;
-    	door_y = y;
-        return true;
-    }
+void tramboline_simulation(){
+	static int move = 0;
+	int k,y,x,j;
+	x = mario.x;
+	y = mario.y;
+	for(k=0; k<48; k++){
+		y--;
+		mario.x = x;
+		mario.y = y;
+		chhar_spawn( &mario, 0 );
 
-    return false;
-}
+		for(j = 0; j<25000; j++);
+		move++;
 
-bool tile_walkable(int index, unsigned short* map_frame) {
-	int i;
-
-	for ( i = 0; i < 20; i++) {
-        /*      check if the current sprite is walkable     */
-		if (  map_frame[index] == SPRITES[walkables[i]] ){ 
-			return true;
+		//mario is jumping faster than the enemies are moving
+		if(move == 3){
+			move = 0;
+			enemy_move(&flame1, 1);
+			enemy_move(&flame2, 2);
+			enemy_move(&flame3, 3);
+			enemy_move(&flame4, 4);
+			monkey_move(&main_enemy);
+		}
+		if(collision(&mario, flame1, flame2, flame3, flame4)){
+			mario.x = INITIAL_MARIO_POSITION_X;
+			mario.y = INITIAL_MARIO_POSITION_Y;
+			mario.dir = DIR_LEFT;
+			mario.sprite = INITIAL_MARIO_SPRITE;
+			pos = 1;
 		}
 	}
 
-	return false;
+	//mario falls slower than he goes up, to simulate a tramboline
+	for(k=0; k<16; k++){
+		y++;
+		mario.x = x;
+		mario.y = y;
+		chhar_spawn( &mario, 0 );
+		for(j = 0; j<100000; j++);
+		enemy_move(&flame1, 1);
+		enemy_move(&flame2, 2);
+		enemy_move(&flame3, 3);
+		enemy_move(&flame4, 4);
+		monkey_move(&main_enemy);
+	}
+}
+void jump(){
+	unsigned int buttons;
+	int i,j,x,y;
+	x = mario.x;
+	y = mario.y;
+
+	//Mario is going up until his head hits the platform above him
+	for(i =0; i<16; i++){
+		y--;
+
+		for(j = 0; j<100000; j++);
+		enemy_move(&flame1, 1);
+		enemy_move(&flame2, 2);
+		enemy_move(&flame3, 3);
+		enemy_move(&flame4, 4);
+		monkey_move(&main_enemy);
+
+
+
+
+		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
+
+		direction_t d = DIR_STILL;
+		if ( BTN_LEFT(buttons) ) {
+			d = DIR_LEFT;
+		} else if ( BTN_RIGHT(buttons) ) {
+			d = DIR_RIGHT;
+		} else if ( BTN_UP(buttons) ) {
+			d = DIR_UP;
+		} else if ( BTN_DOWN(buttons) ) {
+			d = DIR_DOWN;
+		} else if ( BTN_SHOOT(buttons) ) {
+			d = DIR_ATTACK;
+		}
+
+		//when he is going up he can move left and right
+		if ( d == DIR_LEFT ) {
+					x--;
+
+					if(pos == 1){
+						pos = 0;
+						mario.sprite =  2047;
+					}
+					if(mario.sprite ==  2047)
+						mario.sprite =  2111;
+					else if(mario.sprite ==  2111)
+						mario.sprite =  2047;
+					counter++;
+		} else if ( d == DIR_RIGHT ) {
+					x++;
+					if(pos == 0){
+						pos = 1;
+						mario.sprite =  INITIAL_MARIO_SPRITE;
+					}
+					if(mario.sprite ==  1727)
+						mario.sprite =  INITIAL_MARIO_SPRITE;
+					else if(mario.sprite ==  INITIAL_MARIO_SPRITE)
+						mario.sprite =  1727;
+					counter++;
+		}
+
+		for(j = 0; j<100000; j++);
+		enemy_move(&flame1, 1);
+		enemy_move(&flame2, 2);
+		enemy_move(&flame3, 3);
+		enemy_move(&flame4, 4);
+		monkey_move(&main_enemy);
+		mario.x = x;
+		mario.y = y;
+
+		if(collision(&mario, flame1, flame2, flame3, flame4)){
+			mario.x = INITIAL_MARIO_POSITION_X;
+			mario.y = INITIAL_MARIO_POSITION_Y;
+			mario.dir = DIR_LEFT;
+			mario.sprite = INITIAL_MARIO_SPRITE;
+			pos = 1;
+		}
+
+
+
+		mario.x = x;
+		mario.y = y;
+
+
+		chhar_spawn( &mario, 0 );
+	}
+
+	//mario is falling
+	for(i =0; i<16; i++){
+		y++;
+
+		mario.y = y;
+		if(tramboline_check(x,y)){
+			tramboline_simulation();
+			return;
+		}
+		for(j = 0; j<100000; j++);
+		enemy_move(&flame1, 1);
+		enemy_move(&flame2, 2);
+		enemy_move(&flame3, 3);
+		enemy_move(&flame4, 4);
+		monkey_move(&main_enemy);
+		buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
+
+
+
+
+
+
+		direction_t d = DIR_STILL;
+		if ( BTN_LEFT(buttons) ) {
+			d = DIR_LEFT;
+		} else if ( BTN_RIGHT(buttons) ) {
+			d = DIR_RIGHT;
+		} else if ( BTN_UP(buttons) ) {
+			d = DIR_UP;
+		} else if ( BTN_DOWN(buttons) ) {
+			d = DIR_DOWN;
+		} else if ( BTN_SHOOT(buttons) ) {
+			d = DIR_ATTACK;
+		}
+		//while falling you can still move left and right
+		if ( d == DIR_LEFT ) {
+					x--;
+
+					if(pos == 1){
+						pos = 0;
+						mario.sprite =  2047;
+					}
+					if(mario.sprite ==  2047)
+						mario.sprite =  2111;
+					else if(mario.sprite ==  2111)
+						mario.sprite =  2047;
+					counter++;
+		} else if ( d == DIR_RIGHT ) {
+					x++;
+
+					if(pos == 0){
+						pos = 1;
+						mario.sprite =  INITIAL_MARIO_SPRITE;
+					}
+					if(mario.sprite ==  1727)
+						mario.sprite =  INITIAL_MARIO_SPRITE;
+					else if(mario.sprite ==  INITIAL_MARIO_SPRITE)
+						mario.sprite =  1727;
+					counter++;
+		}
+
+		for(j = 0; j<100000; j++);
+		enemy_move(&flame1, 1);
+		enemy_move(&flame2, 2);
+		enemy_move(&flame3, 3);
+		enemy_move(&flame4, 4);
+		monkey_move(&main_enemy);
+		mario.x = x;
+		mario.y = y;
+
+		if(collision(&mario, flame1, flame2, flame3, flame4)){
+							mario.x = INITIAL_MARIO_POSITION_X;
+							mario.y = INITIAL_MARIO_POSITION_Y;
+							mario.dir = DIR_LEFT;
+							mario.sprite = INITIAL_MARIO_SPRITE;
+							pos = 1;
+		}
+
+
+		mario.x = x;
+		mario.y = y;
+
+
+
+		chhar_spawn( &mario, 0 );
+	}
+
+	//if mario lands on a hole, he falls until he reaches a platform
+	while(check_edges(mario.x,mario.y)){
+		for(i =0; i<40; i++){
+			y++;
+			for(j = 0; j<100000; j++);
+			buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
+
+			enemy_move(&flame1, 1);
+			enemy_move(&flame2, 2);
+			enemy_move(&flame3, 3);
+			enemy_move(&flame4, 4);
+			monkey_move(&main_enemy);
+
+
+			direction_t d = DIR_STILL;
+			if ( BTN_LEFT(buttons) ) {
+				d = DIR_LEFT;
+			} else if ( BTN_RIGHT(buttons) ) {
+				d = DIR_RIGHT;
+			} else if ( BTN_UP(buttons) ) {
+				d = DIR_UP;
+			} else if ( BTN_DOWN(buttons) ) {
+				d = DIR_DOWN;
+			} else if ( BTN_SHOOT(buttons) ) {
+				d = DIR_ATTACK;
+			}
+			if ( d == DIR_LEFT ) {
+						x--;
+
+						if(pos == 1){
+							pos = 0;
+							mario.sprite =  2047;
+						}
+						if(mario.sprite ==  2047)
+							mario.sprite =  2111;
+						else if(mario.sprite ==  2111)
+							mario.sprite =  2047;
+						counter++;
+			} else if ( d == DIR_RIGHT ) {
+						if(x==470){
+							x=470;
+						}else{
+							x++;
+						}
+						if(pos == 0){
+							pos = 1;
+							mario.sprite =  INITIAL_MARIO_SPRITE;
+						}
+						if(mario.sprite ==  1727)
+							mario.sprite =  INITIAL_MARIO_SPRITE;
+						else if(mario.sprite ==  INITIAL_MARIO_SPRITE)
+							mario.sprite =  1727;
+						counter++;
+			}
+			mario.x = x;
+			mario.y = y;
+
+			chhar_spawn(&mario, 0 );
+		}
+	}
 }
 
 int obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink) {
@@ -1518,98 +979,26 @@ int obstackles_detection(int x, int y, unsigned short* f, int dir, bool isLink) 
 
 	for(i=0; i<LADDERS_NUM; i++){
 		if(x==ladders_up[i][0] && y == ladders_up[i][1]){
-			return 0; //donji deo merdevina
+			return 0; //the obstackle is a lower part of a ladder
 		}else if(x == ladders_down[i][0] && y == ladders_down[i][1]){
-			return 1; //gornji deo merdevina
+			return 1; //the obstackle is an upper part of a ladder
 		}
 	}
 
 	for(i=0; i<24; i++){
 
 		if(x==end_of_block[i][0] && y==end_of_block[i][1] && i<12){
-			return 2; //leva ivica
+			return 2; //left edge
 		}
 		else if(x==end_of_block[i][0] && y==end_of_block[i][1] && i>=12){
-			return 3; //desna ivica
+			return 3; //right edge
 		}
 	}
 
 	return 4;
 
-
-
-
-	for(i=0; i<LADDERS_NUM; i++){
-		if(x==ladders_up[i][0] && y == ladders_up[i][1]){
-			return 0; //donji deo merdevina
-		}else if(x == ladders_down[i][0] && y == ladders_down[i][1]){
-			return 1; //gornji deo merdevina
-		}
-	}
-
-	for(i=0; i<24; i++){
-
-		if(x==end_of_block[i][0] && y==end_of_block[i][1] && i<12){
-			return 2; //leva ivica
-		}
-		else if(x==end_of_block[i][0] && y==end_of_block[i][1] && i>=12){
-			return 3; //desna ivica
-		}
-	}
-
-	return 4;
-
-
-
-
-	/*if (isLink) {
-		x_left = x + 3 - SIDE_PADDING * SPRITE_SIZE;
-		x_right = x + 12 - SIDE_PADDING * SPRITE_SIZE;
-		y_top = y + 11 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
-		y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
-	} else {
-		x_left = x + 1 - SIDE_PADDING * SPRITE_SIZE;
-		x_right = x + 15 - SIDE_PADDING * SPRITE_SIZE;
-		y_top = y + 1 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
-		y_bot = y + 15 - (VERTICAL_PADDING + HEADER_HEIGHT) * SPRITE_SIZE;
-
-	}
-
-	x_left /= SPRITE_SIZE;
-	x_right /= SPRITE_SIZE;
-	y_top /= SPRITE_SIZE;
-	y_bot /= SPRITE_SIZE;
-
-	if ( dir == DIR_UP ) {
-		return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_top * FRAME_WIDTH, f) );
-	} else if ( dir == DIR_DOWN ) {
-		return !( tile_walkable(x_left + y_bot * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
-	} else if ( dir == DIR_LEFT ) {
-		return !( tile_walkable(x_left + y_top * FRAME_WIDTH, f) && tile_walkable(x_left + y_bot * FRAME_WIDTH, f) );
-	} else if ( dir == DIR_RIGHT ) {
-		return !( tile_walkable(x_right + y_top * FRAME_WIDTH, f) && tile_walkable(x_right + y_bot * FRAME_WIDTH, f) );
-	}
-
-	return false;*/
 }
-
-void set_fire() {
-	static unsigned long addr;
-	unsigned int pos = FRAME_BASE_ADDRESS + 5*SCR_WIDTH + 4;
-
-	if(fire1 == FIRE_0) {
-		fire1 = FIRE_1;
-		fire2 = FIRE_0;
-	} else {
-		fire1 = FIRE_0;
-		fire2 = FIRE_1;
-	}
-
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * pos;
-	Xil_Out32(addr,	fire1);
-	addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (pos + 7);
-	Xil_Out32(addr,	fire2);
-}
+//checks if Mario hits any of the enemies
 bool collision(characters * mario, characters flame1, characters flame2, characters flame3, characters flame4){
 
 
@@ -1659,19 +1048,18 @@ bool collision(characters * mario, characters flame1, characters flame2, charact
 }
 
 void monkey_move(monkey * main_enemy){
-	int x[6], y[6];
 	int i;
 	static int move = 0;
 
-	if(main_enemy->dir == DIR_RIGHT && main_enemy->x[5] < 400){
+	if(main_enemy->dir == DIR_RIGHT && main_enemy->x[5] < 400){//the monkey goes right until his right leg reaches the right edge
 		for(i=0; i<6; i++){
 			++main_enemy->x[i];
 		}
-	}else if(main_enemy->dir == DIR_LEFT && main_enemy->x[0] > 224){
+	}else if(main_enemy->dir == DIR_LEFT && main_enemy->x[0] > 224){//and goes left until his left leg reaches the left edge
 		for(i=0; i<6; i++){
 			--main_enemy->x[i];
 		}
-	}else if(main_enemy->dir == DIR_RIGHT && main_enemy->x[5] == 400){
+	}else if(main_enemy->dir == DIR_RIGHT && main_enemy->x[5] == 400){//when he reaches an edge, he changes direction
 		main_enemy->dir = DIR_LEFT;
 	}else{
 		main_enemy->dir = DIR_RIGHT;
@@ -1679,7 +1067,7 @@ void monkey_move(monkey * main_enemy){
 
 
 
-
+	//the monkey changes sprites to simulate moving
 	if(main_enemy->sprites[0] == MONKEY_RIGHT_LEG_SPRITES[0] && move == 14){
 		for(i=0; i<6; i++){
 			main_enemy->sprites[i] = MONKEY_LEFT_LEG_SPRITES[i];
@@ -1707,8 +1095,77 @@ bool tramboline_check(int x, int y){
 	}
 	return false;
 }
-void battle_city() {
+
+void check_victory(){
+	unsigned int buttons;
 	long int addr;
+	if(mario.y == 128 && mario.x <= 304){
+
+		//draws a heart between Mario and the princess
+		overworld[ 0 * FRAME_WIDTH + 8] = 2559;
+
+
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 8 + SIDE_PADDING);
+		Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 8]);
+
+		while(1){
+			buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
+			if ( BTN_SHOOT(buttons) ) {
+				break;
+			}
+
+		}
+		mario.x = INITIAL_MARIO_POSITION_X;
+		mario.y = INITIAL_MARIO_POSITION_Y;
+		mario.sprite = INITIAL_MARIO_SPRITE;
+		mario.dir = DIR_RIGHT;
+		pos = 1;
+		on_ladder = false;
+		ladder_count = 0;
+
+		//deletes the heart between Mario and the princess
+		overworld[ 0 * FRAME_WIDTH + 8] = SPRITES[6];
+
+
+		addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 8 + SIDE_PADDING);
+		Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 8]);
+		mario_lives = 3;
+
+	}
+}
+void check_remaining_lives(){
+	unsigned int buttons;
+	if(mario_lives == 0){
+		while(1){
+			buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
+			if ( BTN_SHOOT(buttons) ) {
+				break;
+			}
+		}
+		mario.x = INITIAL_MARIO_POSITION_X;
+		mario.y = INITIAL_MARIO_POSITION_Y;
+		mario.sprite = INITIAL_MARIO_SPRITE;
+		mario.dir = DIR_LEFT;
+		pos = 1;
+		on_ladder = false;
+		ladder_count = 0;
+		mario_lives = 3;
+
+	}
+}
+
+void check_collision(){
+	if(collision(&mario, flame1, flame2, flame3, flame4)){
+		mario.x = INITIAL_MARIO_POSITION_X;
+		mario.y = INITIAL_MARIO_POSITION_Y;
+		mario.sprite = INITIAL_MARIO_SPRITE;
+		mario.dir = DIR_LEFT;
+		pos = 1;
+		on_ladder = false;
+		ladder_count = 0;
+	}
+}
+void battle_city() {
 	unsigned int buttons;
     /*      initialization      */
 
@@ -1718,12 +1175,12 @@ void battle_city() {
 
 	mario.x = INITIAL_MARIO_POSITION_X;
 	mario.y = INITIAL_MARIO_POSITION_Y;
-	mario.sprite = 1791;
+	mario.sprite = INITIAL_MARIO_SPRITE;
 
 	chhar_spawn(&mario, 0);
 	chhar_spawn(&flame1, 0);
 
-	monkey_spawn(main_enemy, 0);
+
 
 	while (1) {
 		set_header();
@@ -1750,61 +1207,12 @@ void battle_city() {
 
 
 		monkey_move(&main_enemy);
-		link_move(&mario, &sword, d);
+		link_move(&mario, d);
 
-		if(collision(&mario, flame1, flame2, flame3, flame4)){
-			mario.x = INITIAL_MARIO_POSITION_X;
-			mario.y = INITIAL_MARIO_POSITION_Y;
-			mario.sprite = 1791;
-			mario.dir = DIR_LEFT;
-			pos = 1;
-			on_ladder = false;
-			ladder_count = 0;
-		}
+		check_collision();
+		check_remaining_lives();
+		check_victory();
 
-
-		if(mario_lives == 0){
-			while(1){
-				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-				if ( BTN_SHOOT(buttons) ) {
-					break;
-				}
-			}
-			mario_lives = 3;
-
-		}
-
-		if(mario.y == 128 && mario.x <= 304){
-
-			overworld[ 0 * FRAME_WIDTH + 8] = 2559;
-
-
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 8 + SIDE_PADDING);
-			Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 8]);
-
-			while(1){
-				buttons = XIo_In32( XPAR_IO_PERIPH_BASEADDR );
-				if ( BTN_SHOOT(buttons) ) {
-					break;
-				}
-
-			}
-			mario.x = INITIAL_MARIO_POSITION_X;
-			mario.y = INITIAL_MARIO_POSITION_Y;
-			mario.sprite = 1791;
-			mario.dir = DIR_LEFT;
-			pos = 1;
-			on_ladder = false;
-			ladder_count = 0;
-
-			overworld[ 0 * FRAME_WIDTH + 8] = SPRITES[6];
-
-
-			addr = XPAR_BATTLE_CITY_PERIPH_0_BASEADDR + 4 * (SCREEN_BASE_ADDRESS + (0+VERTICAL_PADDING)* ( SIDE_PADDING + FRAME_WIDTH + SIDE_PADDING ) + 8 + SIDE_PADDING);
-			Xil_Out32( addr, overworld[0 * FRAME_WIDTH + 8]);
-			mario_lives = 3;
-
-		}
 
 
 
